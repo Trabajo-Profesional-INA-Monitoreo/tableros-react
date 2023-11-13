@@ -1,20 +1,16 @@
-
-import './App.css';
-import { ReactKeycloakProvider } from '@react-keycloak/web'
-
-import keycloak from './keycloak'
-
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Layout from "./components/layout/layout";
+import { routes } from "./routes";
 
 function App() {
-
   return (
-    <ReactKeycloakProvider authClient={keycloak}>
-    <div className="App">
-      <header className="App-header">
-        <h1>Hello</h1>
-      </header>
-    </div>
-    </ReactKeycloakProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          {routes}
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
