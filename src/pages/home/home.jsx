@@ -1,6 +1,6 @@
 import React from 'react';
-import { CircularProgress, Box, Typography } from '@mui/material';
-
+import { Box, CircularProgress} from '@mui/material';
+import CircularProgressWithLabel from '../../components/circularProgressWithLabel/circularProgressWithLabel';
 import { useEffect, useState } from 'react';
 
 
@@ -15,29 +15,26 @@ export const Home = () => {
             <h1> Tablero de inputs </h1>
 
             <h2> Metricas </h2>
+            <Box sx={{ display:"flex", flexDirection: 'row', justifyContent:"space-around", alignContent:"center", alignItems:"center"}}>
+                <Box>
 
-            <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-                <CircularProgress variant="determinate" value={60} size={200} />
-
-                <Box
-                    sx={{
-                    top: 0,
-                    left: 0,
-                    bottom: 0,
-                    right: 0,
-                    position: 'absolute',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    }}
-                >
-                    <Typography
-                    variant="caption"
-                    component="div"
-                    color="text.secondary"
-                    >series no tuvieron retrasos</Typography>
+                <h3>Actualizaciones</h3>
+                <CircularProgressWithLabel text="series no tuvieron retrasos" percentage={90} color="success"/>
                 </Box>
+                <Box>
+
+                <h3>Datos Nulos</h3>
+                <CircularProgressWithLabel text="series no tuvieron datos nulos" percentage={80} color="warning"/>
+                </Box>
+                <Box>
+
+                <h3>Curaciones</h3>
+                <CircularProgressWithLabel text="series fueron curadas correctamente" percentage={70} color="error"/>
+                </Box>
+
             </Box>
+            
+
         </div>
         : <CircularProgress 
             style={{
