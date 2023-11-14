@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, CircularProgress} from '@mui/material';
 import CircularProgressWithLabel from '../../components/circularProgressWithLabel/circularProgressWithLabel';
 import { useEffect, useState } from 'react';
+import Line from '../../components/line/line';
 
 
 export const Home = () => {
@@ -34,6 +35,7 @@ export const Home = () => {
 
             </Box>
             
+            <Line/>
 
         </div>
         : <CircularProgress 
