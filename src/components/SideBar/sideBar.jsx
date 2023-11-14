@@ -1,7 +1,6 @@
 import { Avatar, Drawer, List, Stack, Toolbar } from "@mui/material";
 import appRoutes from "../../routes/ReactRoutes";
 import SidebarItem from "./sideBarItem";
-import sidebarStyle from "./sideBarStyle"
 
 
 const Sidebar = () => {
@@ -15,19 +14,25 @@ const Sidebar = () => {
                 width: "300px",
                 boxSizing: "border-box",
                 borderRight: "0px",
-                backgroundColor: "gray",
-                color: "white",
+                backgroundColor: "white",
+                color: "#1A1F36",
             }}
         }
+        
         >
         <List disablePadding>
             <Toolbar sx={{ marginBottom: "20px" }}>
             <Stack
                 sx={{ width: "100%" }}
                 direction="row"
-                justifyContent="center"
+                justifyContent="left"
             >
                 <Avatar/>
+                <text
+                    style={{
+                        marginLeft: "30px",
+                        }}
+                > user </text>
             </Stack>
             </Toolbar>
             {appRoutes.map((route, index) => (

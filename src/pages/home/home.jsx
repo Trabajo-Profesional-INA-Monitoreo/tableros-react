@@ -11,7 +11,7 @@ export const Home = () => {
     let loading= true;
     return (    
         loading ? 
-        <h1> HOLA </h1>
+        <h1> Tablero de inputs </h1>
         : <CircularProgress 
             style={{
                 display: 'flex',

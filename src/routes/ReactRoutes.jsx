@@ -5,12 +5,12 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 const appRoutes = [
 		{
-			path: "/home",
+			path: "/inicio",
 			index: true,
 			element: <Home />,
-			state: "home",
+			state: "inicio",
 			sidebarProps: {
-				displayText: "Home",
+				displayText: "Inicio",
 				icon: <HomeIcon />
 			}
 		},

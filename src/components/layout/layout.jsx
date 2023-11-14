@@ -10,8 +10,10 @@ const Layout = () => {
             component="nav"
             sx={{
             width: "300px",
-            flexShrink: 0
+            flexShrink: 0,
             }}
+            borderRight={0.5}
+            borderColor="#E3E8EE"
         >
             <Sidebar />
         </Box>

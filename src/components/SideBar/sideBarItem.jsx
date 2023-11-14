@@ -9,16 +9,9 @@ const SidebarItem = ({ item }) => {
       <ListItemButton
         component={Link}
         to={item.path}
-        sx={{
-          "&: hover": {
-            backgroundColor: "blue"
-          },
-          paddingY: "12px",
-          paddingX: "24px"
-        }}
       >
         <ListItemIcon sx={{
-          color:  "white"
+          color:  "#1A1F36"
         }}>
           {item.sidebarProps.icon && item.sidebarProps.icon}
         </ListItemIcon>
