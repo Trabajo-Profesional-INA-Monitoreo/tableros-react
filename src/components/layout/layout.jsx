@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { Box, Toolbar } from "@mui/material";
+import { Box } from "@mui/material";
 import Sidebar from "../SideBar/sideBar";
 
 
@@ -27,7 +27,6 @@ const Layout = () => {
             backgroundColor: "white",
             }}
         >
-            <Toolbar />
             <Outlet />
         </Box>
         </Box>
