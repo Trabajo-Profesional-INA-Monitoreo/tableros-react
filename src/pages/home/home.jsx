@@ -1,15 +1,19 @@
 import React from 'react';
-import { Box, CircularProgress} from '@mui/material';
+import { Box, CircularProgress, Button} from '@mui/material';
 import CircularProgressWithLabel from '../../components/circularProgressWithLabel/circularProgressWithLabel';
 import { useEffect, useState } from 'react';
 import Line from '../../components/line/line';
+import { HomePresenter } from '../../presenters/homePresenter';
 
 
 export const Home = () => {
 
+    const presenter = new HomePresenter();
     useEffect( () => {
     }, []);
     let loading= true;
+
+
     return (    
         loading ? (
         <div>
@@ -58,6 +62,16 @@ export const Home = () => {
                 </Box>
 
             </Box>
+
+            <Line/>
+            
+            <h2> Informacion General </h2>
+            <box style={{display:"flex", justifyContent: "space-around" }}>
+                <Button variant="outlined">{presenter.getCantSeries() + " Series"}</Button>
+                <Button variant="outlined">{presenter.getCantEstaciones() + " Estaciones"}</Button>
+                <Button variant="outlined">{presenter.getCantRedes() + " Redes"}</Button>
+            </box>
+
 
         </div>
         ) : <CircularProgress 
