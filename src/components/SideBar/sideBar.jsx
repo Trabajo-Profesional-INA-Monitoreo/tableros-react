@@ -1,7 +1,7 @@
 import { Avatar, Drawer, List, Stack, Toolbar } from "@mui/material";
 import appRoutes from "../../routes/ReactRoutes";
 import SidebarItem from "./sideBarItem";
-
+import { UserService } from "../../services/userService";
 
 const Sidebar = () => {
     return (
@@ -26,13 +26,14 @@ const Sidebar = () => {
                 sx={{ width: "100%" }}
                 direction="row"
                 justifyContent="left"
+                onClick ={ () => {UserService.doLogout()}} // TODO
             >
                 <Avatar/>
                 <text
                     style={{
                         marginLeft: "30px",
                         }}
-                > user </text>
+                > {UserService.getUsername()} </text>
             </Stack>
             </Toolbar>
             {appRoutes.map((route, index) => (
