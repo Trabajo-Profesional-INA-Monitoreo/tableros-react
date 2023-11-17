@@ -1,7 +1,11 @@
 import { Home } from '../pages/home/home';
-import HomeIcon from '@mui/icons-material/Home';
 import { Configuraciones } from '../pages/Configuraciones/configuraciones';
+import { Estaciones } from '../pages/estaciones/estaciones';
+import { Redes } from '../pages/redes/redes';
 import SettingsIcon from '@mui/icons-material/Settings';
+import HomeIcon from '@mui/icons-material/Home';
+import HouseboatIcon from '@mui/icons-material/Houseboat';
+import SpokeIcon from '@mui/icons-material/Spoke';
 
 const appRoutes = [
 		{
@@ -22,6 +26,26 @@ const appRoutes = [
 			sidebarProps: {
 				displayText: "Configuraciones",
 				icon: <SettingsIcon />
+			}
+		},
+		{
+			path: "/estaciones",
+			index: true,
+			element: <Estaciones />,
+			state: "Estaciones",
+			sidebarProps: {
+				displayText: "Estaciones",
+				icon: <HouseboatIcon />
+			}
+		},
+		{
+			path: "/redes",
+			index: true,
+			element: <Redes />,
+			state: "Redes",
+			sidebarProps: {
+				displayText: "Redes",
+				icon: <SpokeIcon />
 			}
 		}
 	];

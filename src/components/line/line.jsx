@@ -1,8 +1,7 @@
 
 const Line = () => {
     return (
-    <div style={{width:"100%", color: "#E3E8EE", backgroundColor:"#E3E8EE", height:0.5}}>
-    </div>
+        <hr color='#E0E6ED' width='100%' style={{margin: '20px 0px 20px 0px'}}/>
     )
 }
 
