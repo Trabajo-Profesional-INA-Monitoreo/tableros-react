@@ -1,9 +1,11 @@
 import { Avatar, Drawer, List, Stack, Toolbar } from "@mui/material";
 import appRoutes from "../../routes/ReactRoutes";
 import SidebarItem from "./sideBarItem";
-import { UserService } from "../../services/userService";
+import  useUser  from "../../stores/useUser";
+import {UserLogout} from "../../services/userService"
 
 const Sidebar = () => {
+    const { userInfo } = useUser()
     return (
         <Drawer
         variant="permanent"
@@ -26,14 +28,14 @@ const Sidebar = () => {
                 sx={{ width: "100%" }}
                 direction="row"
                 justifyContent="left"
-                onClick ={ () => {UserService.doLogout()}} // TODO
+                onClick ={ () => {UserLogout()}}
             >
                 <Avatar/>
                 <text
                     style={{
                         marginLeft: "30px",
                         }}
-                > {UserService.getUsername()} </text>
+                > {userInfo.userName} </text>
             </Stack>
             </Toolbar>
             {appRoutes.map((route, index) => (
