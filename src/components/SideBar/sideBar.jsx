@@ -1,9 +1,11 @@
-import { Avatar, Drawer, List, Stack, Toolbar } from "@mui/material";
+import { Drawer, List,  } from "@mui/material";
 import appRoutes from "../../routes/ReactRoutes";
 import SidebarItem from "./sideBarItem";
+import UserDataRow from "./userDataRow"
 
 
 const Sidebar = () => {
+
     return (
         <Drawer
         variant="permanent"
@@ -17,24 +19,9 @@ const Sidebar = () => {
                 backgroundColor: "white",
                 color: "#1A1F36",
             }}
-        }
-        
-        >
+        }>
         <List disablePadding>
-            <Toolbar sx={{ marginBottom: "20px" }}>
-            <Stack
-                sx={{ width: "100%" }}
-                direction="row"
-                justifyContent="left"
-            >
-                <Avatar/>
-                <text
-                    style={{
-                        marginLeft: "30px",
-                        }}
-                > user </text>
-            </Stack>
-            </Toolbar>
+            <UserDataRow />
             {appRoutes.map((route, index) => (
             route.sidebarProps ? (
                 <SidebarItem item={route} key={index} />
@@ -43,6 +30,6 @@ const Sidebar = () => {
         </List>
         </Drawer>
     );
-    };
+};
 
 export default Sidebar;
