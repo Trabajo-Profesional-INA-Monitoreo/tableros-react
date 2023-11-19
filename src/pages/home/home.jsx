@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, CircularProgress, Button} from '@mui/material';
 import CircularProgressWithLabel from '../../components/circularProgressWithLabel/circularProgressWithLabel';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Line from '../../components/line/line';
 import { HomePresenter } from '../../presenters/homePresenter';
 
