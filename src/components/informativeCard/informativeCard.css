@@ -24,3 +24,9 @@ p {
     flex-direction: row;
     justify-content: space-around;
 }
+
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}

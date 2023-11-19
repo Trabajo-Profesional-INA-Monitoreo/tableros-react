@@ -2,7 +2,7 @@ import Line from '../line/line';
 import { Box } from '@mui/material';
 import './informativeCard.css';
 
-function InformativeCard({title, subtitle, heading1, heading2, heading3, subheading1, subheading2, subheading3}) {
+export function InformativeCard({title, subtitle, heading1, heading2, heading3, subheading1, subheading2, subheading3}) {
   const titleSubtitleWidth = 100;
   return (
     <Box className='column container'>
@@ -15,7 +15,7 @@ function InformativeCard({title, subtitle, heading1, heading2, heading3, subhead
         </Box>
     </Box>
   );
-}
+};
 
 function TitleSubtitle({heading, subheading, width}){
   return(
@@ -24,6 +24,8 @@ function TitleSubtitle({heading, subheading, width}){
         <p style={{color:'#acabab'}}><center>{subheading}</center></p>
     </Box>
   )
-}
+};
 
-export default InformativeCard;
+export function InformativeCardContainer({children}){
+  return <Box className='cards-container'>{children}</Box>
+};
