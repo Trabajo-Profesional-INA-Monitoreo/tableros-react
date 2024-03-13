@@ -3,6 +3,7 @@ import Layout from "./components/layout/layout";
 import { routes } from "./routes";
 import { UserContext } from "./stores/userContext";
 import MainProvider from "./providers/mainProvider";
+import Modal from "./components/modal/modal";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             </Route>
           </Routes>
         </BrowserRouter>
+        <Modal/>
       </MainProvider>
     </UserContext>
   );

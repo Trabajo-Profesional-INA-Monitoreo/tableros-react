@@ -7,9 +7,26 @@ import IconButton from '@mui/material/IconButton';
 import Line from '../../../components/line/line';
 import { Box, Button, ListItemButton } from '@mui/material';
 import { CreateConfigurations } from '../createConfigurations/createConfigurations';
+import { HomePresenter } from '../../../presenters/homePresenter';
 
+function getDeleteConfigModalContent(value){
+    return(
+        <div>
+            <h4>
+                ¿Estas seguro que quieres eliminar {value}?
+            </h4>
+            <Button>
+                Si
+            </Button>
+            <Button>
+                No
+            </Button>
+        </div>
+    )
+}
 
 export const ConfigurationsList = () => {
+    const presenter = new HomePresenter()
     return (
         <Box sx={{width: '80%', bgcolor: 'background.paper', margin:"5%"}}>
 
@@ -31,9 +48,9 @@ export const ConfigurationsList = () => {
                             key={value}
                             disableGutters
                             secondaryAction={
-                            <IconButton aria-label="trash">
-                                <DeleteForeverIcon color='error'/>
-                            </IconButton>
+                                <IconButton aria-label="trash" onClick={() => presenter.onDeleteConfigPressed(getDeleteConfigModalContent( value ))}>
+                                    <DeleteForeverIcon color='error'/>
+                                </IconButton>
                             }
                         >
                             <ListItemText primary={`${value}`} />
