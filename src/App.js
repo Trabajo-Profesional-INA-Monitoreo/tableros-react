@@ -1,13 +1,13 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./components/layout/layout";
 import { routes } from "./routes";
-import { UserContextProvider } from "./services/userService"
 import { UserContext } from "./stores/userContext";
+import MainProvider from "./providers/mainProvider";
 
 function App() {
   return (
     <UserContext>
-      <UserContextProvider>
+      <MainProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Layout />}>
@@ -15,7 +15,7 @@ function App() {
             </Route>
           </Routes>
         </BrowserRouter>
-      </UserContextProvider>
+      </MainProvider>
     </UserContext>
   );
 }

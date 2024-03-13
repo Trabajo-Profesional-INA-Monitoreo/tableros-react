@@ -10,7 +10,6 @@ import { CreateConfigurations } from '../createConfigurations/createConfiguratio
 
 
 export const ConfigurationsList = () => {
-
     return (
         <Box sx={{width: '80%', bgcolor: 'background.paper', margin:"5%"}}>
 
@@ -26,18 +25,18 @@ export const ConfigurationsList = () => {
             <List>
                 {["configuracion 1", "Configuracion 2", "configuracion 3"].map((value) => (
                     <ListItemButton
-                        onClick={()=>( <CreateConfigurations></CreateConfigurations> )}
+                        onClick={() => ( <CreateConfigurations/> )}
                     >
                         <ListItem
                             key={value}
                             disableGutters
                             secondaryAction={
                             <IconButton aria-label="trash">
-                                <DeleteForeverIcon color='error'/>  
+                                <DeleteForeverIcon color='error'/>
                             </IconButton>
                             }
                         >
-                                <ListItemText primary={`${value}`} />
+                            <ListItemText primary={`${value}`} />
                         </ListItem>
                     </ListItemButton>
                 ))}
