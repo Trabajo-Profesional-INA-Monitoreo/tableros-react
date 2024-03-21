@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useContext } from 'react';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -7,20 +7,20 @@ import IconButton from '@mui/material/IconButton';
 import Line from '../../../components/line/line';
 import { Box, Button, ListItemButton, CircularProgress } from '@mui/material';
 import { CreateConfigurations } from '../createConfigurations/createConfigurations';
-import configurationService from '../../../services/configurationService';
 import { ConfigurationListPresenter } from '../../../presenters/configurationListPresenter';
+import { ConfigurationContext } from '../../../providers/configProvider';
 
 function getDeleteConfigModalContent(configuration, presenter){
     return(
         <div>
             <h4>
-                ¿Estas seguro que quieres eliminar {configuration.name}?
+                ¿Estas seguro que quieres eliminar {configuration.Name}?
             </h4>
             <div>
-                <Button variant="contained" color='error' onClick={presenter.onDeleteConfig(configuration.id)}>
+                <Button variant="contained" color='error' onClick={()=>presenter.onDeleteConfig(configuration.Id)} sx={{marginX:5}}>
                     Si
                 </Button>
-                <Button variant="contained">
+                <Button variant="contained" sx={{marginX:5}} onClick={presenter.onCancelDeleteConfig}>
                     No
                 </Button>
             </div>
@@ -30,22 +30,24 @@ function getDeleteConfigModalContent(configuration, presenter){
 
 export const ConfigurationsList = () => {
     const presenter = new ConfigurationListPresenter()
+    const {currentConfigID, selectConfig} = useContext(ConfigurationContext);
 
     const [configurations, setConfigurations] = useState([]);
     const [isLoading, setLoading] = useState(true)
 
-    const fetchProductsData = useCallback(async()=> {
-        const data = await presenter.getConfigurations();
+    const fetchConfigData = useCallback(async( func)=> {
+        const data = await func();
         setConfigurations(data)
         setLoading(false)
-    }, [presenter])
+    }, [])
     
     useEffect(() => {
-        fetchProductsData()
-    }, [fetchProductsData]);
+        fetchConfigData(presenter.getConfigurations)
+    }, [fetchConfigData]);
+
+    
     return (
         <Box sx={{width: '80%', bgcolor: 'background.paper', margin:"5%"}}>
-
             <Box sx={{
                     display:"flex",
                     flexDirection: "horizontal",
@@ -73,15 +75,24 @@ export const ConfigurationsList = () => {
                             onClick={() => ( <CreateConfigurations/> )}
                         >
                             <ListItem
-                                key={configuration.id}
+                                key={configuration.Id}
                                 disableGutters
                                 secondaryAction={
-                                    <IconButton aria-label="trash" onClick={() => presenter.onDeleteConfigPressed(getDeleteConfigModalContent( configuration, presenter ))}>
-                                        <DeleteForeverIcon color='error'/>
-                                    </IconButton>
+                                    <div>
+                                        <Button variant="outlined"size='small' onClick={()=>selectConfig(configuration.Id, configuration.Name)}
+                                            disabled={configuration.Id === currentConfigID}
+                                        >
+                                            usar
+                                        </Button>
+                                        <IconButton aria-label="trash" onClick={() => {try {
+                                            presenter.onDeleteConfigPressed(getDeleteConfigModalContent( configuration, presenter ))}
+                                            finally {fetchConfigData()}}}>
+                                            <DeleteForeverIcon color='error'/>
+                                        </IconButton>
+                                    </div>
                                 }
                             >
-                                <ListItemText primary={`${configuration.name}`} />
+                                <ListItemText primary={`${configuration.Name}`} />
                             </ListItem>
                         </ListItemButton>
                     ))}

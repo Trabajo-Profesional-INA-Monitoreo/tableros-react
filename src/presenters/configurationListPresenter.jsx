@@ -14,8 +14,14 @@ export class ConfigurationListPresenter {
 		this.modalService.show( children );
 	};
 
+
     onDeleteConfig = async (id) => {
         this.configurationServer.deleteConfigByID(id)
+        this.modalService.hide()
+    }
+
+    onCancelDeleteConfig = async () => {
+        this.modalService.hide()
     }
 
     getConfigurations = async() => {

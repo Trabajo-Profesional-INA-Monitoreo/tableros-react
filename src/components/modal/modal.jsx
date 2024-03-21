@@ -4,14 +4,17 @@ import { Modal as ModalBase, Box} from '@mui/material';
 import { useModalService } from "../../providers/modalProvider";
 
 const style = {
-	posicion: "absolute",
+	position: "absolute",
 	top: '50%',
 	left: '50%',
 	width: 400,
 	bgcolor: 'background.paper',
-	border: '2px solid #000',
 	boxShadow: 24,
-	p: 4,
+    padding: "2%",
+    display: "flex",
+    justifyContent: "center",
+	marginTop:"-50px",
+  	marginLeft:"-200px",
 };
 
 const Modal = () => {
