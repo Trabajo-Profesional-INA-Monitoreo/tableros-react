@@ -32,13 +32,11 @@
     justify-content: left !important;
 }
 
-.row-nogap {
-    display: flex;
-    flex-direction: row !important;
-    margin: 10px 0px 10px 0px;
-    justify-content: left !important;
-}
-
 .wrap {
     flex-wrap: wrap;
+}
+
+.button-container {
+    margin: 10px 0px 0px 0px;
+    display: block;
 }
