@@ -66,7 +66,7 @@ export const ConfigurationsList = () => {
                     justifyContent:"space-between"}}>
 
                 <span style={{ fontWeight: 'bold' }}>Nombre de configuracion</span>
-                <span style={{ fontWeight: 'bold', marginRight: 20}}>Acción</span>
+                <span style={{ fontWeight: 'bold', marginRight: 50}}>Acción</span>
             </Box>
             <Line></Line>
             {isLoading?
