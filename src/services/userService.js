@@ -23,10 +23,6 @@ function UserContextProvider({ children }) {
         const decodedToken = jwtDecode(token);
         const loaded = token && idToken && refreshToken ? true : false
 
-        console.log('Token: ', token)
-        console.log('Name: ', decodedToken.preferred_username)
-        console.log('Scope: ', decodedToken.scope)
-
         setUserInfo({
             token: token,
             idToken: idToken,

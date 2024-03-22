@@ -1,5 +1,5 @@
 import { Home } from '../pages/home/home';
-import { Configuraciones } from '../pages/Configuraciones/configuraciones';
+import { Configurations } from '../pages/configurations/configuraciones';
 import { Estaciones } from '../pages/estaciones/estaciones';
 import { Redes } from '../pages/redes/redes';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -21,8 +21,8 @@ const appRoutes = [
 		{
 			path: "/configuraciones",
 			index: true,
-			element: <Configuraciones />,
-			state: "Configuraciones",
+			element: <Configurations />,
+			state: "Configurations",
 			sidebarProps: {
 				displayText: "Configuraciones",
 				icon: <SettingsIcon />

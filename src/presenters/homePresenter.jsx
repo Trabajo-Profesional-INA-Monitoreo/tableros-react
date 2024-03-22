@@ -1,5 +1,3 @@
-//aca va todo lo logico de esa pantalla
-
 export class HomePresenter{
 
     getCantSeries(){
@@ -13,4 +11,5 @@ export class HomePresenter{
     getCantRedes(){
         return "59"
     }
+
 }
