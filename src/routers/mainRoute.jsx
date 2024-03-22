@@ -1,0 +1,1 @@
+//aca va todo el ruteo para la navegacion de la pagina, la idea es tener 2 routers mas, uno para cuando no estas autenticado y otro para cuando si

@@ -1,7 +1,0 @@
-{
-    "realm": "monitoreo",
-    "auth-server-url": "https://localhost:8443/",
-    "ssl-required": "external",
-    "resource": "monitoreo-web",
-    "public-client": true
-  }
