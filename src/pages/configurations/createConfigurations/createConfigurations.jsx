@@ -17,13 +17,13 @@ import IconButton from '@mui/material/IconButton';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import './createConfigurations.css'
+import { CONFIGURATION_VIEWS } from "../configuraciones";
+import { CreateConfigurationPresenter, METRICS, SERIES_TYPES } from "../../../presenters/createConfigurationPresenter";
 
-const METRICS = ['Mediana', 'Media', 'Máximo', 'Mínimo', '% Nulos']
-const SERIES_TYPES = {OBSERVADA: 'Observada', PRONOSTICADA: 'Pronosticada', SIMULADA: 'Simulada'}
+export const CreateConfigurations = ({setCurrentView}) => {
 
-export const CreateConfigurations = () => {
-
-    const [configurationName, setConfigurationName] = useState('')
+    const presenter = new CreateConfigurationPresenter();
+    const [configurationName, setConfigurationName] = useState('');
     const [series, setSeries] = useState([]);
     const [nodes, setNodes] = useState([]);
     const [nodeName, setNodeName] = useState('');
@@ -58,94 +58,27 @@ export const CreateConfigurations = () => {
     }
 
     const handleAddSerie = () => {
-        if (serie.idSerie === '') {
-            alert("El ID de la serie es necesario");
-        } else if (!serie.idNode) {
-            alert("Indiqué a que nodo debe pertenecer esta serie");
-        } else if (serie.actualizationFrequency === '') {
-            alert("La frecuencia de actualización de la serie es necesaria");
-        } else if (serie.serieType === SERIES_TYPES.PRONOSTICADA && serie.calibrationID === '') {
-            alert("El ID de calibracion es necesario en las series pronosticadas");
-        } else if(serie.lowerThreshold !== '' && serie.upperThreshold !== '' && Number(serie.lowerThreshold) >= Number(serie.upperThreshold)) {
-            alert("El umbral inferior debe ser menor al umbral superior")
-        }
-        else {
+        if (presenter.isValidStream(serie)) {
             alert("Serie agregada correctamente");
             setSeries([...series, serie]);
         }
     }
 
     const handleAddNodo = () => {
-        if (nodeName !== '') {
+        if (presenter.isValidNode(nodeName)) {
+            alert("Nodo agregado correctamente");
             setNodes([...nodes, {id: idNodeCounter, name: nodeName}]);
             setIdNodeCounter(idNodeCounter + 1);
-        } else {
-            alert('El nombre del nodo es necesario')
         }
     }
 
     const handleAddConfiguracion = () => {
-        if (configurationName === '') {
-            alert("El nombre de la configuración es necesario")
-        } else if (nodes.length === 0) {
-            alert("Debe agregar nodos a la configuración")
-        } else if (series.length === 0) {
-            alert("Debe agregar series a la configuración")
-        } else if (!allNodesHaveSeries()) {
-            alert("Todos los nodos deben tener series")
-        } else {
-            alert("Configuración creada exitosamente")
-            const json = buildConfigurationJSON();
-            console.log(json)
-            const url = 'http://localhost:8081/api/v1/configuracion'
-            const response = postConfiguracion(url, json).then(response => console.log(response))
+        if (presenter.isValidConfiguration(configurationName, nodes, series)) {
+            const body = presenter.buildConfigurationBody(configurationName, nodes, series);
+            presenter.postConfiguration(body)
+                .then(response => console.log(response))
+                .then(_ =>  alert("Configuración creada exitosamente"))
         }
-    }
-
-    const allNodesHaveSeries = () => {
-        var allNodesHaveSeries = true;
-        nodes.forEach(node => {
-            if (series.filter(serie => serie.idNode === node.id).length === 0){
-                allNodesHaveSeries = false
-            } 
-        })
-        return allNodesHaveSeries;
-    }
-
-    const postConfiguracion = async (url, json) => {
-        const response = await fetch(url, {
-            method: "POST",        
-            headers: {"Content-Type": "application/json"},
-            body: json,
-          });
-        return response.json();
-    }
-
-    const buildConfigurationJSON = () => {
-        var STREAM_TYPE_CODE = {'Observada': 0, 'Pronosticada': 1, 'Simulada': 2}
-        var METRICS_CODE = {'Mediana': 0, 'Media': 1, 'Máximo': 2, 'Mínimo': 3, '% Nulos': 4}
-        var configuration = {};
-        configuration['name'] = configurationName
-        configuration['nodes'] = nodes
-        configuration['nodes'].forEach(node => {
-            node['series'] = []
-            series.forEach(serie => {
-                if (node.id === serie.idNode) {
-                    node['series'].push({
-                        streamId: Number(serie.idSerie),
-                        streamType: STREAM_TYPE_CODE[serie.serieType],
-                        updateFrequency: Number(serie.actualizationFrequency),
-                        checkErrors: serie.checkErrors,
-                        upperThreshold: Number(serie.upperThreshold) ? Number(serie.calibrationID) : null,
-                        lowerThreshold: Number(serie.lowerThreshold) ? Number(serie.calibrationID) : null,
-                        calibrationId: Number(serie.calibrationID) ? Number(serie.calibrationID) : null,
-                        redundanciesIds: serie.redundantSeriesIDs,
-                        metrics: Object.keys(serie.metrics).filter(key => serie.metrics[key]).map(key => METRICS_CODE[key])
-                    })
-                }
-            })
-        })
-        return JSON.stringify(configuration)
     }
 
     const handleChangeSerieType = (e) => {
@@ -173,7 +106,10 @@ export const CreateConfigurations = () => {
 
     return (
         <>
-        <TextField label='Nombre de la configuración' value={configurationName} onChange={e => setConfigurationName(e.target.value)}/>
+        <Box className='row space-between'>
+            <TextField label='Nombre de la configuración' value={configurationName} onChange={e => setConfigurationName(e.target.value)}/>
+            <Button className='button' onClick={() => setCurrentView(CONFIGURATION_VIEWS.LIST)}>Volver a tus configuraciones</Button>
+        </Box>
         <div className='button-container'><Button className='button' onClick={() => handleAddConfiguracion()}>Crear configuración</Button></div>
         <Box className='row'>           
             <Box className='form'>

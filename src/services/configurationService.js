@@ -13,4 +13,14 @@ export default class configurationService{
         const res = await response.json()
         return res
     }
+
+    async postConfiguration(body) {
+        const response = await fetch(baseUrl+"/configuracion", {
+            method: "POST",        
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(body),
+          });
+        const res = await response.json();
+        return res
+    }
 }

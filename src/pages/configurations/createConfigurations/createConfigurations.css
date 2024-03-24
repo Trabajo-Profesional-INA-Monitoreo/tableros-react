@@ -40,3 +40,7 @@
     margin: 10px 0px 0px 0px;
     display: block;
 }
+
+.space-between {
+    justify-content: space-between !important;
+}

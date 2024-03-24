@@ -9,6 +9,7 @@ import { Box, Button, ListItemButton, CircularProgress } from '@mui/material';
 import { CreateConfigurations } from '../createConfigurations/createConfigurations';
 import { ConfigurationListPresenter } from '../../../presenters/configurationListPresenter';
 import { ConfigurationContext } from '../../../providers/configProvider';
+import { CONFIGURATION_VIEWS } from '../configuraciones';
 //import useUser from '../../../stores/useUser';
 //import { UserContext } from '../../../stores/userContext';
 
@@ -34,7 +35,7 @@ function getDeleteConfigModalContent(configuration, presenter, handleDelete){
 }
 
 
-export const ConfigurationsList = () => {
+export const ConfigurationsList = ({setCurrentView}) => {
     const presenter = new ConfigurationListPresenter()
     const {currentConfigID, selectConfig} = useContext(ConfigurationContext);
     //const {userInfo} = useUser()
@@ -111,7 +112,7 @@ export const ConfigurationsList = () => {
                     ))}
                 </List>
             }
-            {isAdmin ? <Button variant="outlined" sx={{marginTop:"5%"}}>Agregar configuración</Button> :<></>}
+            {isAdmin ? <Button variant="outlined" sx={{marginTop:"5%"}} onClick={() => setCurrentView(CONFIGURATION_VIEWS.CREATE)}>Agregar configuración</Button> :<></>}
         </Box>
     );
 }
