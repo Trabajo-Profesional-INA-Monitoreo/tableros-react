@@ -1,7 +1,42 @@
+.form {
+    width: 50%;
+}
+
+.nodes {
+    width: 50%;
+}
+
+.node { 
+    border: 2px solid rgb(224, 230, 237);
+    margin: 15px;
+    padding: 15px;
+    border-radius: 20px;
+}
+
+.serie {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid rgb(224, 230, 237);
+    border-radius: 20px;
+    height: 80px;
+    width: 80px;
+}
+
 .row {
     display: flex;
     flex-direction: row !important;
     gap: 10px;
     margin: 10px 0px 10px 0px;
     justify-content: left !important;
+}
+
+.wrap {
+    flex-wrap: wrap;
+}
+
+.button-container {
+    margin: 10px 0px 0px 0px;
+    display: block;
 }
