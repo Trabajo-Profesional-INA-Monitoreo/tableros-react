@@ -66,7 +66,7 @@ export const CreateConfigurations = () => {
             alert("La frecuencia de actualización de la serie es necesaria");
         } else if (serie.serieType === SERIES_TYPES.PRONOSTICADA && serie.calibrationID === '') {
             alert("El ID de calibracion es necesario en las series pronosticadas");
-        } else if (Number(serie.lowerThreshold) >= Number(serie.upperThreshold)) {
+        } else if(serie.lowerThreshold !== '' && serie.upperThreshold !== '' && Number(serie.lowerThreshold) >= Number(serie.upperThreshold)) {
             alert("El umbral inferior debe ser menor al umbral superior")
         }
         else {
@@ -91,13 +91,39 @@ export const CreateConfigurations = () => {
             alert("Debe agregar nodos a la configuración")
         } else if (series.length === 0) {
             alert("Debe agregar series a la configuración")
+        } else if (!allNodesHaveSeries()) {
+            alert("Todos los nodos deben tener series")
         } else {
             alert("Configuración creada exitosamente")
-            buildConfigurationJSON()
+            const json = buildConfigurationJSON();
+            console.log(json)
+            const url = 'http://localhost:8081/api/v1/configuracion'
+            const response = postConfiguracion(url, json).then(response => console.log(response))
         }
     }
 
+    const allNodesHaveSeries = () => {
+        var allNodesHaveSeries = true;
+        nodes.forEach(node => {
+            if (series.filter(serie => serie.idNode === node.id).length === 0){
+                allNodesHaveSeries = false
+            } 
+        })
+        return allNodesHaveSeries;
+    }
+
+    const postConfiguracion = async (url, json) => {
+        const response = await fetch(url, {
+            method: "POST",        
+            headers: {"Content-Type": "application/json"},
+            body: json,
+          });
+        return response.json();
+    }
+
     const buildConfigurationJSON = () => {
+        var STREAM_TYPE_CODE = {'Observada': 0, 'Pronosticada': 1, 'Simulada': 2}
+        var METRICS_CODE = {'Mediana': 0, 'Media': 1, 'Máximo': 2, 'Mínimo': 3, '% Nulos': 4}
         var configuration = {};
         configuration['name'] = configurationName
         configuration['nodes'] = nodes
@@ -106,20 +132,20 @@ export const CreateConfigurations = () => {
             series.forEach(serie => {
                 if (node.id === serie.idNode) {
                     node['series'].push({
-                        streamId: serie.idSerie,
-                        streamType: serie.serieType,
-                        updateFrequency: serie.actualizationFrequency,
+                        streamId: Number(serie.idSerie),
+                        streamType: STREAM_TYPE_CODE[serie.serieType],
+                        updateFrequency: Number(serie.actualizationFrequency),
                         checkErrors: serie.checkErrors,
-                        upperThreshold: serie.upperThreshold,
-                        lowerThreshold: serie.lowerThreshold,
-                        calibrationId: serie.calibrationID,
+                        upperThreshold: Number(serie.upperThreshold) ? Number(serie.calibrationID) : null,
+                        lowerThreshold: Number(serie.lowerThreshold) ? Number(serie.calibrationID) : null,
+                        calibrationId: Number(serie.calibrationID) ? Number(serie.calibrationID) : null,
                         redundanciesIds: serie.redundantSeriesIDs,
-                        metrics: serie.metrics
+                        metrics: Object.keys(serie.metrics).filter(key => serie.metrics[key]).map(key => METRICS_CODE[key])
                     })
                 }
             })
         })
-        console.log(configuration)
+        return JSON.stringify(configuration)
     }
 
     const handleChangeSerieType = (e) => {
