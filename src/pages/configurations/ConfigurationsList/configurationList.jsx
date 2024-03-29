@@ -9,9 +9,9 @@ import { Box, Button, ListItemButton, CircularProgress } from '@mui/material';
 import { CreateConfigurations } from '../createConfigurations/createConfigurations';
 import { ConfigurationListPresenter } from '../../../presenters/configurationListPresenter';
 import { ConfigurationContext } from '../../../providers/configProvider';
+import useUser from '../../../stores/useUser';
+import { UserContext } from '../../../stores/userContext';
 import { CONFIGURATION_VIEWS } from '../configuraciones';
-//import useUser from '../../../stores/useUser';
-//import { UserContext } from '../../../stores/userContext';
 
 function getDeleteConfigModalContent(configuration, presenter, handleDelete){
     return(
@@ -34,14 +34,23 @@ function getDeleteConfigModalContent(configuration, presenter, handleDelete){
     )
 }
 
+const saveSelectedId = (id, name) => {
+    localStorage.setItem("configId", id.toString());
+    localStorage.setItem("configName", name.toString());
+};
+
+const getConfigId = () => {
+    return parseInt(localStorage.getItem("configId"), 10);
+};
 
 export const ConfigurationsList = ({setCurrentView}) => {
     const presenter = new ConfigurationListPresenter()
     const {currentConfigID, selectConfig} = useContext(ConfigurationContext);
-    //const {userInfo} = useUser()
+    
+    const {userInfo} = useUser()
     const [configurations, setConfigurations] = useState([]);
     const [isLoading, setLoading] = useState(true)
-    const isAdmin = true
+    const isAdmin = userInfo.roles?.includes("admin")
     
     const handleDelete = (id) => {
         const updatedData = configurations.filter((item) => item.Id !== id);
@@ -92,8 +101,11 @@ export const ConfigurationsList = ({setCurrentView}) => {
                                 disableGutters
                                 secondaryAction={
                                     <div>
-                                        <Button variant="outlined"size='small' onClick={()=>selectConfig(configuration.Id, configuration.Name)}
-                                            disabled={configuration.Id === currentConfigID}
+                                        <Button variant="outlined"size='small' onClick={()=>{
+                                            selectConfig(configuration.Id, configuration.Name);
+                                            saveSelectedId(configuration.Id, configuration.Name)
+                                        }}
+                                            disabled={configuration.Id === getConfigId()}
                                         >
                                             usar
                                         </Button>
