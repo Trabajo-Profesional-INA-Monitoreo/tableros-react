@@ -1,9 +1,17 @@
-import React, {useContext, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Box, Container, TextField, Button, Select, FormControl, InputLabel, MenuItem} from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
 import Line from '../../components/line/line';
-import { ConfigurationContext } from '../../providers/configProvider';
 import SeriesCard from '../../components/seriesCard/seriesCard';
+
+
+const getConfigId = () => {
+    return parseInt(localStorage.getItem("configId"), 10);
+};
+
+const getConfigName = () => {
+    return localStorage.getItem("configName");
+};
 
 export const Series = () => {
     const [idSerie, setIdSerie] = useState('');
@@ -13,7 +21,14 @@ export const Series = () => {
     const [idEstacion, setIdEstacion] = useState('');
     const [tipoSerie, setTipoSerie] = useState('');
     const [variable, setVariable] = useState('');
-    const {currentConfigName} = useContext(ConfigurationContext);
+    const [currentConfigName, setCurrentConfigName] = useState('');
+
+    useEffect(() => {
+        const configName = getConfigName();
+        if (configName) {
+            setCurrentConfigName(configName);
+        }
+    }, []);
 
     const series = [
         {id: 1, nameVar: "variable1", estacion: "Palmira", CantErrores: 3, tiempoDeRetraso: "01:23:34", procedimiento: "algo", tipo: "Observada"},

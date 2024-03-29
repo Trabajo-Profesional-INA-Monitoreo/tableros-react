@@ -33,10 +33,19 @@ function getDeleteConfigModalContent(configuration, presenter, handleDelete){
     )
 }
 
+const saveSelectedId = (id, name) => {
+    localStorage.setItem("configId", id.toString());
+    localStorage.setItem("configName", name.toString());
+};
+
+const getConfigId = () => {
+    return parseInt(localStorage.getItem("configId"), 10);
+};
 
 export const ConfigurationsList = () => {
     const presenter = new ConfigurationListPresenter()
     const {currentConfigID, selectConfig} = useContext(ConfigurationContext);
+    
     const {userInfo} = useUser()
     const [configurations, setConfigurations] = useState([]);
     const [isLoading, setLoading] = useState(true)
@@ -91,8 +100,11 @@ export const ConfigurationsList = () => {
                                 disableGutters
                                 secondaryAction={
                                     <div>
-                                        <Button variant="outlined"size='small' onClick={()=>selectConfig(configuration.Id, configuration.Name)}
-                                            disabled={configuration.Id === currentConfigID}
+                                        <Button variant="outlined"size='small' onClick={()=>{
+                                            selectConfig(configuration.Id, configuration.Name);
+                                            saveSelectedId(configuration.Id, configuration.Name)
+                                        }}
+                                            disabled={configuration.Id === getConfigId()}
                                         >
                                             usar
                                         </Button>
