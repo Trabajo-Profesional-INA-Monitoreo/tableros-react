@@ -11,6 +11,7 @@ import { ConfigurationListPresenter } from '../../../presenters/configurationLis
 import { ConfigurationContext } from '../../../providers/configProvider';
 import useUser from '../../../stores/useUser';
 import { UserContext } from '../../../stores/userContext';
+import { CONFIGURATION_VIEWS } from '../configuraciones';
 
 function getDeleteConfigModalContent(configuration, presenter, handleDelete){
     return(
@@ -42,7 +43,7 @@ const getConfigId = () => {
     return parseInt(localStorage.getItem("configId"), 10);
 };
 
-export const ConfigurationsList = () => {
+export const ConfigurationsList = ({setCurrentView}) => {
     const presenter = new ConfigurationListPresenter()
     const {currentConfigID, selectConfig} = useContext(ConfigurationContext);
     
@@ -123,7 +124,7 @@ export const ConfigurationsList = () => {
                     ))}
                 </List>
             }
-            {isAdmin ? <Button variant="outlined" sx={{marginTop:"5%"}}>Agregar configuración</Button> :<></>}
+            {isAdmin ? <Button variant="outlined" sx={{marginTop:"5%"}} onClick={() => setCurrentView(CONFIGURATION_VIEWS.CREATE)}>Agregar configuración</Button> :<></>}
         </Box>
     );
 }
