@@ -7,14 +7,14 @@ function ConfigurationProvider(props){
     const [currentConfigName, setCurrentConfigName] = useState("");
     
     const selectConfig = ( configId, configName ) => {
-        setCurrentConfigID(configId);
+        setCurrentConfigID(configId)
         setCurrentConfigName(configName)
         console.log(currentConfigID, currentConfigName)
 
     };
     return (
         <div>  
-            <ConfigurationContext.Provider value={{currentConfigID, selectConfig}}>
+            <ConfigurationContext.Provider value={{currentConfigID, currentConfigName, selectConfig}}>
                 {props.children}
             </ConfigurationContext.Provider>
         </div>
