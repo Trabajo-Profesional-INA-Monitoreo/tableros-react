@@ -9,8 +9,8 @@ import { Box, Button, ListItemButton, CircularProgress } from '@mui/material';
 import { CreateConfigurations } from '../createConfigurations/createConfigurations';
 import { ConfigurationListPresenter } from '../../../presenters/configurationListPresenter';
 import { ConfigurationContext } from '../../../providers/configProvider';
-//import useUser from '../../../stores/useUser';
-//import { UserContext } from '../../../stores/userContext';
+import useUser from '../../../stores/useUser';
+import { UserContext } from '../../../stores/userContext';
 
 function getDeleteConfigModalContent(configuration, presenter, handleDelete){
     return(
@@ -37,10 +37,10 @@ function getDeleteConfigModalContent(configuration, presenter, handleDelete){
 export const ConfigurationsList = () => {
     const presenter = new ConfigurationListPresenter()
     const {currentConfigID, selectConfig} = useContext(ConfigurationContext);
-    //const {userInfo} = useUser()
+    const {userInfo} = useUser()
     const [configurations, setConfigurations] = useState([]);
     const [isLoading, setLoading] = useState(true)
-    const isAdmin = true
+    const isAdmin = userInfo.roles?.includes("admin")
     
     const handleDelete = (id) => {
         const updatedData = configurations.filter((item) => item.Id !== id);
