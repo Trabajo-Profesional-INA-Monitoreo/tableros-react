@@ -6,6 +6,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import HomeIcon from '@mui/icons-material/Home';
 import HouseboatIcon from '@mui/icons-material/Houseboat';
 import SpokeIcon from '@mui/icons-material/Spoke';
+import { Series } from '../pages/series/series';
 
 const appRoutes = [
 		{
@@ -45,6 +46,16 @@ const appRoutes = [
 			state: "Redes",
 			sidebarProps: {
 				displayText: "Redes",
+				icon: <SpokeIcon />
+			}
+		},
+		{
+			path: "/series",
+			index: true,
+			element: <Series />,
+			state: "Series",
+			sidebarProps: {
+				displayText: "Series",
 				icon: <SpokeIcon />
 			}
 		}
