@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {Box, Container, TextField, Button, Select, FormControl, InputLabel, MenuItem} from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2'; // Grid version 2
+import {Container, TextField, Button, Select, FormControl, InputLabel, MenuItem} from '@mui/material';
 import Line from '../../components/line/line';
+import { SerieModal } from './serieModal/serieModal';
+import Grid from '@mui/material/Unstable_Grid2';
 import SeriesCard from '../../components/seriesCard/seriesCard';
-
 
 const getConfigId = () => {
     return parseInt(localStorage.getItem("configId"), 10);
@@ -22,6 +22,10 @@ export const Series = () => {
     const [tipoSerie, setTipoSerie] = useState('');
     const [variable, setVariable] = useState('');
     const [currentConfigName, setCurrentConfigName] = useState('');
+
+    const [openModal, setOpenModal] = useState(false);
+    const handleOpenModal = () => setOpenModal(true);
+    const handleCloseModal = () => setOpenModal(false);
 
     useEffect(() => {
         const configName = getConfigName();
@@ -136,14 +140,15 @@ export const Series = () => {
                             style={{justifyContent: "center", alignItems:"center"}}
                         >
                             {series.map((serie, index) => (
-                                <Grid item key={index}>
-                                    <SeriesCard serieData={serie}/>
+                                <Grid item key={index} onClick={handleOpenModal}>
+                                    <SeriesCard serieData={serie}/>  
                                 </Grid>
                                 ))
                             }
                         </Grid>
+                    
         </Container>
-
+        <SerieModal open={openModal} handleClose={handleCloseModal}/>   
         </div>
     );
-}
+}            

@@ -59,7 +59,7 @@ const appRoutes = [
 				displayText: "Redes",
 				icon: <SpokeIcon />
 			}
-		},
+		}
 	];
 	
 export default appRoutes;
