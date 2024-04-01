@@ -140,8 +140,8 @@ export const Series = () => {
                             style={{justifyContent: "center", alignItems:"center"}}
                         >
                             {series.map((serie, index) => (
-                                <Grid item key={index} onClick={handleOpenModal}>
-                                    <SeriesCard serieData={serie}/>  
+                                <Grid item key={index}>
+                                    <SeriesCard serieData={serie} onClick={handleOpenModal}/>  
                                 </Grid>
                                 ))
                             }
