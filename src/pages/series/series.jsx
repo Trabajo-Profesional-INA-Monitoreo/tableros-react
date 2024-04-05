@@ -4,6 +4,8 @@ import Line from '../../components/line/line';
 import { SerieModal } from './serieModal/serieModal';
 import Grid from '@mui/material/Unstable_Grid2';
 import SeriesCard from '../../components/seriesCard/seriesCard';
+import { CircularProgress } from '@mui/material';
+import PaginationComponent from '../../components/pagination/paginationComponent';
 
 const getConfigId = () => {
     return parseInt(localStorage.getItem("configId"), 10);
@@ -26,20 +28,44 @@ export const Series = () => {
     const [openModal, setOpenModal] = useState(false);
     const handleOpenModal = () => setOpenModal(true);
     const handleCloseModal = () => setOpenModal(false);
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
         const configName = getConfigName();
         if (configName) {
             setCurrentConfigName(configName);
         }
+        const configId = getConfigId()
+        const fetchDataForPosts = async () => {
+            try {
+                const response = await fetch(
+                `http://localhost:5000/api/v1/series?page=${page}&configurationId=${configId}`
+                );
+                if (!response.ok) {
+                throw new Error(`HTTP error: Status ${response.status}`);
+                }
+                let postsData = await response.json();
+                setData(postsData.Content);
+                setTotalPages(postsData.Pageable.Pages)
+                setError(null);
+            } catch (err) {
+                setError(err.message);
+                setData(null);
+            } finally {
+                setLoading(false);
+            }
+            };
+            fetchDataForPosts();
     }, []);
 
-    const series = [
-        {id: 1, nameVar: "variable1", estacion: "Palmira", CantErrores: 3, tiempoDeRetraso: "01:23:34", procedimiento: "algo", tipo: "Observada"},
-        {id: 2, nameVar: "variable2", estacion: "Santa Rosa",CantErrores: 0, tiempoDeRetraso: "02:56:34", procedimiento: "algo2", tipo: "Simulada"},
-        {id: 3, nameVar: "variable3", estacion: "Paraná",CantErrores: 5, tiempoDeRetraso: "00:23:34", procedimiento: "algo3", tipo: "Procesada"},
-        {id: 4, nameVar: "variable4", estacion: "Paraná",CantErrores: 5, tiempoDeRetraso: "00:23:34", procedimiento: "algo3", tipo: "Procesada"},
-    ]
+    const handlePageChange = (newPage) => {
+        setPage(newPage);
+    };
+    
     async function aplicarFiltros(){}
 
     return (
@@ -47,6 +73,18 @@ export const Series = () => {
             <h1> Series </h1>
             <h4>Configuración actual: {currentConfigName}</h4>
             <Line/>
+            {loading?
+                <CircularProgress 
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: '100vh',
+                        margin: 'auto',
+                        width: '10vw'
+                    }}
+                />
+                :<>
             <Container sx={{display:"flex", flexFlow:"wrap", justifyContent:"center"}}>
                 <Grid items>
                             <TextField 
@@ -139,7 +177,7 @@ export const Series = () => {
                             spacing={5}
                             style={{justifyContent: "center", alignItems:"center"}}
                         >
-                            {series.map((serie, index) => (
+                            {data.map((serie, index) => (
                                 <Grid item key={index}>
                                     <SeriesCard serieData={serie} onClick={handleOpenModal}/>  
                                 </Grid>
@@ -148,6 +186,9 @@ export const Series = () => {
                         </Grid>
                     
         </Container>
+        </>
+        }
+        <PaginationComponent page={page} totalPages={totalPages} setPage={setPage}/>
         <SerieModal open={openModal} handleClose={handleCloseModal}/>   
         </div>
     );
