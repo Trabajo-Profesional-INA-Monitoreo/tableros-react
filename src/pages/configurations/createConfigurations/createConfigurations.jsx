@@ -16,9 +16,10 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import './createConfigurations.css'
 import { CONFIGURATION_VIEWS } from "../configuraciones";
-import { CreateConfigurationPresenter, METRICS, SERIES_TYPES } from "../../../presenters/createConfigurationPresenter";
+import { CreateConfigurationPresenter } from "../../../presenters/createConfigurationPresenter";
+import { METRICS, SERIES_TYPES } from "../../../utils/constants";
+import './createConfigurations.css';
 
 export const CreateConfigurations = ({setCurrentView}) => {
 

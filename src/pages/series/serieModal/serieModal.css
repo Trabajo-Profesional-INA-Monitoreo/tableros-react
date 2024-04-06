@@ -16,3 +16,7 @@
 .space-around {
     justify-content: space-around !important;
 }
+
+.wrap {
+    flex-wrap: wrap;
+}
