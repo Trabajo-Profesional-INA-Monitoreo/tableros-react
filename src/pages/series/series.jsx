@@ -148,7 +148,7 @@ export const Series = () => {
                         </Grid>
                     
         </Container>
-        <SerieModal open={openModal} handleClose={handleCloseModal}/>   
+        {openModal ? <SerieModal open={openModal} handleClose={handleCloseModal} serieId={31525} serieType={2} calibrationId={null}/> : null}
         </div>
     );
 }            
