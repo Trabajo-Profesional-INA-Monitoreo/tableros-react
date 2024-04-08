@@ -72,14 +72,14 @@ export class CreateConfigurationPresenter {
         configuration['name'] = configurationName
         configuration['nodes'] = nodes
         configuration['nodes'].forEach(node => {
-            node['series'] = []
+            node['configuredStreams'] = []
             series.forEach(serie => {
                 if (node.id === serie.idNode) {
-                    node['series'].push({
+                    node['configuredStreams'].push({
                         streamId: Number(serie.idSerie),
                         streamType: STREAM_TYPE_CODE[serie.serieType],
                         updateFrequency: Number(serie.actualizationFrequency),
-                        checkErrors: serie.checkErrors,
+                        checkErrors: Boolean(serie.checkErrors),
                         upperThreshold: Number(serie.upperThreshold) ? Number(serie.calibrationID) : null,
                         lowerThreshold: Number(serie.lowerThreshold) ? Number(serie.calibrationID) : null,
                         calibrationId: Number(serie.calibrationID) ? Number(serie.calibrationID) : null,
