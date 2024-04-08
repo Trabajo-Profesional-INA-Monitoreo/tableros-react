@@ -183,12 +183,13 @@ export const Series = () => {
                                 </Grid>
                                 ))
                             }
-                        </Grid>     
-                </Container>
-                </>
-                }
+                        </Grid>
+                    
+                    </Container>
+                    {openModal ? <SerieModal open={openModal} handleClose={handleCloseModal} serieId={31525} serieType={2} calibrationId={null}/> : null}
             <PaginationComponent page={page} totalPages={totalPages} setPage={setPage}/>
-            <SerieModal open={openModal} handleClose={handleCloseModal}/>   
+            </>
+            }
         </div>
     );
 }            
