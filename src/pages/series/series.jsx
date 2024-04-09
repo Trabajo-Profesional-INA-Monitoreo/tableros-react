@@ -242,9 +242,8 @@ export const Series = () => {
                     
                     </Container>
                     {openModal ? <SerieModal open={openModal} handleClose={handleCloseModal} serieId={31525} serieType={2} calibrationId={null}/> : null}
-            <div style={{justifyContent:"center"}}>
+            
                 <PaginationComponent page={page} totalPages={totalPages} setPage={setPage}/>
-            </div>
             </>
             }
         </div>
