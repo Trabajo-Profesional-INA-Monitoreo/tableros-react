@@ -19,7 +19,7 @@ export default class configurationService{
             method: "POST",        
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(body),
-          });
+        });
         const res = await response.json();
         return res
     }
