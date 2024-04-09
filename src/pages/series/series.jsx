@@ -6,7 +6,9 @@ import Grid from '@mui/material/Unstable_Grid2';
 import SeriesCard from '../../components/seriesCard/seriesCard';
 import { CircularProgress } from '@mui/material';
 import PaginationComponent from '../../components/pagination/paginationComponent';
-
+import { DatePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 const getConfigId = () => {
     return parseInt(localStorage.getItem("configId"), 10);
 };
@@ -16,22 +18,26 @@ const getConfigName = () => {
 };
 
 export const Series = () => {
-    const [idSerie, setIdSerie] = useState('');
     const [desde, setDesde] = useState('');
     const [hasta, setHasta] = useState('');
-    const [procedimiento, setProcedimiento] = useState('');
-    const [idEstacion, setIdEstacion] = useState('');
-    const [tipoSerie, setTipoSerie] = useState('');
-    const [variable, setVariable] = useState('');
+    const [procedimientoSeleccionado, setProcedimiento] = useState('');
+    const [estacionSeleccionada, setIdEstacion] = useState('');
+    const [tipoSerieSeleccionada, setTipoSerie] = useState('');
+    const [variableSeleccionada, setVariable] = useState('');
+
     const [currentConfigName, setCurrentConfigName] = useState('');
+    const [currentConfigId, setCurrentConfigId] = useState('');
 
     const [openModal, setOpenModal] = useState(false);
     const handleOpenModal = () => setOpenModal(true);
     const handleCloseModal = () => setOpenModal(false);
     const [data, setData] = useState(null);
+    const [estacionesDisponibles, setEstacionesDisponibles] = useState(null);
+    const [procedimientosDisponibles, setProcedimientosDisponibles] = useState(null);
+    const [variablesDisponibles, setVariablesDisponibles] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [page, setPage] = useState(0);
+    const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
@@ -40,18 +46,35 @@ export const Series = () => {
             setCurrentConfigName(configName);
         }
         const configId = getConfigId()
+        setCurrentConfigId(configId)
         const fetchDataForPosts = async () => {
             try {
                 const response = await fetch(
-                `http://localhost:5000/api/v1/series?page=${page}&configurationId=${configId}`
+                `http://localhost:8081/api/v1/series?page=${page}&configurationId=${configId}`
                 );
                 if (!response.ok) {
                 throw new Error(`HTTP error: Status ${response.status}`);
                 }
-                let postsData = await response.json();
-                setData(postsData.Content);
-                setTotalPages(postsData.Pageable.Pages)
+                let data = await response.json();
+                setData(data.Content);
+                setTotalPages(data.Pageable.Pages)
                 setError(null);
+
+                const estaciones = await fetch(
+                    'http://localhost:8081/api/v1/filtro/estaciones'
+                    );
+                const procedimientos = await fetch(
+                    'http://localhost:8081/api/v1/filtro/procedimientos'
+                    );
+                const variables = await fetch(
+                    'http://localhost:8081/api/v1/filtro/variables'
+                    );
+                let responseEstaciones = await estaciones.json()
+                    setEstacionesDisponibles(responseEstaciones)
+                let responseProcedimientos = await procedimientos.json()
+                    setProcedimientosDisponibles(responseProcedimientos)
+                let responseVariables = await variables.json()
+                    setVariablesDisponibles(responseVariables)
             } catch (err) {
                 setError(err.message);
                 setData(null);
@@ -66,7 +89,35 @@ export const Series = () => {
         setPage(newPage);
     };
     
-    async function aplicarFiltros(){}
+    async function aplicarFiltros(){
+        const params = {
+            configurationId: currentConfigId,
+            ...(desde) && {timeStart: desde},
+            ...(hasta) && {timeEnd: hasta},
+            ...(estacionSeleccionada) && {stationID:estacionSeleccionada},
+            ...(procedimientoSeleccionado) && {procId: procedimientoSeleccionado},
+            ...(variableSeleccionada) && {varId: variableSeleccionada},
+        }
+        const fetchDataFiltered = async () => {
+            setLoading(true);
+            try {
+                const response = await fetch('http://localhost:8081/api/v1/series?' + new URLSearchParams(params))
+            if (!response.ok) {
+                throw new Error(`HTTP error: Status ${response.status}`);
+                }
+                let data = await response.json();
+                setData(data.Content);
+                setTotalPages(data.Pageable.Pages)
+                setError(null);
+        } catch (err) {
+            setError(err.message);
+            setData(null);
+        } finally {
+            setLoading(false);
+        }
+        };
+        fetchDataFiltered();
+    }
 
     return (
         <div style={{maxWidth: "100%"}}>
@@ -87,87 +138,86 @@ export const Series = () => {
                 :<>
                     <Container sx={{display:"flex", flexFlow:"wrap", justifyContent:"center"}}>
                         <Grid items>
-                                    <TextField 
-                                        label = "ID Serie"
-                                        type = "text"
-                                        placeholder = "Seleccione un ID de serie"
-                                        name = "IdSerie"
-                                        className={"inputStyle"}
-                                        value={idSerie}
-                                        onChange = {(event) => setIdSerie(event.target.value)}
-                                        sx={{margin:2}}
-                                    />
-                                    <TextField 
-                                        label = "Desde"
-                                        type = "text"
-                                        placeholder = "Desde"
-                                        name = "Desde"
-                                        className={"inputStyle"}
-                                        value={desde}
-                                        onChange = {(event) => setDesde(event.target.value)}
-                                        sx={{margin:2}}
-                                    />
-                                    <TextField 
-                                        label = "Hasta"
-                                        type = "text"
-                                        placeholder = "Hasta"
-                                        name = "Hasta"
-                                        className={"inputStyle"}
-                                        value={hasta}
-                                        onChange = {(event) => setHasta(event.target.value)}
-                                        sx={{margin:2}}
-                                    />
-                                    <TextField 
-                                        label = "Variable"
-                                        type = "text"
-                                        placeholder = "Seleccione variable"
-                                        name = "variable"
-                                        className={"inputStyle"}
-                                        value={variable}
-                                        onChange = {(event) => setVariable(event.target.value)}
-                                        sx={{margin:2}}
-                                    />
-                                    <TextField 
-                                        label = "Procedimiento"
-                                        type = "text"
-                                        placeholder = "Procedimiento"
-                                        name = "procedimiento"
-                                        className={"inputStyle"}
-                                        value={procedimiento}
-                                        onChange = {(event) => setProcedimiento(event.target.value)}
-                                        sx={{margin:2}}
-                                    />
-                                    <TextField 
-                                        label = "Id estacion"
-                                        type = "text"
-                                        placeholder = "Id estacion"
-                                        name = "idEstacion"
-                                        className={"inputStyle"}
-                                        value={idEstacion}
-                                        onChange = {(event) => setIdEstacion(event.target.value)}
-                                        sx={{margin: 2}}
-                                    />
-                                    <FormControl sx={{ m: 1, minWidth: 150, marginInline: 2, marginTop:2}}>
-                                        <InputLabel id="idEstacion">Tipo de serie</InputLabel>
-                                        <Select
-                                            labelId="tipoDeSerie"
-                                            id="demo-simple-select"
-                                            value={tipoSerie}
-                                            label="Tipo de serie"
-                                            onChange={(event) => setTipoSerie(event.target.value)}
-                                        >
-                                            <MenuItem value={10}>Pronosticada</MenuItem>
-                                            <MenuItem value={20}>Observada</MenuItem>
-                                            <MenuItem value={30}>Simulada</MenuItem>
-                                        </Select>
-                                    </FormControl>
+                            <LocalizationProvider  dateAdapter={AdapterDayjs } >
+                                <DatePicker 
+                                    id="Desde"
+                                    label="Desde"
+                                    inputFormat="DD/MM/YYYY"
+                                    value={desde || null}
+                                    onChange = {(event) => setDesde(event)}
+                                    renderInput={(params) => <TextField {...params} />}
+                                    sx={{ m: 1, maxWidth: 200, marginInline: 2, marginTop:2}}
+                                />
+                                <DatePicker 
+                                    id="hasta"
+                                    label="Hasta"
+                                    inputFormat="DD/MM/YYYY"
+                                    value={hasta || null}
+                                    onChange = {(event) => setHasta(event)}
+                                    renderInput={(params) => <TextField {...params} />}
+                                    sx={{ m: 1, maxWidth: 200, marginInline: 2, marginTop:2}}
+                                />
+                            </LocalizationProvider>
+                            <FormControl sx={{ m: 1, minWidth: 200, marginInline: 2, marginTop:2}}>
+                                <InputLabel id="estacion">Variable</InputLabel>
+                                <Select
+                                    labelId="Variable"
+                                    id="demo-simple-select"
+                                    value={variableSeleccionada}
+                                    label="Variable"
+                                    onChange={(event) => setVariable(event.target.value)}
+                                >
+                                    {variablesDisponibles.map((variable) => (
+                                        <MenuItem value={variable.Id}>{variable.Name}</MenuItem>
+                                        ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl sx={{ m: 1, minWidth: 200, marginInline: 2, marginTop:2}}>
+                                <InputLabel id="estacion">Procedimiento</InputLabel>
+                                <Select
+                                    labelId="Procedimiento"
+                                    id="demo-simple-select"
+                                    value={procedimientoSeleccionado}
+                                    label="Procedimiento"
+                                    onChange={(event) => setProcedimiento(event.target.value)}
+                                >
+                                    {procedimientosDisponibles.map((procedimiento) => (
+                                        <MenuItem value={procedimiento.Id}>{procedimiento.Name}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl sx={{ m: 1, minWidth: 200, marginInline: 2, marginTop:2}}>
+                                <InputLabel id="estacion">Estacion</InputLabel>
+                                <Select
+                                    labelId="estacion"
+                                    id="demo-simple-select"
+                                    value={estacionSeleccionada}
+                                    label="Estacion"
+                                    onChange={(event) => setIdEstacion(event.target.value)}
+                                >
+                                    {estacionesDisponibles.map((estacion) => (
+                                        <MenuItem value={estacion.Id}>{estacion.Name}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl sx={{ m: 1, minWidth: 200, marginInline: 2, marginTop:2}}>
+                                <InputLabel id="tipoDeSerie">Tipo de serie</InputLabel>
+                                <Select
+                                    labelId="tipoDeSerie"
+                                    id="demo-simple-select"
+                                    value={tipoSerieSeleccionada}
+                                    label="Tipo de serie"
+                                    onChange={(event) => setTipoSerie(event.target.value)}
+                                >
+                                    <MenuItem value={10}>Pronosticada</MenuItem>
+                                    <MenuItem value={20}>Observada</MenuItem>
+                                    <MenuItem value={30}>Simulada</MenuItem>
+                                </Select>
+                            </FormControl>
                         </Grid>
                         <div>
                             <Button variant="contained" onClick={aplicarFiltros} sx={{margin: 2, marginInline:5}}>
                                 Aplicar filtros
-                            </Button>
-                            <Button variant="contained" onClick={aplicarFiltros} sx={{margin: 2, marginInline:5}}>
-                                Descargar datos
                             </Button>
                         </div>
                     </Container>
