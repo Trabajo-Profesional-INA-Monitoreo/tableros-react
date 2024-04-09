@@ -1,7 +1,7 @@
 import React from 'react';
+import { Pagination } from '@mui/material';
 
 const PaginationComponent = ({ page, totalPages, setPage}) => {
-    page = page+1
     const handlePageChange = (newPage) => {
         setPage(newPage);
     };
@@ -55,10 +55,11 @@ const PaginationComponent = ({ page, totalPages, setPage}) => {
     };
 
     return (
-        <div>
-            {page>1?<button onClick={handlePrevPage}>Previous Page</button>:<></>}
-            {renderPageNumbers()}
-            {page<totalPages?<button onClick={handleNextPage}>Next Page</button>:<></>}
+        <div style={{ display: "flex", justifyContent: "center"}}>
+            <Pagination
+                count={totalPages}
+                sx={{marginTop:6}}
+            />
         </div>
     );
 };

@@ -9,6 +9,7 @@ import PaginationComponent from '../../components/pagination/paginationComponent
 import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
 const getConfigId = () => {
     return parseInt(localStorage.getItem("configId"), 10);
 };
@@ -17,12 +18,20 @@ const getConfigName = () => {
     return localStorage.getItem("configName");
 };
 
+function dateParser(dateString){
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-based, so add 1 and pad with leading zero if necessary
+    const day = date.getDate().toString().padStart(2, '0'); // Pad day with leading zero if necessary
+
+    return`${year}-${month}-${day}`;
+}
+
 export const Series = () => {
     const [desde, setDesde] = useState('');
     const [hasta, setHasta] = useState('');
     const [procedimientoSeleccionado, setProcedimiento] = useState('');
     const [estacionSeleccionada, setIdEstacion] = useState('');
-    const [tipoSerieSeleccionada, setTipoSerie] = useState('');
     const [variableSeleccionada, setVariable] = useState('');
 
     const [currentConfigName, setCurrentConfigName] = useState('');
@@ -92,8 +101,8 @@ export const Series = () => {
     async function aplicarFiltros(){
         const params = {
             configurationId: currentConfigId,
-            ...(desde) && {timeStart: desde},
-            ...(hasta) && {timeEnd: hasta},
+            ...(desde) && {timeStart: dateParser(desde)},
+            ...(hasta) && {timeEnd: dateParser(hasta)},
             ...(estacionSeleccionada) && {stationID:estacionSeleccionada},
             ...(procedimientoSeleccionado) && {procId: procedimientoSeleccionado},
             ...(variableSeleccionada) && {varId: variableSeleccionada},
@@ -142,7 +151,7 @@ export const Series = () => {
                                 <DatePicker 
                                     id="Desde"
                                     label="Desde"
-                                    inputFormat="DD/MM/YYYY"
+                                    inputFormat="YYYY/MM/DD"
                                     value={desde || null}
                                     onChange = {(event) => setDesde(event)}
                                     renderInput={(params) => <TextField {...params} />}
@@ -151,7 +160,7 @@ export const Series = () => {
                                 <DatePicker 
                                     id="hasta"
                                     label="Hasta"
-                                    inputFormat="DD/MM/YYYY"
+                                    inputFormat="YYYY/MM/DD"
                                     value={hasta || null}
                                     onChange = {(event) => setHasta(event)}
                                     renderInput={(params) => <TextField {...params} />}
@@ -200,24 +209,20 @@ export const Series = () => {
                                     ))}
                                 </Select>
                             </FormControl>
-                            <FormControl sx={{ m: 1, minWidth: 200, marginInline: 2, marginTop:2}}>
-                                <InputLabel id="tipoDeSerie">Tipo de serie</InputLabel>
-                                <Select
-                                    labelId="tipoDeSerie"
-                                    id="demo-simple-select"
-                                    value={tipoSerieSeleccionada}
-                                    label="Tipo de serie"
-                                    onChange={(event) => setTipoSerie(event.target.value)}
-                                >
-                                    <MenuItem value={10}>Pronosticada</MenuItem>
-                                    <MenuItem value={20}>Observada</MenuItem>
-                                    <MenuItem value={30}>Simulada</MenuItem>
-                                </Select>
-                            </FormControl>
                         </Grid>
                         <div>
                             <Button variant="contained" onClick={aplicarFiltros} sx={{margin: 2, marginInline:5}}>
                                 Aplicar filtros
+                            </Button>
+                            <Button variant="contained" onClick={()=>{
+                                setDesde(null)
+                                setHasta(null)
+                                setIdEstacion(null)
+                                setProcedimiento('')
+                                setVariable('')
+                                aplicarFiltros()
+                            }} sx={{margin: 2, marginInline:5}}>
+                                Borrar filtros
                             </Button>
                         </div>
                     </Container>
@@ -237,7 +242,9 @@ export const Series = () => {
                     
                     </Container>
                     {openModal ? <SerieModal open={openModal} handleClose={handleCloseModal} serieId={31525} serieType={2} calibrationId={null}/> : null}
-            <PaginationComponent page={page} totalPages={totalPages} setPage={setPage}/>
+            <div style={{justifyContent:"center"}}>
+                <PaginationComponent page={page} totalPages={totalPages} setPage={setPage}/>
+            </div>
             </>
             }
         </div>
