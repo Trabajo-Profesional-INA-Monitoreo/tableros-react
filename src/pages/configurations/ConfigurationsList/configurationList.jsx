@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import EditIcon from '@mui/icons-material/Edit';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
@@ -43,14 +45,14 @@ const getConfigId = () => {
     return parseInt(localStorage.getItem("configId"), 10);
 };
 
-export const ConfigurationsList = ({setCurrentView}) => {
+export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID}) => {
     const presenter = new ConfigurationListPresenter()
     const {currentConfigID, selectConfig} = useContext(ConfigurationContext);
     
     const {userInfo} = useUser()
     const [configurations, setConfigurations] = useState([]);
     const [isLoading, setLoading] = useState(true)
-    const isAdmin = userInfo.roles?.includes("admin")
+    const isAdmin = true //userInfo.roles?.includes("admin")
     
     const handleDelete = (id) => {
         const updatedData = configurations.filter((item) => item.Id !== id);
@@ -109,6 +111,12 @@ export const ConfigurationsList = ({setCurrentView}) => {
                                         >
                                             usar
                                         </Button>
+                                        <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.VIEW); setSelectedConfigurationID(configuration.Id); }}>
+                                            <VisibilityOutlinedIcon color='primary'/>
+                                        </IconButton>
+                                        <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.EDIT); setSelectedConfigurationID(configuration.Id); }}>
+                                            <EditIcon color='primary'/>
+                                        </IconButton>
                                         {isAdmin ?
                                             <IconButton aria-label="trash" onClick={() => {
                                                 presenter.onDeleteConfigPressed(getDeleteConfigModalContent( configuration, presenter, handleDelete))

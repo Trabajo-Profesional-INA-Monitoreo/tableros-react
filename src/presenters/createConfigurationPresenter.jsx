@@ -1,5 +1,5 @@
 import configurationService from "../services/configurationService";
-import { STREAM_TYPE_CODE, SERIES_TYPES, METRICS_CODE } from "../utils/constants"
+import { STREAM_TYPE_CODE, SERIES_TYPES, METRICS_CODE, INITIAL_METRICS_STATE, METRICS_CODE_INVERSE } from "../utils/constants"
 
 export class CreateConfigurationPresenter {
 
@@ -7,6 +7,10 @@ export class CreateConfigurationPresenter {
     
     postConfiguration = async(body) => {
         return this.configurationService.postConfiguration(body);
+    }
+
+    putConfiguration = async(body) => {
+        return this.configurationService.putConfiguration(body);
     }
 
     isValidStream = (stream) => {
@@ -90,5 +94,49 @@ export class CreateConfigurationPresenter {
             })
         })
         return configuration
+    }
+
+    getConfiguration = async(id) => {
+        return id ? this.configurationService.getConfiguration(id) : null;
+    }
+
+    buildNodesFromConfiguration = (configuration) => {
+        let nodes = [];
+        configuration.Nodes.forEach(node => nodes.push({"name": node.Name, "id": node.Id}))
+        return nodes;
+    }
+
+    buildSeriesFromConfiguration = (configuration) => {
+        let series = [];
+
+        const buildMetricsFromConfiguration = (metricIDs) => {
+            let metrics = INITIAL_METRICS_STATE;
+            metricIDs.forEach(metricID => metrics[METRICS_CODE_INVERSE[metricID]] = true);
+            return metrics;
+        }
+
+        configuration.Nodes.forEach(node => {
+            
+            series = series.concat(node.ConfiguredStreams.map(serie => (
+                {
+                    idSerie: String(serie.StreamId),
+                    idNode: Number(node.Id),
+                    actualizationFrequency: String(serie.UpdateFrequency),
+                    serieType: String(serie.StreamType),
+                    calibrationID: serie.CalibrationId !== 0 ? String(serie.CalibrationId) : '',
+                    redundantSeriesIDs: serie.redundanciesIds ? serie.redundanciesIds : [],
+                    metrics: serie.Metrics ? buildMetricsFromConfiguration(serie.Metrics) : INITIAL_METRICS_STATE,
+                    checkErrors: serie.CheckErrors,
+                    lowerThreshold: serie.LowerThreshold ? String(serie.LowerThreshold) : '',
+                    upperThreshold: serie.upperThreshold ? String(serie.UpperThreshold) : ''
+                }
+            )
+            ));
+
+
+        })
+
+        console.log(JSON.stringify(series));
+        return series;
     }
 }
