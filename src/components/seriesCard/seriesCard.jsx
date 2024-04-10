@@ -5,6 +5,9 @@ import { Styles } from './Style';
 import { CardActionArea } from '@mui/material';
 
 function renderData(description, data, style){
+    if (!data){
+        data = 0
+    }
     return (
         <div style={style.cardInfoContainer}>
             <p>{description+": "+data}</p>
@@ -19,13 +22,14 @@ function SeriesCard({serieData, onClick}) {
             <CardActionArea onClick={onClick}>
 
             <CardHeader
-                title={"Serie Nro "+serieData.id+" - "+serieData.nameVar+" | "+serieData.estacion}
+                title={"Serie Nro "+serieData.StreamId+" | "+serieData.StationName}
                 sx={style.cardHeader}
             />
             <CardContent>
-                {renderData("Errores", serieData.CantErrores, style)}
-                {renderData("Tiempo de retraso", serieData.tiempoDeRetraso, style)}
-                {renderData("Procedimiento",serieData.procedimiento, style)}
+                {renderData("Variable de medicion",serieData.VariableName, style)}
+                {serieData.CheckErrors? renderData("Errores totales", serieData.TotalErrors, style): <></>}
+                {/*renderData("Tiempo de retraso", serieData.tiempoDeRetraso, style)*/}
+                {renderData("Procedimiento",serieData.ProcedureName, style)}
                 {renderData("Tipo de serie", serieData.tipo, style)}
             </CardContent>
             </CardActionArea>
