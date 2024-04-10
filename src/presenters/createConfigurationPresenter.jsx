@@ -74,11 +74,11 @@ export class CreateConfigurationPresenter {
     buildConfigurationBody = (configurationName, nodes, series) => {
         var configuration = {};
         configuration['name'] = configurationName
-        configuration['nodes'] = nodes
+        configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node.id}) )
         configuration['nodes'].forEach(node => {
             node['configuredStreams'] = []
             series.forEach(serie => {
-                if (node.id === serie.idNode) {
+                if (node._id === serie.idNode) {
                     node['configuredStreams'].push({
                         streamId: Number(serie.idSerie),
                         streamType: STREAM_TYPE_CODE[serie.serieType],
