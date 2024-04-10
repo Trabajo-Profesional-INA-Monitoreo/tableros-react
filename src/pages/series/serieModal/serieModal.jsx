@@ -75,7 +75,7 @@ const style = {
   
   const valueFormatter = (value) => `${value}h`;
 
-export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId}) => {
+export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId, configuredSerieId}) => {
 
   const presenter = new SeriesPresenter();
 
@@ -86,26 +86,28 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
   const [serieP95Values, setSerieP95Values] = useState([]); 
   
   const getSerieMetadataAndValues = async () => {
-    let serieMetadata = await presenter.getSerieMetadata(serieId,serieId);
-    let serieValues = await presenter.getSerieValues(serieId, serieType, calibrationId);
-    switch (serieType) {
-      case 0:
-      case 2:
-        setSerieValues(serieValues.Streams);
-        break;
-      case 1:
-        setSerieValues(serieValues.MainStreams);
-        setSerieP05Values(serieValues.P05Streams);
-        setSerieP95Values(serieValues.P95Streams);
-        break;
+    if (open) {
+      let serieMetadata = await presenter.getSerieMetadata(serieId, configuredSerieId);
+      let serieValues = await presenter.getSerieValues(serieId, serieType, calibrationId);
+      switch (serieType) {
+        case 0:
+        case 2:
+          setSerieValues(serieValues.Streams);
+          break;
+        case 1:
+          setSerieValues(serieValues.MainStreams);
+          setSerieP05Values(serieValues.P05Streams);
+          setSerieP95Values(serieValues.P95Streams);
+          break;
+      }
+      setSerieMetadata(serieMetadata);
+      setIsLoading(false);
     }
-    setSerieMetadata(serieMetadata);
-    setIsLoading(false);
   }
 
   useEffect(() => {
       getSerieMetadataAndValues();
-  }, []);
+  }, [open]);
 
     return (
         <Modal open={open} onClose={handleClose}>
