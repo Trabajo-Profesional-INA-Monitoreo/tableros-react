@@ -103,7 +103,7 @@ export const Series = () => {
             configurationId: currentConfigId,
             ...(desde) && {timeStart: dateParser(desde)},
             ...(hasta) && {timeEnd: dateParser(hasta)},
-            ...(estacionSeleccionada) && {stationID:estacionSeleccionada},
+            ...(estacionSeleccionada) && {stationId:estacionSeleccionada},
             ...(procedimientoSeleccionado) && {procId: procedimientoSeleccionado},
             ...(variableSeleccionada) && {varId: variableSeleccionada},
         }
@@ -242,7 +242,13 @@ export const Series = () => {
                     
                     </Container>
                     {data.map((serie) => (
-                        <SerieModal open={serie.ConfiguredStreamId === configuredStreamIdModalOpen} handleClose={handleCloseModal} serieId={serie.StreamId} configuredSerieId={serie.ConfiguredStreamId} serieType={0} calibrationId={null}/>
+                        <SerieModal 
+                            open={serie.ConfiguredStreamId === configuredStreamIdModalOpen} 
+                            handleClose={handleCloseModal} 
+                            serieId={serie.StreamId} 
+                            configuredSerieId={serie.ConfiguredStreamId} 
+                            serieType={serie.StreamType} 
+                            calibrationId={serie.CalibrationId}/>
                     ))}
             
                 <PaginationComponent page={page} totalPages={totalPages} setPage={setPage}/>

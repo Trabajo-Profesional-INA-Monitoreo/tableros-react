@@ -21,19 +21,19 @@ export class SeriesPresenter {
 
     buildGeneralMetrics = (metrics) => {
         if (!metrics) return [];
-        const validMetricNames = ["Mediana", "Media", "Maximo", "Minimo"];
+        const validMetricNames = ["Mediana", "Media", "Máximo", "Mínimo"];
         return metrics.filter(metric => validMetricNames.includes(metric.Name));
     }
 
     buildBehaviourMetrics = (metrics) => {
         if (!metrics) return [];
-        const behaviourMetrics = ["AguasAlerta", "AguasEvacuacion", "AguasBajas"];
+        const behaviourMetrics = ["Cantidad bajo nivel de Aguas Bajas", "Cantidad sobre nivel de Alerta", "Cantidad sobre nivel de Evacuación"];
         return metrics.filter(metric => behaviourMetrics.includes(metric.Name));
     }
 
     buildNullsMetric = (metrics) => {
         if (!metrics) return [];
-        return metrics.filter(metric => metric.Name === "Nulos");
+        return metrics.filter(metric => metric.Name === "Cantidad de Nulos");
     }
 
     buildObservationsMetric = (metrics) => {

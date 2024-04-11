@@ -4,7 +4,6 @@ import  useUser  from "../../stores/useUser";
 import {UserLogout} from "../../services/userService"
 import {Blue900} from "../../resources/colors/colors"
 
-
 function mapMenuOptions() {
     return (
         <MenuItem key={"logout"} onClick={UserLogout}>
@@ -31,7 +30,6 @@ const UserDataRow = () => {
         <Toolbar sx={{ marginBottom: "20px" }}>
             <Tooltip title="Acciones de usuario">
                 <Stack
-                    sx={{ width: "100%" }}
                     direction="row"
                     justifyContent="left"
                     alignItems="center"
@@ -39,13 +37,9 @@ const UserDataRow = () => {
                     style={{cursor:"pointer"}}
                 >
                     <Avatar/>
-                    <text
-                        style={{
-                            marginLeft: "30px",
-                            color: Blue900,
-                            fontWeight: "bold"
-                            }}
-                    > {userInfo.userName} </text>
+                   <text style={{wordBreak: 'break-all', width: '100%', padding: '0px 10px 0px 10px'}}>
+                        <b>{userInfo.userName}</b>
+                    </text>
                 </Stack>
             </Tooltip>
             <Menu

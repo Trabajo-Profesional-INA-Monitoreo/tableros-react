@@ -198,20 +198,25 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
 
   const plotSeries = [
     {curve: "linear", dataKey: 'Value', label: 'Valor', valueFormatter: (altura) => altura + 'm', showMark: false},
-    {curve: "linear", data: Array(serieValues.length).fill(serieMetadata.EvacuationLevel), label: 'Evacuacion', showMark: false, color: '#e15759', valueFormatter: (altura) => altura + 'm'},
-    {curve: "linear", data: Array(serieValues.length).fill(serieMetadata.AlertLevel), label: 'Alerta', showMark: false, color:'#e15759', valueFormatter: (altura) => altura + 'm'},
-    {curve: "linear", data: Array(serieValues.length).fill(serieMetadata.LowWaterLevel), label: 'Aguas bajas', showMark: false, color: '#e15759', valueFormatter: (altura) => altura + 'm'},
   ]
 
-  if (serieP05Values.length > 0) {
+  if (serieValues && serieValues.length > 0) {
+    plotSeries.push({curve: "linear", data: Array(serieValues.length).fill(serieMetadata.EvacuationLevel), label: 'Evacuacion', showMark: false, color: '#e15759', valueFormatter: (altura) => altura + 'm'});
+    plotSeries.push({curve: "linear", data: Array(serieValues.length).fill(serieMetadata.AlertLevel), label: 'Alerta', showMark: false, color:'#e15759', valueFormatter: (altura) => altura + 'm'});
+    plotSeries.push({curve: "linear", data: Array(serieValues.length).fill(serieMetadata.LowWaterLevel), label: 'Aguas bajas', showMark: false, color: '#e15759', valueFormatter: (altura) => altura + 'm'});
+  }
+
+  if (serieP05Values && serieP05Values.length > 0) {
     plotSeries.push({curve: "linear", data: serieP05Values.map(point => point.Value), label: 'P05', valueFormatter: (altura) => altura + 'm', showMark: false, color: '#2E9BFF'})
   }
-  if (serieP05Values.length > 0) {
+  if (serieP95Values && serieP95Values.length > 0) {
     plotSeries.push({curve: "linear", data: serieP95Values.map(point => point.Value), label: 'P95', valueFormatter: (altura) => altura + 'm', showMark: false, color: '#2E9BFF'})
   }
   
   return (
     <>
+    { serieValues && serieValues.length > 0 ? 
+      <>
       <Line/>
       <Typography variant="h6" align='center'><b>Valores de la serie en la última semana</b></Typography>
       <LineChart
@@ -226,6 +231,9 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
         grid={{vertical: true, horizontal: true}}
         yAxis={[{min: -0.5, max: 4}]}
       />
+      </>
+    : null}
+      
     </>
   )
 }

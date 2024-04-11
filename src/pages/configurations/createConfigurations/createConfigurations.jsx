@@ -145,7 +145,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                         </Select>
                     </FormControl>
                 </Box>
-                <TextField type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)}/>
+                <TextField type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)} helperText="En minutos"/>
                 <h4>Tipo de serie</h4>
                 <RadioGroup className='row' value={serieType} onChange={e => handleChangeSerieType(e)} >
                     {Object.keys(SERIES_TYPES).map(key => 
