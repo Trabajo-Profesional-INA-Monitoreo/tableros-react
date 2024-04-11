@@ -22,7 +22,7 @@ function SeriesCard({serieData, onClick}) {
             <CardActionArea onClick={onClick}>
 
             <CardHeader
-                title={"Serie Nro "+serieData.StreamId+" | "+serieData.StationName}
+                title={serieData.StationName + " | "+ serieData.StreamId}
                 sx={style.cardHeader}
             />
             <CardContent>

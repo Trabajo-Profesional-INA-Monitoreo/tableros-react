@@ -36,9 +36,9 @@ export const Series = () => {
     const [currentConfigName, setCurrentConfigName] = useState('');
     const [currentConfigId, setCurrentConfigId] = useState('');
 
-    const [openModal, setOpenModal] = useState(false);
-    const handleOpenModal = () => setOpenModal(true);
-    const handleCloseModal = () => setOpenModal(false);
+    const [configuredStreamIdModalOpen, setConfiguredStreamIdModalOpen] = useState(null);
+    const handleOpenModal = (configuredStreamId) => setConfiguredStreamIdModalOpen(configuredStreamId);
+    const handleCloseModal = () => setConfiguredStreamIdModalOpen(null);
     const [data, setData] = useState(null);
     const [estacionesDisponibles, setEstacionesDisponibles] = useState(null);
     const [procedimientosDisponibles, setProcedimientosDisponibles] = useState(null);
@@ -102,7 +102,7 @@ export const Series = () => {
             configurationId: currentConfigId,
             ...(desde) && {timeStart: dateParser(desde)},
             ...(hasta) && {timeEnd: dateParser(hasta)},
-            ...(estacionSeleccionada) && {stationID:estacionSeleccionada},
+            ...(estacionSeleccionada) && {stationId:estacionSeleccionada},
             ...(procedimientoSeleccionado) && {procId: procedimientoSeleccionado},
             ...(variableSeleccionada) && {varId: variableSeleccionada},
         }
@@ -233,14 +233,22 @@ export const Series = () => {
                         >
                             {data.map((serie, index) => (
                                 <Grid item key={index}>
-                                    <SeriesCard serieData={serie} onClick={handleOpenModal}/>  
+                                    <SeriesCard serieData={serie} onClick={() => handleOpenModal(serie.ConfiguredStreamId)}/>  
                                 </Grid>
                                 ))
                             }
                         </Grid>
                     
                     </Container>
-                    {openModal ? <SerieModal open={openModal} handleClose={handleCloseModal} serieId={31525} serieType={2} calibrationId={null}/> : null}
+                    {data.map((serie) => (
+                        <SerieModal 
+                            open={serie.ConfiguredStreamId === configuredStreamIdModalOpen} 
+                            handleClose={handleCloseModal} 
+                            serieId={serie.StreamId} 
+                            configuredSerieId={serie.ConfiguredStreamId} 
+                            serieType={serie.StreamType} 
+                            calibrationId={serie.CalibrationId}/>
+                    ))}
             
                 <PaginationComponent page={page} totalPages={totalPages} setPage={setPage}/>
             </>
