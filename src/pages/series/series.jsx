@@ -21,9 +21,8 @@ const getConfigName = () => {
 function dateParser(dateString){
     const date = new Date(dateString);
     const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are 0-based, so add 1 and pad with leading zero if necessary
-    const day = date.getDate().toString().padStart(2, '0'); // Pad day with leading zero if necessary
-
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); 
+    const day = date.getDate().toString().padStart(2, '0');
     return`${year}-${month}-${day}`;
 }
 
