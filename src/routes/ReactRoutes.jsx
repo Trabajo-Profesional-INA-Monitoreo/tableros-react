@@ -8,6 +8,8 @@ import HouseboatIcon from '@mui/icons-material/Houseboat';
 import SpokeIcon from '@mui/icons-material/Spoke';
 import { Series } from '../pages/series/series';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
+import {Outputs} from '../pages/outputs/outputs';
+import CellTowerIcon from '@mui/icons-material/CellTower';
 
 const appRoutes = [
 		{
@@ -57,6 +59,16 @@ const appRoutes = [
 			state: "Redes",
 			sidebarProps: {
 				displayText: "Redes",
+				icon: <CellTowerIcon />
+			}
+		},
+		{
+			path: "/outputs",
+			index: true,
+			element: <Outputs />,
+			state: "Outputs",
+			sidebarProps: {
+				displayText: "Outputs",
 				icon: <SpokeIcon />
 			}
 		}
