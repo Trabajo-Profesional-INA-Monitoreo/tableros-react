@@ -1,6 +1,6 @@
 import { Home } from '../pages/home/home';
 import { Configurations } from '../pages/configurations/configuraciones';
-import { Estaciones } from '../pages/estaciones/estaciones';
+import { Stations } from '../pages/stations/stations';
 import { Redes } from '../pages/redes/redes';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HomeIcon from '@mui/icons-material/Home';
@@ -35,8 +35,8 @@ const appRoutes = [
 		{
 			path: "/estaciones",
 			index: true,
-			element: <Estaciones />,
-			state: "Estaciones",
+			element: <Stations />,
+			state: "Stations",
 			sidebarProps: {
 				displayText: "Estaciones",
 				icon: <HouseboatIcon />
