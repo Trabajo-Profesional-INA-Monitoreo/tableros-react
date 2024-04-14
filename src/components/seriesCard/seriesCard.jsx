@@ -3,6 +3,7 @@ import CardHeader from '@mui/material/CardHeader';
 import CardContent from '@mui/material/CardContent';
 import { Styles } from './Style';
 import { CardActionArea } from '@mui/material';
+import { STREAM_TYPE_CODE_INVERSE } from '../../utils/constants';
 
 function renderData(description, data, style){
     if (!data){
@@ -10,7 +11,7 @@ function renderData(description, data, style){
     }
     return (
         <div style={style.cardInfoContainer}>
-            <p>{description+": "+data}</p>
+            <p><b>{description+': '}</b>{data}</p>
         </div>
     )
 }
@@ -30,7 +31,7 @@ function SeriesCard({serieData, onClick}) {
                 {serieData.CheckErrors? renderData("Errores totales", serieData.TotalErrors, style): <></>}
                 {/*renderData("Tiempo de retraso", serieData.tiempoDeRetraso, style)*/}
                 {renderData("Procedimiento",serieData.ProcedureName, style)}
-                {renderData("Tipo de serie", serieData.tipo, style)}
+                {renderData("Tipo de serie", STREAM_TYPE_CODE_INVERSE[serieData.StreamType], style)}
             </CardContent>
             </CardActionArea>
         </Card>

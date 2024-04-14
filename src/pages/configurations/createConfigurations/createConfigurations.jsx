@@ -141,7 +141,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                     <FormControl sx={{minWidth: 220}}>
                         <InputLabel id="nodo">Nodo</InputLabel>
                         <Select label="Nodo" id="nodo" labelId="nodo" value={idNode} onChange={e => setIdNode(e.target.value)} disabled={nodes.length === 0}>
-                            {nodes.map(node => <MenuItem key={node.id} value={node.id}>{`${node.id} - ${node.name}`}</MenuItem>)}
+                            {nodes.map((node, index) => <MenuItem key={node.id} value={node.id}>{`${index+1} - ${node.name}`}</MenuItem>)}
                         </Select>
                     </FormControl>
                 </Box>
