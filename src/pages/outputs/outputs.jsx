@@ -8,6 +8,7 @@ import { TextField, Button, Typography} from '@mui/material';
 import { CircularProgress } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 import OutputService from '../../services/outputsService';
+import CircularProgressWithLabel from '../../components/circularProgressWithLabel/circularProgressWithLabel';
 
 const getConfigId = () => {
     return parseInt(localStorage.getItem("configId"), 10);
@@ -92,6 +93,23 @@ const map_metrics = (metrics, errores) => {
     }
 }
 
+const map_errors_per_day = (errores, final) => {
+    if(errores?.length === 0) return
+    for (const errorobj of errores) {
+        if(errorobj.ErrorType === 'NullValue'){
+            updateObjectInArray(final, "Valores nulos", { value: errorobj.Count }  )
+        }else if(errorobj.ErrorType === 'Missing4DaysHorizon'){
+            updateObjectInArray(final, "Errores de falta de horizonte a 4 dias", { value: errorobj.Count }  )
+        }else if(errorobj.ErrorType === 'OutsideOfErrorBands'){
+            updateObjectInArray(final, "Valores fuera de banda de errores", { value: errorobj.Count }  )
+        }else if(errorobj.ErrorType === "ForecastMissing"){
+            updateObjectInArray(final, "Errores de falta de pronostico", { value: errorobj.Count }  )
+        }else{ 
+            updateObjectInArray(final, "Errores desconocidos", { value: errorobj.Count }  )
+        }
+    }
+}
+
 const updateObjectInArray = (arr, nameValue, updatedValue) => {
     const index = arr.findIndex(obj => obj.name === nameValue);
     if (index !== -1) {
@@ -102,12 +120,18 @@ const updateObjectInArray = (arr, nameValue, updatedValue) => {
 
 export const Outputs = () => {
     const service = new OutputService()
+    const [currentConfigName, setCurrentConfigName] = useState('');
+    const [currentConfigId, setCurrentConfigId] = useState('');
+    const [loading, setLoading] = useState(true);
+
     //const currentDate = new Date();
     //const [desde, setDesde] = useState(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 7));
     //const [hasta, setHasta] = useState(currentDate);
     const [desde, setDesde] = useState('');
     const [hasta, setHasta] = useState('');
-    const [loading, setLoading] = useState(true);
+
+    const [indicadores, setIndicadores] =  useState([]);
+
     const [metrics, setMetrics] = useState([
         {name: "Valores nulos", value: 0},
         {name: "Errores de falta de horizonte a 4 dias", value: 0},
@@ -115,14 +139,14 @@ export const Outputs = () => {
         {name: "Errores de falta de pronostico", value: 0},
         {name: "Errores desconocidos", value: 0},
     ]);
-    const [indicadores, setIndicadores] =  useState([]);
     const [erroresPorDias, setErroresPorDias] = useState({})
-    const [currentConfigName, setCurrentConfigName] = useState('');
-    const [currentConfigId, setCurrentConfigId] = useState('');
+    const [erroresGrafico, setErroresGrafico] = useState([])
+
+    const [nivelAlertaPorcentaje, setNivelAlertaPorcentaje] = useState(0)
+    const [aguasBajasPorcentaje, setAguasBajasPorcentaje] = useState(0)
+    const [evacuacionPorcentaje, setevacuacionPorcentaje] = useState(0)
 
     const loadIndicators = useCallback (async() =>{
-        const configName = getConfigName();
-        if (configName) { setCurrentConfigName(configName) }
         const configId = getConfigId()
         setCurrentConfigId(configId)
         let indicadoresResponse = await service.getIndicatorsbyConfigID(configId)
@@ -131,12 +155,22 @@ export const Outputs = () => {
         setMetrics(metrics)
     },[])
 
+    const loadBehavior = useCallback (async()=>{
+        const configId = getConfigId()
+        const behaviorResponse = await service.getBehaviorByConfigId(configId)
+        setNivelAlertaPorcentaje(behaviorResponse.TotalValuesCount? behaviorResponse.CountAlertLevel/behaviorResponse.TotalValuesCount:0)
+        setevacuacionPorcentaje(behaviorResponse.TotalValuesCount? behaviorResponse.CountEvacuationLevel/behaviorResponse.TotalValuesCount:0)
+        setAguasBajasPorcentaje(behaviorResponse.TotalValuesCount? behaviorResponse.CountLowWaterLevel/behaviorResponse.TotalValuesCount:0)
+    },[])
+
     useEffect(() => {
+        const configName = getConfigName()
+        setCurrentConfigName(configName)
         loadIndicators()
         map_metrics(metrics, indicadores)
         setMetrics(metrics)
         const configId = getConfigId()
-
+        setCurrentConfigId(configId)
         const fetchDataPorDia = async () => {
             try {
                 const erorres_por_dia = await fetch(
@@ -185,12 +219,16 @@ export const Outputs = () => {
                 console.log("final")
                 console.log(sarasa)
                 setErroresPorDias(sarasa);
+                const datosGraficos=[]
+                
+                setErroresGrafico()
             } finally {
                 setLoading(false);
             }
         };
         fetchDataPorDia();
-    }, [loadIndicators]);
+        loadBehavior()
+    }, [loadIndicators, loadBehavior]);
 
     async function aplicarFiltros(){
         const params = {
@@ -202,7 +240,7 @@ export const Outputs = () => {
             setLoading(true);
             const response = await fetch('http://localhost:8081/api/v1/series?' + new URLSearchParams(params))
             let data = await response.json();
-            //map_metrics(metrics, data)
+            map_metrics(metrics, data)
         }
         fetchDataFiltered();
     }
@@ -262,7 +300,10 @@ export const Outputs = () => {
                     </Box>
                 </div>
                 <div style={{ display:"flex", justifyContent: "center", margin: "5%"}}>
-                {erroresPorDias && Object.keys(erroresPorDias).length === 3 && <BarChart
+                {
+                    
+                }
+                {erroresPorDias && <BarChart
                     width={600}
                     height={300}
                     xAxis={[{ scaleType: 'band', data: ['2024-04-12', '2024-04-13', '2024-04-14'] }]}
@@ -273,8 +314,32 @@ export const Outputs = () => {
                     ]}
                     />}
                 </div>
-            </>}
-        </> 
+                <Line/>
+                    <h2> Monitoreo de comportamiento</h2>
+                    <Box sx={{ display:"flex", flexDirection: 'row', justifyContent:"space-around", alignContent:"center", alignItems:"center", marginBottom:"5%"}}>
+                        <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
 
+                        <h3>Nivel de alerta</h3>
+                        <CircularProgressWithLabel text="observaciones por debajo del nivel de alerta " percentage={nivelAlertaPorcentaje} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
+                        </Box>
+                        <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
+
+                        <h3>Nivel de evacuación</h3>
+                        <CircularProgressWithLabel text="observaciones debajo del nivel de evacuacion" percentage={evacuacionPorcentaje} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
+                        </Box>
+                        <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
+
+                        <h3>Nivel de aguas bajas</h3>
+                        <CircularProgressWithLabel text="observaciones supera el nivel de aguas bajas" percentage={aguasBajasPorcentaje} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
+                        </Box>
+                    </Box>
+            <Line/>
+            </>}
+            <div style={{display:"flex", justifyContent:"center"}}>   
+                <Button>
+                    Ver series
+                </Button>
+            </div>
+        </>
     );
 }

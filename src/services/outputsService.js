@@ -7,4 +7,10 @@ export default class OutputService{
         const res = await response.json()
         return res
     }
+
+    async getBehaviorByConfigId(id){
+        const response = await fetch(BASE_URL+`/series/comportamiento?configurationId=${id}`);
+        const res = await response.json()
+        return res
+    }
 }
