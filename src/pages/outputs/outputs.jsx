@@ -118,10 +118,14 @@ export const Outputs = () => {
     const [currentConfigId, setCurrentConfigId] = useState('');
     const [loading, setLoading] = useState(true);
 
-    const currentDate = new Date();
-    const defaultDesdeDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 7)
+    const currentDate = dayjs()
+    const defaultDesdeDate = dayjs().subtract(7, 'day')
+
     const [desde, setDesde] = useState(defaultDesdeDate);
     const [hasta, setHasta] = useState(currentDate);
+
+    const [graficoDesde, setGraficoDesde] = useState(defaultDesdeDate);
+    const [graficohasta, setGraficoHasta] = useState(currentDate);
 
     const [indicadores, setIndicadores] =  useState([]);
 
@@ -137,6 +141,12 @@ export const Outputs = () => {
     const [nivelAlertaPorcentaje, setNivelAlertaPorcentaje] = useState(0)
     const [aguasBajasPorcentaje, setAguasBajasPorcentaje] = useState(0)
     const [evacuacionPorcentaje, setevacuacionPorcentaje] = useState(0)
+
+
+    const onChangeHandler = useCallback(newValue => {
+        setDesde(new Date(newValue.$y, newValue.$M,newValue.$D));
+        console.log(desde)
+        }, [setDesde]);
 
     const cargarDataGrafico = () => {
         const dataGraficos = []
@@ -178,24 +188,26 @@ export const Outputs = () => {
     async function aplicarFiltros(){
         const params = {
             configurationId: currentConfigId,
-            ...(desde) && {timeStart: dateParser(desde)},
-            ...(hasta) && {timeEnd: dateParser(hasta)},
+            ...(desde) && {timeStart: dateParser(desde.toDate())},
+            ...(hasta) && {timeEnd: dateParser(hasta.toDate())},
         }
-        console.log(params)
         const fetchDataFiltered = async () => {
             setLoading(true);
             const filteredIndicators = await service.getFilteredIndicators(params)
             map_metrics(metrics, filteredIndicators)
             setMetrics(metrics)
-            const filteredErrorsPerDayResponse = await service.getErroresPorDia(params)
-            const erroresAgrupados = groupErrors(filteredErrorsPerDayResponse, defaultDesdeDate, hasta);
-            setErroresPorDias(erroresAgrupados);
 
+            const filteredErrorsPerDayResponse = await service.getErroresPorDia(params)
+            const erroresAgrupados = groupErrors(filteredErrorsPerDayResponse, desde.toDate(), hasta.toDate());
+            setErroresPorDias(erroresAgrupados);
+            
             const filteredBehavior = await service.getBehaviorFilterd(params)
             setNivelAlertaPorcentaje(filteredBehavior.TotalValuesCount? filteredBehavior.CountAlertLevel/filteredBehavior.TotalValuesCount:0)
             setevacuacionPorcentaje(filteredBehavior.TotalValuesCount? filteredBehavior.CountEvacuationLevel/filteredBehavior.TotalValuesCount:0)
             setAguasBajasPorcentaje(filteredBehavior.TotalValuesCount? filteredBehavior.CountLowWaterLevel/filteredBehavior.TotalValuesCount:0)
-        
+            
+            setGraficoDesde(desde)
+            setGraficoHasta(hasta)
             setLoading(false);
         }
         fetchDataFiltered();
@@ -218,7 +230,7 @@ export const Outputs = () => {
                 throw new Error(`HTTP error: Status ${erorres_por_dia.status}`);
                 }
                 let dataPorDia = await erorres_por_dia.json();
-                const erroresAgrupados = groupErrors(dataPorDia, defaultDesdeDate, hasta);
+                const erroresAgrupados = groupErrors(dataPorDia, desde.toDate(), hasta.toDate());
                 setErroresPorDias(erroresAgrupados);
             
             } finally {
@@ -235,7 +247,7 @@ export const Outputs = () => {
         <>
         <Box>
             <h1>Tablero Outputs</h1>
-            <Button onClick={() => console.log(desde) }> PRINT DESDE</Button>
+            <Button onClick={() => console.log(desde.toDate()) }> PRINT DESDE</Button>
             <h4>Configuración actual: {currentConfigName}</h4>
             <Line/>
             <Grid items sx={{display:"flex", alignItems:"center"}}>
@@ -243,12 +255,8 @@ export const Outputs = () => {
                         id="Desde"
                         label="Desde"
                         inputFormat="YYYY/MM/DD"
-                        //onChange = {(event) => setDesde(new Date(event))}
-                        value={dayjs(desde)}
-                        onChange={(newValue) =>{
-                            console.log('NEW VALUE: ', newValue.$y, newValue.$M,newValue.$D)
-                            setDesde(new Date(newValue.$y, newValue.$M,newValue.$D));
-                        }}
+                        value={desde}
+                        onChange = {(event) => setDesde(event)}
                         renderInput={(params) => <TextField {...params} />}
                         maxDate={dayjs()}
                         sx={{ m: 1, maxWidth: 200, marginInline: 2, marginTop:2}}
@@ -257,7 +265,8 @@ export const Outputs = () => {
                         id="hasta"
                         label="Hasta"
                         inputFormat="YYYY/MM/DD"
-                        onChange = {(event) => setHasta(new Date(event))}
+                        value={hasta}
+                        onChange = {(event) => setHasta(event)}
                         renderInput={(params) => <TextField {...params} />}
                         maxDate={dayjs()}
                         sx={{ m: 1, maxWidth: 200, marginInline: 2, marginTop:2}}
@@ -265,10 +274,10 @@ export const Outputs = () => {
                 <Button variant="contained" onClick={aplicarFiltros} sx={{ marginInline:5}}>
                     Aplicar filtros
                 </Button>
-                <Button variant="contained" onClick={ async ()=>{
-                    setDesde(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 7))
+                <Button variant="contained" onClick={async ()=>{
+                    setDesde(defaultDesdeDate)
                     setHasta(currentDate)
-                    await loadIndicators()
+                    aplicarFiltros()
                 }} sx={{marginInline:5}}>
                     Borrar filtros
                 </Button>
@@ -296,7 +305,7 @@ export const Outputs = () => {
                 {erroresPorDias && <BarChart
                     width={800}
                     height={400}
-                    xAxis={[{ scaleType: 'band', data: calcularDias(desde,hasta) }]}
+                    xAxis={[{ scaleType: 'band', data: calcularDias(graficoDesde.toDate(),graficohasta.toDate()) }]}
                     series={cargarDataGrafico()}
                     />}
                 </div>

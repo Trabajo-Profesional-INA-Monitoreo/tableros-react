@@ -21,13 +21,13 @@ export default class OutputService{
     }
 
     async getBehaviorFilterd(params){
-        const response = await fetch(BASE_URL+`/series/comportamiento` + new URLSearchParams(params));
+        const response = await fetch(BASE_URL+`/series/comportamiento?` + new URLSearchParams(params));
         const res = await response.json()
         return res
     }
 
     async getErroresPorDia(params){
-        const response = await fetch(BASE_URL+`/errores/por-dia`+ new URLSearchParams(params));
+        const response = await fetch(BASE_URL+`/errores/por-dia?`+ new URLSearchParams(params));
         const res = await response.json()
         return res
     }
