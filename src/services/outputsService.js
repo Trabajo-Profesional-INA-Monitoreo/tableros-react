@@ -7,7 +7,7 @@ export default class OutputService{
         const res = await response.json()
         return res
     }
-    async getFilteredIndicatorsbyConfigID(params){
+    async getFilteredIndicators(params){
         console.log(params)
         const response = await fetch(BASE_URL+`/errores/indicadores?`+ new URLSearchParams(params));
         const res = await response.json()
@@ -16,6 +16,12 @@ export default class OutputService{
 
     async getBehaviorByConfigId(id){
         const response = await fetch(BASE_URL+`/series/comportamiento?configurationId=${id}`);
+        const res = await response.json()
+        return res
+    }
+
+    async getErroresPorDia(params){
+        const response = await fetch(BASE_URL+`/errores/por-dia`+ new URLSearchParams(params));
         const res = await response.json()
         return res
     }

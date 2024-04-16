@@ -80,7 +80,15 @@ function groupErrors(dates, desde, hasta) {
 }
 
 const map_metrics = (metrics, errores) => {
-    if(errores?.length === 0) return
+    console.log(errores)
+    if(errores?.length === 0){
+        updateObjectInArray(metrics, "Valores nulos", { value: 0 }  )
+        updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { value: 0}  )
+        updateObjectInArray(metrics, "Valores fuera de banda de errores", { value: 0 }  )
+        updateObjectInArray(metrics, "Errores de falta de pronostico", { value: 0 }  )
+        updateObjectInArray(metrics, "Errores desconocidos", { value: 0 }  )
+
+    }
     for (const errorobj of errores) {
         if(errorobj.ErrorType === 'NullValue'){
             updateObjectInArray(metrics, "Valores nulos", { value: errorobj.Count }  )
@@ -176,9 +184,12 @@ export const Outputs = () => {
         console.log(params)
         const fetchDataFiltered = async () => {
             setLoading(true);
-            const filteredIndicators = await service.getFilteredIndicatorsbyConfigID(params)
+            const filteredIndicators = await service.getFilteredIndicators(params)
             map_metrics(metrics, filteredIndicators)
             setMetrics(metrics)
+            const filteredErrorsPerDayResponse = await service.getErroresPorDia(params)
+            const erroresAgrupados = groupErrors(filteredErrorsPerDayResponse, defaultDesdeDate, hasta);
+            setErroresPorDias(erroresAgrupados);
             setLoading(false);
         }
         fetchDataFiltered();
@@ -249,9 +260,9 @@ export const Outputs = () => {
                     Aplicar filtros
                 </Button>
                 <Button variant="contained" onClick={ async ()=>{
-                    //setDesde(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 7))
-                    //setHasta(currentDate)
-                    //await loadIndicators()
+                    setDesde(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 7))
+                    setHasta(currentDate)
+                    await loadIndicators()
                 }} sx={{marginInline:5}}>
                     Borrar filtros
                 </Button>
@@ -276,13 +287,10 @@ export const Outputs = () => {
                     </Box>
                 </div>
                 <div style={{ display:"flex", justifyContent: "center", margin: "5%"}}>
-                {
-                    
-                }
                 {erroresPorDias && <BarChart
                     width={800}
                     height={400}
-                    xAxis={[{ scaleType: 'band', data: calcularDias(defaultDesdeDate,hasta) }]}
+                    xAxis={[{ scaleType: 'band', data: calcularDias(desde,hasta) }]}
                     series={cargarDataGrafico()}
                     />}
                 </div>
