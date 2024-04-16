@@ -112,7 +112,7 @@ export const Outputs = () => {
 
     const currentDate = new Date();
     const defaultDesdeDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 7)
-    const [desde, setDesde] = useState(currentDate);
+    const [desde, setDesde] = useState(defaultDesdeDate);
     const [hasta, setHasta] = useState(currentDate);
 
     const [indicadores, setIndicadores] =  useState([]);
@@ -218,6 +218,7 @@ export const Outputs = () => {
         <>
         <Box>
             <h1>Tablero Outputs</h1>
+            <Button onClick={() => console.log(desde) }> PRINT DESDE</Button>
             <h4>Configuración actual: {currentConfigName}</h4>
             <Line/>
             <Grid items sx={{display:"flex", alignItems:"center"}}>
@@ -228,15 +229,8 @@ export const Outputs = () => {
                         //onChange = {(event) => setDesde(new Date(event))}
                         value={dayjs(desde)}
                         onChange={(newValue) =>{
-                            console.log(newValue)
-                            console.log(desde)
-                            console.log(dayjs(desde))
-                            var date = new Date(newValue.$y, newValue.$M,newValue.$D)
-                            console.log(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 7))
-                            console.log(dayjs(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 7)))
-
-                            console.log(newValue.$y, newValue.$M,newValue.$D)
-                            //setDesde(date);
+                            console.log('NEW VALUE: ', newValue.$y, newValue.$M,newValue.$D)
+                            setDesde(new Date(newValue.$y, newValue.$M,newValue.$D));
                         }}
                         renderInput={(params) => <TextField {...params} />}
                         maxDate={dayjs()}
