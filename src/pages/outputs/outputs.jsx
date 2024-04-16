@@ -190,6 +190,12 @@ export const Outputs = () => {
             const filteredErrorsPerDayResponse = await service.getErroresPorDia(params)
             const erroresAgrupados = groupErrors(filteredErrorsPerDayResponse, defaultDesdeDate, hasta);
             setErroresPorDias(erroresAgrupados);
+
+            const filteredBehavior = await service.getBehaviorFilterd(params)
+            setNivelAlertaPorcentaje(filteredBehavior.TotalValuesCount? filteredBehavior.CountAlertLevel/filteredBehavior.TotalValuesCount:0)
+            setevacuacionPorcentaje(filteredBehavior.TotalValuesCount? filteredBehavior.CountEvacuationLevel/filteredBehavior.TotalValuesCount:0)
+            setAguasBajasPorcentaje(filteredBehavior.TotalValuesCount? filteredBehavior.CountLowWaterLevel/filteredBehavior.TotalValuesCount:0)
+        
             setLoading(false);
         }
         fetchDataFiltered();
