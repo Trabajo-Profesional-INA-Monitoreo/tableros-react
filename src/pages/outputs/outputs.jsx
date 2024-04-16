@@ -24,7 +24,6 @@ const getConfigName = () => {
 
 
 function dateParser(date){
-    console.log(date)
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0'); 
     const day = date.getDate().toString().padStart(2, '0');
@@ -41,10 +40,6 @@ const metricsBox = (title, subtitle) => {
 }
 
 function calcularDias(desde, hasta){
-    //const currentDate = new Date();
-    //if(!desde){
-    //    desde = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 7);
-    //}
     const days = [];
     for (let day = desde; day <= hasta; day.setDate(day.getDate() + 1)) {
         days.push(new Date(day).toISOString().split('T')[0]);
@@ -80,7 +75,6 @@ function groupErrors(dates, desde, hasta) {
 }
 
 const map_metrics = (metrics, errores) => {
-    console.log(errores)
     if(errores?.length === 0){
         updateObjectInArray(metrics, "Valores nulos", { value: 0 }  )
         updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { value: 0}  )
@@ -142,11 +136,6 @@ export const Outputs = () => {
     const [aguasBajasPorcentaje, setAguasBajasPorcentaje] = useState(0)
     const [evacuacionPorcentaje, setevacuacionPorcentaje] = useState(0)
 
-
-    const onChangeHandler = useCallback(newValue => {
-        setDesde(new Date(newValue.$y, newValue.$M,newValue.$D));
-        console.log(desde)
-        }, [setDesde]);
 
     const cargarDataGrafico = () => {
         const dataGraficos = []
@@ -247,7 +236,6 @@ export const Outputs = () => {
         <>
         <Box>
             <h1>Tablero Outputs</h1>
-            <Button onClick={() => console.log(desde.toDate()) }> PRINT DESDE</Button>
             <h4>Configuración actual: {currentConfigName}</h4>
             <Line/>
             <Grid items sx={{display:"flex", alignItems:"center"}}>
