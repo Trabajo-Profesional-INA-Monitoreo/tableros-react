@@ -9,14 +9,8 @@ import PaginationComponent from '../../components/pagination/paginationComponent
 import { DatePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-
-const getConfigId = () => {
-    return parseInt(localStorage.getItem("configId"), 10);
-};
-
-const getConfigName = () => {
-    return localStorage.getItem("configName");
-};
+import { getConfigurationID, getConfigurationName } from '../../utils/storage';
+import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 
 function dateParser(dateString){
     const date = new Date(dateString);
@@ -49,11 +43,11 @@ export const Series = () => {
     const [totalPages, setTotalPages] = useState(0);
 
     useEffect(() => {
-        const configName = getConfigName();
+        const configName = getConfigurationName();
         if (configName) {
             setCurrentConfigName(configName);
         }
-        const configId = getConfigId()
+        const configId = getConfigurationID();
         setCurrentConfigId(configId)
         const fetchDataForPosts = async () => {
             try {
@@ -130,7 +124,7 @@ export const Series = () => {
     return (
         <div style={{maxWidth: "100%"}}>
             <h1> Series </h1>
-            <h4>Configuración actual: {currentConfigName}</h4>
+            <CurrentConfiguration/>
             <Line/>
             {loading?
                 <CircularProgress 

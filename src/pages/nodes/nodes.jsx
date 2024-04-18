@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { Box } from '@mui/material';
 import { InformativeCard, InformativeCardContainer } from '../../components/informativeCard/informativeCard';
 import Line from '../../components/line/line';
+import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 
 export const Nodes = () => {
     useEffect(() => {}, []);
@@ -11,6 +12,7 @@ export const Nodes = () => {
         loading ? 
         <Box>
             <h1>Nodos</h1>
+            <CurrentConfiguration/>
             <Line/>
             <InformativeCardContainer>
                 <InformativeCard 

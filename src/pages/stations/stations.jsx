@@ -3,6 +3,8 @@ import { InformativeCard, InformativeCardContainer } from '../../components/info
 import Line from '../../components/line/line';
 import { Box } from '@mui/material';
 import { StationPresenter } from '../../presenters/stationPresenter';
+import { getConfigurationID } from '../../utils/storage';
+import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 
 export const Stations = () => {
     
@@ -10,10 +12,9 @@ export const Stations = () => {
     
     const [stations, setStations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const configurationId = localStorage.getItem("configId");
     
     const getStations = async() => {
-        const response = await presenter.getStations(configurationId);
+        const response = await presenter.getStations(getConfigurationID());
         setStations(response.Stations);
         setIsLoading(false);
     }
@@ -25,6 +26,7 @@ export const Stations = () => {
     return (    
         <Box>
             <h1>Estaciones</h1>
+            <CurrentConfiguration/>
             <Line/>
             <InformativeCardContainer>
             {isLoading ? null : stations.map(station => 

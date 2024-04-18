@@ -2,14 +2,16 @@ import { Home } from '../pages/home/home';
 import { Configurations } from '../pages/configurations/configuraciones';
 import { Stations } from '../pages/stations/stations';
 import { Nodes } from '../pages/nodes/nodes';
+import { Outputs } from '../pages/outputs/outputs';
+import { Series } from '../pages/series/series';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HomeIcon from '@mui/icons-material/Home';
 import HouseboatIcon from '@mui/icons-material/Houseboat';
-import SpokeIcon from '@mui/icons-material/Spoke';
-import { Series } from '../pages/series/series';
+import OutputIcon from '@mui/icons-material/Output';
+import InputIcon from '@mui/icons-material/Input';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
-import {Outputs} from '../pages/outputs/outputs';
 import CellTowerIcon from '@mui/icons-material/CellTower';
+import { Inputs } from '../pages/inputs/inputs';
 
 const appRoutes = [
 		{
@@ -43,16 +45,6 @@ const appRoutes = [
 			}
 		},
 		{
-			path: "/series",
-			index: true,
-			element: <Series />,
-			state: "Series",
-			sidebarProps: {
-				displayText: "Series",
-				icon: <ShowChartIcon />
-			}
-		},
-		{
 			path: "/nodos",
 			index: true,
 			element: <Nodes />,
@@ -63,13 +55,33 @@ const appRoutes = [
 			}
 		},
 		{
+			path: "/series",
+			index: true,
+			element: <Series />,
+			state: "Series",
+			sidebarProps: {
+				displayText: "Series",
+				icon: <ShowChartIcon />
+			}
+		},
+		{
 			path: "/outputs",
 			index: true,
 			element: <Outputs />,
 			state: "Outputs",
 			sidebarProps: {
 				displayText: "Outputs",
-				icon: <SpokeIcon />
+				icon: <OutputIcon />
+			}
+		},
+		{
+			path: "/inputs",
+			index: true,
+			element: <Inputs />,
+			state: "inputs",
+			sidebarProps: {
+				displayText: "Inputs",
+				icon: <InputIcon />
 			}
 		}
 	];

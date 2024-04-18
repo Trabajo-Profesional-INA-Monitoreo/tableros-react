@@ -1,4 +1,4 @@
-export class HomePresenter{
+export class InputsPresenter {
 
     getCantSeries(){
         return "24"
