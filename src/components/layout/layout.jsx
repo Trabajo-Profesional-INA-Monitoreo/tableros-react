@@ -10,7 +10,7 @@ const Layout = () => {
                     component="main"
                     sx={{
                         flexGrow: 1,
-                        p: 3,
+                        padding: '0px 24px 24px 24px',
                         width: `calc(100%)`,
                         minHeight: "100vh",
                         backgroundColor: "white",

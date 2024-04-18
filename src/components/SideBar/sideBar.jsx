@@ -97,7 +97,7 @@ export default function SideBar({children}) {
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" open={open}>
-        <Toolbar>
+        <Toolbar sx={{backgroundColor: '#83baf0'}}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -128,7 +128,7 @@ export default function SideBar({children}) {
             : null))}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
         <DrawerHeader />
             {children}
       </Box>

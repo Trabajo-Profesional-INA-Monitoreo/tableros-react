@@ -17,7 +17,7 @@ export const Configurations = () => {
 
     return (
         <Box>
-            <h1 style={{marginTop: 0}}> Configuraciones </h1>   
+            <h1> Configuraciones </h1>   
             {currentView === CONFIGURATION_VIEWS.LIST ? <ConfigurationsList setCurrentView={setCurrentView} setSelectedConfigurationID={setSelectedConfigurationID}/> : null}
             {currentView === CONFIGURATION_VIEWS.CREATE ? <CreateConfigurations setCurrentView={setCurrentView} editable={true}/> : null}
             {currentView === CONFIGURATION_VIEWS.VIEW ? <CreateConfigurations setCurrentView={setCurrentView} configurationID={selectedConfigurationID} editable={false}/> : null}

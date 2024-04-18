@@ -1,7 +1,7 @@
 import { Home } from '../pages/home/home';
 import { Configurations } from '../pages/configurations/configuraciones';
 import { Stations } from '../pages/stations/stations';
-import { Redes } from '../pages/redes/redes';
+import { Nodes } from '../pages/nodes/nodes';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HomeIcon from '@mui/icons-material/Home';
 import HouseboatIcon from '@mui/icons-material/Houseboat';
@@ -53,12 +53,12 @@ const appRoutes = [
 			}
 		},
 		{
-			path: "/redes",
+			path: "/nodos",
 			index: true,
-			element: <Redes />,
-			state: "Redes",
+			element: <Nodes />,
+			state: "Nodos",
 			sidebarProps: {
-				displayText: "Redes",
+				displayText: "Nodos",
 				icon: <CellTowerIcon />
 			}
 		},

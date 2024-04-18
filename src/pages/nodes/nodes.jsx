@@ -4,13 +4,13 @@ import { Box } from '@mui/material';
 import { InformativeCard, InformativeCardContainer } from '../../components/informativeCard/informativeCard';
 import Line from '../../components/line/line';
 
-export const Redes = () => {
+export const Nodes = () => {
     useEffect(() => {}, []);
     let loading = true;
     return (    
         loading ? 
         <Box>
-            <h1>Redes</h1>
+            <h1>Nodos</h1>
             <Line/>
             <InformativeCardContainer>
                 <InformativeCard 
