@@ -80,8 +80,9 @@ const map_metrics = (metrics, errores) => {
         updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { value: 0}  )
         updateObjectInArray(metrics, "Valores fuera de banda de errores", { value: 0 }  )
         updateObjectInArray(metrics, "Errores de falta de pronostico", { value: 0 }  )
+        updateObjectInArray(metrics, "Outliers observados", { value: 0 }  )
+        updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { value: 0 }  )
         updateObjectInArray(metrics, "Errores desconocidos", { value: 0 }  )
-
     }
     for (const errorobj of errores) {
         if(errorobj.ErrorType === 'NullValue'){
@@ -92,7 +93,12 @@ const map_metrics = (metrics, errores) => {
             updateObjectInArray(metrics, "Valores fuera de banda de errores", { value: errorobj.Count }  )
         }else if(errorobj.ErrorType === "ForecastMissing"){
             updateObjectInArray(metrics, "Errores de falta de pronostico", { value: errorobj.Count }  )
-        }else{ 
+        }else if(errorobj.ErrorType === "ObservedOutlier"){
+            updateObjectInArray(metrics, "Outliers observados", { value: errorobj.Count }  )
+        }else if(errorobj.ErrorType === "ForecastOutOfBounds"){
+            updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { value: errorobj.Count }  )
+        }
+        else{ 
             updateObjectInArray(metrics, "Errores desconocidos", { value: errorobj.Count }  )
         }
     }
@@ -128,6 +134,8 @@ export const Outputs = () => {
         {name: "Errores de falta de horizonte a 4 dias", value: 0},
         {name: "Valores fuera de banda de errores", value: 0},
         {name: "Errores de falta de pronostico", value: 0},
+        {name: "Outliers observados", value: 0},
+        {name: "Pronosticos fuera de umbrales", value: 0},
         {name: "Errores desconocidos", value: 0},
     ]);
     const [erroresPorDias, setErroresPorDias] = useState({})
@@ -150,6 +158,9 @@ export const Outputs = () => {
         }
         if(erroresPorDias["ForecastOutOfBounds"]){
             dataGraficos.push({data:erroresPorDias['ForecastOutOfBounds'], label:'Fuera de rango', stack: 'total'})
+        }
+        if(erroresPorDias["ObservedOutlier"]){
+            dataGraficos.push({data:erroresPorDias['ObservedOutlier'], label:'Outliers observados', stack: 'total'})
         }
         if(erroresPorDias["UnknownErrors"]){
             dataGraficos.push({data:erroresPorDias['UnknownErrors'], label:'Desconocidos', stack: 'total'})
@@ -318,11 +329,6 @@ export const Outputs = () => {
                     </Box>
             <Line/>
             </>}
-            <div style={{display:"flex", justifyContent:"center"}}>   
-                <Button>
-                    Ver series
-                </Button>
-            </div>
         </>
     );
 }

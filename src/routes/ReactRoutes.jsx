@@ -13,16 +13,6 @@ import CellTowerIcon from '@mui/icons-material/CellTower';
 
 const appRoutes = [
 		{
-			path: "/inicio",
-			index: true,
-			element: <Home />,
-			state: "inicio",
-			sidebarProps: {
-				displayText: "Inicio",
-				icon: <HomeIcon />
-			}
-		},
-		{
 			path: "/configuraciones",
 			index: true,
 			element: <Configurations />,
