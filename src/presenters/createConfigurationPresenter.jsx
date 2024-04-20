@@ -1,5 +1,6 @@
 import configurationService from "../services/configurationService";
 import { STREAM_TYPE_CODE, SERIES_TYPES, METRICS_CODE, INITIAL_METRICS_STATE, METRICS_CODE_INVERSE } from "../utils/constants"
+import { notifyError } from "../utils/notification";
 
 export class CreateConfigurationPresenter {
 
@@ -16,19 +17,19 @@ export class CreateConfigurationPresenter {
     isValidStream = (stream) => {
         var isValidStream = true;
         if (stream.idSerie === '') {
-            alert("El ID de la serie es necesario");
+            notifyError("El ID de la serie es necesario");
             isValidStream = false;
         } else if (!stream.idNode) {
-            alert("Indiqué a que nodo debe pertenecer esta serie");
+            notifyError("Indiqué a que nodo debe pertenecer la serie");
             isValidStream = false;
         } else if (stream.actualizationFrequency === '') {
-            alert("La frecuencia de actualización de la serie es necesaria");
+            notifyError("La frecuencia de actualización de la serie es necesaria");
             isValidStream = false;
         } else if (stream.serieType === SERIES_TYPES.PRONOSTICADA && stream.calibrationID === '') {
-            alert("El ID de calibracion es necesario en las series pronosticadas");
+            notifyError("El ID de calibracion es necesario en las series pronosticadas");
             isValidStream = false;
         } else if (stream.lowerThreshold !== '' && stream.upperThreshold !== '' && Number(stream.lowerThreshold) >= Number(stream.upperThreshold)) {
-            alert("El umbral inferior debe ser menor al umbral superior");
+            notifyError("El umbral inferior debe ser menor al umbral superior");
             isValidStream = false;
         }
         return isValidStream;
@@ -37,7 +38,7 @@ export class CreateConfigurationPresenter {
     isValidNode = (nodeName) => {
         var isValidNode = true;
         if (nodeName === '') {
-            alert("El nombre del nodo es necesario");
+            notifyError("El nombre del nodo es necesario");
             isValidNode = false;
         }
         return isValidNode;
@@ -46,16 +47,16 @@ export class CreateConfigurationPresenter {
     isValidConfiguration = (configurationName, nodes, series) => {
         var isValidConfiguration = true;
         if (configurationName === '') {
-            alert("El nombre de la configuración es necesario");
+            notifyError("El nombre de la configuración es necesario");
             isValidConfiguration = false;
         } else if (nodes.length === 0) {
-            alert("Debe agregar nodos a la configuración");
+            notifyError("Debe agregar nodos a la configuración");
             isValidConfiguration = false;
         } else if (series.length === 0) {
-            alert("Debe agregar series a la configuración");
+            notifyError("Debe agregar series a la configuración");
             isValidConfiguration = false;
         } else if (!this.allNodesHaveSeries(nodes, series)) {
-            alert("Todos los nodos deben tener series");
+            notifyError("Todos los nodos deben tener series");
             isValidConfiguration = false;
         } 
         return isValidConfiguration;
@@ -87,13 +88,14 @@ export class CreateConfigurationPresenter {
                         upperThreshold: Number(serie.upperThreshold) ? Number(serie.calibrationID) : null,
                         lowerThreshold: Number(serie.lowerThreshold) ? Number(serie.calibrationID) : null,
                         calibrationId: Number(serie.calibrationID) ? Number(serie.calibrationID) : null,
+                        relatedObservedStreamId: Number(serie.relatedObservedStreamID) ? Number(serie.relatedObservedStreamID) : null,
                         redundanciesIds: serie.redundantSeriesIDs,
                         metrics: Object.keys(serie.metrics).filter(key => serie.metrics[key]).map(key => METRICS_CODE[key])
                     })
                 }
             })
         })
-        return configuration
+        return configuration;
     }
 
     getConfiguration = async(id) => {
@@ -133,10 +135,8 @@ export class CreateConfigurationPresenter {
             )
             ));
 
-
         })
 
-        console.log(JSON.stringify(series));
         return series;
     }
 }
