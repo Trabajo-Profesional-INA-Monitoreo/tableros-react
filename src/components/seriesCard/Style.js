@@ -7,7 +7,8 @@ export const Styles = () => ({
     cardHeader: {
         borderBottom:0.5,
         borderBottomColor: "#c3c3c3",
-        color: "default"
+        color: "default",
+        textAlign:'center'
     },
     subHeader: {
         color: "#6e6e6e"

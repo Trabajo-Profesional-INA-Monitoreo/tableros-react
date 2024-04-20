@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { Box, CircularProgress } from '@mui/material';
+import { Box, CircularProgress, Tooltip } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import { LineChart } from '@mui/x-charts/LineChart';
@@ -140,7 +140,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
             section('Métricas generales', presenter.buildGeneralMetrics(serieMetadata.Metrics)) : null
           }
           {presenter.buildBehaviourMetrics(serieMetadata.Metrics).length > 0 ? 
-            section('Comportamiento', presenter.buildBehaviourMetrics(serieMetadata.Metrics)) : null
+            section('Comportamiento', presenter.buildBehaviourMetrics(serieMetadata.Metrics), presenter.getTotalBehaviourMetrics(serieMetadata.Metrics)) : null
           }
           <SerieValuesChart 
             serieMetadata={serieMetadata} 
@@ -148,7 +148,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
             serieP05Values={serieP05Values} 
             serieP95Values={serieP95Values}/>
           {presenter.buildNullsMetric(serieMetadata.Metrics).length > 0 ? 
-            section("Calidad", presenter.buildNullsMetric(serieMetadata.Metrics)) : null
+            section("Calidad", presenter.buildNullsMetric(serieMetadata.Metrics), presenter.getTotalBehaviourMetrics(serieMetadata.Metrics)) : null
           }
           <Line/>
           <Typography variant="h6" align='center'><b>Retardo acumulado por dia</b></Typography>
@@ -173,22 +173,24 @@ const TitleAndValue = ({title, value}) => {
   )
 }
 
-const metricsBox = (title, subtitle) => {
+const metricsBox = (title, subtitle, helper) => {
   return (
-   <Box sx={{height: 100, width: 200, border: '1.5px solid #E0E6ED',}}>
-      <Typography align='center' sx={{mt: 2}}> {title} </Typography>
-      <Typography align='center' sx={{mt: 2}}> {subtitle} </Typography>
-   </Box>
+		<Tooltip title={helper}>
+			<Box sx={{height: 100, width: 200, border: '1.5px solid #E0E6ED'}}>
+					<Typography align='center' sx={{mt: 2}}> {title} </Typography>
+					<Typography align='center' sx={{padding:1}}> {subtitle} </Typography>
+			</Box>
+		</Tooltip>
   )
 }
 
-const section = (title, metrics) => {
+const section = (title, metrics, total) => {
   return (
     <>
     <Line/>
     <Typography variant="h6" align='center'><b>{title}</b></Typography>
     <Box className='row space-around wrap'>
-      {metrics.map(metric => metricsBox(metric.Name, metric.Value))}
+      {metrics.map(metric => metricsBox(metric.Name, total? (metric.Value/total).toFixed(1)+"%" : metric.Value, `Cantidad: ${metric.Value} - Total:  ${total}`) )}
     </Box>
     </>
   )

@@ -23,8 +23,9 @@ function SeriesCard({serieData, onClick}) {
             <CardActionArea onClick={onClick}>
 
             <CardHeader
-                title={serieData.StationName + " | "+ serieData.StreamId}
                 sx={style.cardHeader}
+                title={serieData.StationName + " | "+ serieData.StreamId}
+                
             />
             <CardContent>
                 {renderData("Variable de medicion",serieData.VariableName, style)}
