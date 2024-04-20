@@ -5,21 +5,24 @@ import { UserContext } from "./stores/userContext";
 import MainProvider from "./providers/mainProvider";
 import Modal from "./components/modal/modal";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { SnackbarProvider } from "notistack";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 function App() {
   return (
     <UserContext>
       <MainProvider>
-        <LocalizationProvider  dateAdapter={AdapterDayjs } >
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                {routes}
-              </Route>
-            </Routes>
-          </BrowserRouter>
-          <Modal/>
+        <LocalizationProvider  dateAdapter={AdapterDayjs}>
+          <SnackbarProvider maxSnack={5}>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Layout />}>
+                  {routes}
+                </Route>
+              </Routes>
+            </BrowserRouter>
+            <Modal/>
+          </SnackbarProvider>
         </LocalizationProvider>
       </MainProvider>
     </UserContext>

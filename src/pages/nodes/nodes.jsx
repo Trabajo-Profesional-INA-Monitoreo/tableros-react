@@ -3,18 +3,20 @@ import { useEffect } from 'react';
 import { Box } from '@mui/material';
 import { InformativeCard, InformativeCardContainer } from '../../components/informativeCard/informativeCard';
 import Line from '../../components/line/line';
+import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 
-export const Estaciones = () => {
+export const Nodes = () => {
     useEffect(() => {}, []);
     let loading = true;
     return (    
         loading ? 
         <Box>
-            <h1>Estaciones</h1>
+            <h1>Nodos</h1>
+            <CurrentConfiguration/>
             <Line/>
             <InformativeCardContainer>
                 <InformativeCard 
-                    title={'San Fernando'}
+                    title={'Red Hidrológica Nacional'}
                     subtitle={'3 Series'}
                     heading1={'14-11-2023\n12:00 hs'}
                     heading2={'3'}
@@ -24,7 +26,7 @@ export const Estaciones = () => {
                     subheading3={'Nivel'}
                 />
                 <InformativeCard 
-                    title={'San Fernando'}
+                    title={'Red Hidrológica Nacional'}
                     subtitle={'3 Series'}
                     heading1={'14-11-2023\n12:00 hs'}
                     heading2={'3'}

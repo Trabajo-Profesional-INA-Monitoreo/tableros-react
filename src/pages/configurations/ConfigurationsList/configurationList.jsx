@@ -14,6 +14,7 @@ import { ConfigurationContext } from '../../../providers/configProvider';
 import useUser from '../../../stores/useUser';
 import { UserContext } from '../../../stores/userContext';
 import { CONFIGURATION_VIEWS } from '../configuraciones';
+import { getConfigurationID, setConfigurationID, setConfigurationName } from '../../../utils/storage';
 
 function getDeleteConfigModalContent(configuration, presenter, handleDelete){
     return(
@@ -37,12 +38,13 @@ function getDeleteConfigModalContent(configuration, presenter, handleDelete){
 }
 
 const saveSelectedId = (id, name) => {
-    localStorage.setItem("configId", id.toString());
-    localStorage.setItem("configName", name.toString());
+    setConfigurationID(id);
+    setConfigurationName(name);
+    console.log('xxxxx')
 };
 
 const getConfigId = () => {
-    return parseInt(localStorage.getItem("configId"), 10);
+    return getConfigurationID();
 };
 
 export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID}) => {

@@ -1,15 +1,17 @@
 import { Home } from '../pages/home/home';
 import { Configurations } from '../pages/configurations/configuraciones';
-import { Estaciones } from '../pages/estaciones/estaciones';
-import { Redes } from '../pages/redes/redes';
+import { Stations } from '../pages/stations/stations';
+import { Nodes } from '../pages/nodes/nodes';
+import { Outputs } from '../pages/outputs/outputs';
+import { Series } from '../pages/series/series';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HomeIcon from '@mui/icons-material/Home';
 import HouseboatIcon from '@mui/icons-material/Houseboat';
-import SpokeIcon from '@mui/icons-material/Spoke';
-import { Series } from '../pages/series/series';
+import OutputIcon from '@mui/icons-material/Output';
+import InputIcon from '@mui/icons-material/Input';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
-import {Outputs} from '../pages/outputs/outputs';
 import CellTowerIcon from '@mui/icons-material/CellTower';
+import { Inputs } from '../pages/inputs/inputs';
 
 const appRoutes = [
 		{
@@ -35,11 +37,21 @@ const appRoutes = [
 		{
 			path: "/estaciones",
 			index: true,
-			element: <Estaciones />,
-			state: "Estaciones",
+			element: <Stations />,
+			state: "Stations",
 			sidebarProps: {
 				displayText: "Estaciones",
 				icon: <HouseboatIcon />
+			}
+		},
+		{
+			path: "/nodos",
+			index: true,
+			element: <Nodes />,
+			state: "Nodos",
+			sidebarProps: {
+				displayText: "Nodos",
+				icon: <CellTowerIcon />
 			}
 		},
 		{
@@ -53,23 +65,23 @@ const appRoutes = [
 			}
 		},
 		{
-			path: "/redes",
-			index: true,
-			element: <Redes />,
-			state: "Redes",
-			sidebarProps: {
-				displayText: "Redes",
-				icon: <CellTowerIcon />
-			}
-		},
-		{
 			path: "/outputs",
 			index: true,
 			element: <Outputs />,
 			state: "Outputs",
 			sidebarProps: {
 				displayText: "Outputs",
-				icon: <SpokeIcon />
+				icon: <OutputIcon />
+			}
+		},
+		{
+			path: "/inputs",
+			index: true,
+			element: <Inputs />,
+			state: "inputs",
+			sidebarProps: {
+				displayText: "Inputs",
+				icon: <InputIcon />
 			}
 		}
 	];

@@ -2,12 +2,11 @@ import { useState } from "react";
 import { Avatar, Stack, Toolbar, Tooltip, Menu, Typography, MenuItem   } from "@mui/material";
 import  useUser  from "../../stores/useUser";
 import {UserLogout} from "../../services/userService"
-import {Blue900} from "../../resources/colors/colors"
 
 function mapMenuOptions() {
     return (
         <MenuItem key={"logout"} onClick={UserLogout}>
-            <Typography textAlign="center">Cerrar sesion</Typography>
+            <Typography textAlign="center">Cerrar sesión</Typography>
         </MenuItem>
     )
 }
@@ -27,19 +26,19 @@ const UserDataRow = () => {
     const { userInfo } = useUser()
 
     return (
-        <Toolbar sx={{ marginBottom: "20px" }}>
-            <Tooltip title="Acciones de usuario">
+        <Toolbar disableGutters style={{marginLeft: 'auto'}}>
+            <Tooltip title="Cerrar sesión">
                 <Stack
                     direction="row"
                     justifyContent="left"
                     alignItems="center"
                     onClick={handleOpenUserMenu}
                     style={{cursor:"pointer"}}
-                >
-                    <Avatar/>
+                >         
                    <text style={{wordBreak: 'break-all', width: '100%', padding: '0px 10px 0px 10px'}}>
                         <b>{userInfo.userName}</b>
                     </text>
+                    <Avatar/>
                 </Stack>
             </Tooltip>
             <Menu
@@ -48,12 +47,12 @@ const UserDataRow = () => {
                 anchorEl={userMenu}
                 anchorOrigin={{
                     vertical: 'top',
-                    horizontal: 'center',
+                    horizontal: 'right',
                 }}
                 keepMounted
                 transformOrigin={{
                     vertical: 'top',
-                    horizontal: 'center',
+                    horizontal: 'right',
                 }}
                 open={Boolean(userMenu)}
                 onClose={handleCloseUserMenu}

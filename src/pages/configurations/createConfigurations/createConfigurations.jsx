@@ -16,14 +16,18 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import { CONFIGURATION_VIEWS } from "../configuraciones";
 import { CreateConfigurationPresenter } from "../../../presenters/createConfigurationPresenter";
 import { METRICS, SERIES_TYPES } from "../../../utils/constants";
 import './createConfigurations.css';
+import { notifySuccess } from "../../../utils/notification";
 
 export const CreateConfigurations = ({setCurrentView, configurationID, editable}) => {
 
     const presenter = new CreateConfigurationPresenter();
+
     const [configurationName, setConfigurationName] = useState('');
     const [series, setSeries] = useState([]);
     const [nodes, setNodes] = useState([]);
@@ -36,6 +40,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const [redundantSerieID, setRedundantSerieID] = useState('');
     const [redundantSeriesIDs, setRedundantSeriesIDs] = useState([]);
     const [calibrationID, setCalibrationID] = useState('');
+    const [relatedObservedStreamID, setRelatedObservedStreamID] = useState('');
     const [serieType, setSerieType] = useState(SERIES_TYPES.OBSERVADA);
     const [lowerThreshold, setLowerThreshold] = useState('');
     const [upperThreshold, setUpperThreshold] = useState('');
@@ -51,6 +56,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         actualizationFrequency: actualizationFrequency, 
         serieType: serieType,
         calibrationID: calibrationID,
+        relatedObservedStreamID: relatedObservedStreamID,
         redundantSeriesIDs: redundantSeriesIDs,
         metrics: metrics,
         checkErrors: checkErrors,
@@ -60,15 +66,14 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
 
     const handleAddSerie = () => {
         if (presenter.isValidStream(serie)) {
-            alert("Serie agregada correctamente");
-            console.log(serie);
+            notifySuccess('Serie agregada exitosamente');
             setSeries([...series, serie]);
         }
     }
 
     const handleAddNodo = () => {
         if (presenter.isValidNode(nodeName)) {
-            alert("Nodo agregado correctamente");
+            notifySuccess('Nodo agregado exitosamente');
             setNodes([...nodes, {id: idNodeCounter, name: nodeName}]);
             setIdNodeCounter(idNodeCounter + 1);
         }
@@ -78,9 +83,9 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         if (presenter.isValidConfiguration(configurationName, nodes, series)) {
             const body = presenter.buildConfigurationBody(configurationName, nodes, series);
             if (configurationID & editable) {
-                presenter.putConfiguration(body).then(_ =>  alert("Configuración modificada exitosamente"));
+                presenter.putConfiguration(body).then(_ => notifySuccess("Configuración modificada exitosamente"));
             } else {
-                presenter.postConfiguration(body).then(_ =>  alert("Configuración creada exitosamente"));
+                presenter.postConfiguration(body).then(_ => notifySuccess('Configuración creada exitosamente'));
             }  
         }
     }
@@ -89,6 +94,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         setRedundantSerieID('');
         setRedundantSeriesIDs([]);
         setCalibrationID('');
+        setRelatedObservedStreamID('');
         setSerieType(e.target.value);
     }
 
@@ -112,6 +118,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         setRedundantSerieID('');
         setRedundantSeriesIDs([]);
         setCalibrationID('');
+        setRelatedObservedStreamID('');
         setSerieType(SERIES_TYPES.OBSERVADA);
         setCheckErrors(false);
         var metrics = {};
@@ -125,35 +132,37 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         <>
         <Box className='row space-between'>
             <TextField label='Nombre de la configuración' value={configurationName} disabled={!editable} onChange={e => setConfigurationName(e.target.value)}/>
-            <Button className='button' onClick={() => setCurrentView(CONFIGURATION_VIEWS.LIST)}>Volver lista de configuraciones</Button>
+            <Button className='button' onClick={() => setCurrentView(CONFIGURATION_VIEWS.LIST)}>Volver a lista de configuraciones</Button>
         </Box>
-        <div className='button-container' style={{display: editable ? 'block' : 'none'}}><Button className='button' onClick={() => handleAddConfiguracion()}>Confirmar configuración</Button></div>
+        <div className='button-container add-config' style={{display: editable ? 'block' : 'none'}}>
+            <Button className='button' color='success' variant='contained' onClick={() => handleAddConfiguracion()}>Confirmar configuración</Button>
+        </div>
         <Box className={editable ? 'row' : null}>           
             <Box className='form' style={{display: editable ? 'block' : 'none'}}>
                 <h3>Nodos</h3>
-                <Line/>                
+                <Line/>
                 <TextField label='Nombre del nodo' onChange={e => setNodeName(e.target.value)}/>
-                <div className='button-container'><Button className='button' onClick={() => handleAddNodo()}>Agregar nodo</Button></div>
+                <div className='button-container'><Button className='button' variant='outlined' color='success' onClick={() => handleAddNodo()}>Agregar nodo</Button></div>
                 <h3>Series</h3>
                 <Line/>
-                <Box className='row'>
-                    <TextField type='number' label='Id Serie' value={idSerie} onChange={e => setIdSerie(e.target.value)}/>
-                    <FormControl sx={{minWidth: 220}}>
-                        <InputLabel id="nodo">Nodo</InputLabel>
-                        <Select label="Nodo" id="nodo" labelId="nodo" value={idNode} onChange={e => setIdNode(e.target.value)} disabled={nodes.length === 0}>
-                            {nodes.map((node, index) => <MenuItem key={node.id} value={node.id}>{`${index+1} - ${node.name}`}</MenuItem>)}
-                        </Select>
-                    </FormControl>
-                </Box>
+                <Box className='column-textfields'>
+                <TextField type='number' label='Id Serie' value={idSerie} onChange={e => setIdSerie(e.target.value)}/>
+                <FormControl sx={{minWidth: 220}}>
+                    <InputLabel id="nodo">Nodo</InputLabel>
+                    <Select label="Nodo" id="nodo" labelId="nodo" value={idNode} onChange={e => setIdNode(e.target.value)} disabled={nodes.length === 0}>
+                        {nodes.map((node, index) => <MenuItem key={node.id} value={node.id}>{`${index+1} - ${node.name}`}</MenuItem>)}
+                    </Select>
+                </FormControl>
                 <TextField type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)} helperText="En minutos"/>
+                </Box>
                 <h4>Tipo de serie</h4>
-                <RadioGroup className='row' value={serieType} onChange={e => handleChangeSerieType(e)} >
+                <RadioGroup value={serieType} onChange={e => handleChangeSerieType(e)} >
                     {Object.keys(SERIES_TYPES).map(key => 
                         <FormControlLabel key={SERIES_TYPES[key]} value={SERIES_TYPES[key]} control={<Radio/>} label={SERIES_TYPES[key]}/>)}
                 </RadioGroup>
                 <Box className='row'>
                     <TextField label='ID Serie Redundante' type='number' value={redundantSerieID} onChange={e => setRedundantSerieID(e.target.value)} disabled={serieType !== SERIES_TYPES.OBSERVADA}/>
-                    <IconButton size='large' onClick={() => { setRedundantSeriesIDs([...redundantSeriesIDs, redundantSerieID]); setRedundantSerieID('')}}>
+                    <IconButton style={{display: serieType === SERIES_TYPES.OBSERVADA ? 'block' : 'none'}} size='large' onClick={() => { setRedundantSeriesIDs([...redundantSeriesIDs, redundantSerieID]); setRedundantSerieID('')}}>
                         <AddCircleOutlineIcon color='primary'/>
                     </IconButton>
                 </Box>
@@ -163,8 +172,11 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                     <IconButton onClick={() => setRedundantSeriesIDs(redundantSeriesIDs.slice(0, -1))}>
                         <RemoveCircleOutlineIcon color='primary'/>
                     </IconButton>
-                </Box>}  
-                <TextField label='ID Calibrado' placeholder='ID Calibrado' type='number' value={calibrationID} onChange={e => setCalibrationID(e.target.value)} disabled={serieType !== SERIES_TYPES.PRONOSTICADA}/>
+                </Box>}
+                <Box className='column-textfields'>
+                    <TextField label='ID Calibrado' placeholder='ID Calibrado' type='number' value={calibrationID} onChange={e => setCalibrationID(e.target.value)} disabled={serieType !== SERIES_TYPES.PRONOSTICADA}/>
+                    <TextField label='ID Serie Observada asociada' placeholder='ID Serie Observada asociada' type='number' value={relatedObservedStreamID} onChange={e => setRelatedObservedStreamID(e.target.value)} disabled={serieType !== SERIES_TYPES.PRONOSTICADA}/>
+                </Box>
                 <h4>¿Incluir validación de errores?</h4>
                 <RadioGroup className='row' value={checkErrors} onChange={e => setCheckErrors(e.target.value)}>
                     <FormControlLabel label={'No'} value={false} control={<Radio/>}/>
@@ -181,10 +193,10 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                     <TextField label='Límite inferior' type="number" value={lowerThreshold} onChange={e => setLowerThreshold(e.target.value)}/>
                     <TextField label='Límite superior' type="number" value={upperThreshold} onChange={e => setUpperThreshold(e.target.value)}/>
                 </Box>
-                <Button onClick={() => {handleAddSerie(serie)}}>Agregar serie</Button>
+                <Button variant='outlined' color='success' onClick={() => {handleAddSerie(serie)}}>Agregar serie</Button>
             </Box>
             <Box className='nodes'>
-                <h3>Nodos y series en la configuración</h3>
+                <h3>Nodos y series en esta configuración</h3>
                 <Line/>        
                 <CreatedNodesAndSeries nodes={nodes} series={series} setSeries={setSeries} setNodes={setNodes} editable={editable}/>
             </Box>
@@ -192,6 +204,8 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         </>
     );
 }
+
+
 
 const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) => {
     
@@ -241,6 +255,7 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
                         {metrics(serie).length > 0 ? popOverRow('Métricas: ' +  metrics(serie)) : null}
                         {serie.redundantSeriesIDs.length > 0? popOverRow('ID Series Redundantes: ' + serie.redundantSeriesIDs) : null}
                         {serie.calibrationID !== '' ? popOverRow('ID Calibrado: ' + serie.calibrationID) : null}
+                        {serie.relatedObservedStreamID !== '' ? popOverRow('ID Serie Observada asociada: ' + serie.relatedObservedStreamID) : null}
                         {serie.lowerThreshold !== '' && serie.upperThreshold !== '' ? popOverRow('Umbrales: ' + serie.lowerThreshold + ', ' + serie.upperThreshold): null}
                     </Popover>
                 </Box>)}
@@ -254,4 +269,44 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
         </Box>)}
         </>
     );
+}
+
+const Notification = ({message}) => {
+
+    const [open, setOpen] = useState(true);
+
+    return (
+        <>
+            <Snackbar
+                open={open}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                autoHideDuration={6000}
+                onClose={() => setOpen(false)}
+                message={message}
+            />
+        </>
+    );
+}
+
+const SuccessNotification = ({message}) => {
+    const [open, setOpen] = useState(true);
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+
+    return (
+    <Snackbar 
+        open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+            
+        <Alert
+            onClose={handleClose}
+            severity="success"
+            variant="filled"
+            sx={{ width: '100%' }}
+        >
+        {message}
+        </Alert>
+    </Snackbar>
+    )
 }

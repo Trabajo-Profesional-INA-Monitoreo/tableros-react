@@ -13,15 +13,8 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import OutputService from '../../services/outputsService';
 import CircularProgressWithLabel from '../../components/circularProgressWithLabel/circularProgressWithLabel';
 import dayjs from 'dayjs';
-
-const getConfigId = () => {
-    return parseInt(localStorage.getItem("configId"), 10);
-};
-
-const getConfigName = () => {
-    return localStorage.getItem("configName");
-};
-
+import { getConfigurationID, getConfigurationName } from '../../utils/storage';
+import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 
 function dateParser(date){
     const year = date.getFullYear();
@@ -158,7 +151,7 @@ export const Outputs = () => {
     }
 
     const loadIndicators = useCallback (async() =>{
-        const configId = getConfigId()
+        const configId = getConfigurationID();
         setCurrentConfigId(configId)
         let indicadoresResponse = await service.getIndicatorsbyConfigID(configId)
         setIndicadores(indicadoresResponse)
@@ -167,7 +160,7 @@ export const Outputs = () => {
     },[])
 
     const loadBehavior = useCallback (async()=>{
-        const configId = getConfigId()
+        const configId = getConfigurationID();
         const behaviorResponse = await service.getBehaviorByConfigId(configId)
         setNivelAlertaPorcentaje(behaviorResponse.TotalValuesCount? behaviorResponse.CountAlertLevel/behaviorResponse.TotalValuesCount:0)
         setevacuacionPorcentaje(behaviorResponse.TotalValuesCount? behaviorResponse.CountEvacuationLevel/behaviorResponse.TotalValuesCount:0)
@@ -203,12 +196,12 @@ export const Outputs = () => {
     }
 
     useEffect(() => {
-        const configName = getConfigName()
+        const configName = getConfigurationName()
         setCurrentConfigName(configName)
         loadIndicators()
         map_metrics(metrics, indicadores)
         setMetrics(metrics)
-        const configId = getConfigId()
+        const configId = getConfigurationID();
         setCurrentConfigId(configId)
         const fetchDataPorDia = async () => {
             try {
@@ -235,8 +228,8 @@ export const Outputs = () => {
     return (    
         <>
         <Box>
-            <h1>Tablero Outputs</h1>
-            <h4>Configuración actual: {currentConfigName}</h4>
+            <h1>Tablero de outputs</h1>
+            <CurrentConfiguration/>
             <Line/>
             <Grid items sx={{display:"flex", alignItems:"center"}}>
                     <DatePicker 
