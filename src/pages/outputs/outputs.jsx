@@ -317,7 +317,7 @@ export const Outputs = () => {
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
 
                         <h3>Nivel de aguas bajas</h3>
-                        <CircularProgressWithLabel text="observaciones supera el nivel de aguas bajas" percentage={(98.321).toFixed(1)} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
+                        <CircularProgressWithLabel text="observaciones supera el nivel de aguas bajas" percentage={nivelAlertaPorcentaje.toFixed(1)} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
                         </Box>
                     </Box>
             <Line/>

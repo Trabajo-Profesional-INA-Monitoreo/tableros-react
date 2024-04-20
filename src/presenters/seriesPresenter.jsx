@@ -41,4 +41,7 @@ export class SeriesPresenter {
         return metrics.filter(metric => metric.Name === "Observaciones");
     }
 
+    getTotalBehaviourMetrics = (metrics) => {
+        return metrics.filter( metric => metric.Name === 'Observaciones')[0].Value
+    }
 }
