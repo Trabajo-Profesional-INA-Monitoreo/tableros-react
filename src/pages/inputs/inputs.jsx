@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { Box, CircularProgress, Button, Tooltip} from '@mui/material';
+import { Box, CircularProgress, Button, Tooltip, Grid, TextField} from '@mui/material';
 import { useEffect } from 'react';
 import { InputsPresenter } from '../../presenters/inputsPresenter';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
@@ -7,6 +7,7 @@ import Line from '../../components/line/line';
 import CircularProgressWithLabel from '../../components/circularProgressWithLabel/circularProgressWithLabel';
 import { getConfigurationID } from '../../utils/storage';
 import dayjs from 'dayjs';
+import { DatePicker } from '@mui/x-date-pickers';
 
 function dateParser(date){
     const year = date.getFullYear();
@@ -53,6 +54,31 @@ export const Inputs = () => {
             <CurrentConfiguration/>
             <Line/>
             <h2> Metricas </h2>
+            <Grid items sx={{display:"flex", alignItems:"center", marginBottom:5}}>
+                    <DatePicker 
+                        id="Desde"
+                        label="Desde"
+                        inputFormat="YYYY/MM/DD"
+                        value={desde}
+                        onChange = {(event) => setDesde(event)}
+                        renderInput={(params) => <TextField {...params} />}
+                        maxDate={dayjs()}
+                        sx={{ m: 1, maxWidth: 200, marginInline: 2, marginTop:2}}
+                        />
+                    <DatePicker 
+                        id="hasta"
+                        label="Hasta"
+                        inputFormat="YYYY/MM/DD"
+                        value={hasta}
+                        onChange = {(event) => setHasta(event)}
+                        renderInput={(params) => <TextField {...params} />}
+                        maxDate={dayjs()}
+                        sx={{ m: 1, maxWidth: 200, marginInline: 2, marginTop:2}}
+                    />
+                <Button variant="contained" onClick={getSerieMetadataAndValues} sx={{ marginInline:5}}>
+                    Aplicar filtros
+                </Button>
+            </Grid>
             {isLoading ? 
                 <CircularProgress 
                 style={{
