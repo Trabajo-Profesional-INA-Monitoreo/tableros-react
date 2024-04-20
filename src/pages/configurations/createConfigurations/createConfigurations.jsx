@@ -236,8 +236,8 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
                 {series.map((serie, serieIndex) => serie.idNode !== node.id ? null : 
                 <Box>
                     <Box key={serie.idSerie} className='serie' onMouseEnter={e => handlePopoverOpen(e, serie.idSerie)} onMouseLeave={() => handlePopoverClose()}>
-                        <Typography>Serie</Typography>
-                        <Typography>{serie.idSerie}</Typography>
+                        <Typography  sx={{marginTop:1}} >Serie</Typography>
+                        <Typography >{serie.idSerie}</Typography>
                         <Button style={{display: editable ? 'block' : 'none'}} onClick={() => setSeries(series.filter((_, index) => serieIndex !== index))}>Eliminar</Button>
                     </Box>
                     <Popover
