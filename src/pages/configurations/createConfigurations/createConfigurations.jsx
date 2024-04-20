@@ -23,6 +23,8 @@ import { CreateConfigurationPresenter } from "../../../presenters/createConfigur
 import { METRICS, SERIES_TYPES } from "../../../utils/constants";
 import './createConfigurations.css';
 import { notifySuccess } from "../../../utils/notification";
+import TelegramIcon from '@mui/icons-material/Telegram';
+import CancelScheduleSendIcon from '@mui/icons-material/CancelScheduleSend';
 
 export const CreateConfigurations = ({setCurrentView, configurationID, editable}) => {
 
@@ -49,6 +51,8 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         METRICS.forEach((metric) => metrics[metric] = false);
         return metrics;
     })
+
+    const [notificaciones, setNotificaciones] = useState(false)
 
     const serie = {
         idSerie: idSerie, 
@@ -81,7 +85,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
 
     const handleAddConfiguracion = () => {
         if (presenter.isValidConfiguration(configurationName, nodes, series)) {
-            const body = presenter.buildConfigurationBody(configurationName, nodes, series);
+            const body = presenter.buildConfigurationBody(configurationName, nodes, series, notificaciones);
             if (configurationID & editable) {
                 presenter.putConfiguration(body).then(_ => notifySuccess("Configuración modificada exitosamente"));
             } else {
@@ -101,6 +105,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const getConfiguration = async () => {
         if (configurationID) {
             const response = await presenter.getConfiguration(configurationID);
+            setNotificaciones(response.SendNotifications)
             setNodes(presenter.buildNodesFromConfiguration(response));
             setSeries(presenter.buildSeriesFromConfiguration(response));
             setConfigurationName(response.Name);
@@ -132,6 +137,15 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         <>
         <Box className='row space-between'>
             <TextField label='Nombre de la configuración' value={configurationName} disabled={!editable} onChange={e => setConfigurationName(e.target.value)}/>
+            <FormControlLabel label={"Notificarme en Telegram"} disabled={!editable}
+                control={
+                    <Checkbox
+                    checked={notificaciones}
+                    onChange={e =>setNotificaciones(e.target.checked)}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                    />
+                }
+            />
             <Button className='button' onClick={() => setCurrentView(CONFIGURATION_VIEWS.LIST)}>Volver a lista de configuraciones</Button>
         </Box>
         <div className='button-container add-config' style={{display: editable ? 'block' : 'none'}}>
