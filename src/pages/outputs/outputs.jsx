@@ -191,7 +191,7 @@ export const Outputs = () => {
             const filteredErrorsPerDayResponse = await service.getErroresPorDia(params)
             const erroresAgrupados = groupErrors(filteredErrorsPerDayResponse, desde.toDate(), hasta.toDate());
             setErroresPorDias(erroresAgrupados);
-            
+
             const filteredBehavior = await service.getBehaviorFilterd(params)
             setNivelAlertaPorcentaje(filteredBehavior.TotalValuesCount? filteredBehavior.CountAlertLevel/filteredBehavior.TotalValuesCount:0)
             setevacuacionPorcentaje(filteredBehavior.TotalValuesCount? filteredBehavior.CountEvacuationLevel/filteredBehavior.TotalValuesCount:0)
@@ -291,14 +291,17 @@ export const Outputs = () => {
                         {metrics.map(metric => metricsBox(metric.name, metric.value, true))}
                     </Box>
                 </div>
-                <div style={{ display:"flex", justifyContent: "center", margin: "5%"}}>
-                {erroresPorDias && <BarChart
-                    width={800}
-                    height={400}
-                    xAxis={[{ scaleType: 'band', data: calcularDias(graficoDesde.toDate(),graficohasta.toDate()) }]}
-                    series={cargarDataGrafico()}
-                    />}
-                </div>
+                {Object.keys(erroresPorDias).length > 0 &&
+                    <div style={{ display:"flex", justifyContent: "center", margin: "5%"}}>
+                        <BarChart
+                        width={800}
+                        height={400}
+                        xAxis={[{ scaleType: 'band', data: calcularDias(graficoDesde.toDate(),graficohasta.toDate()) }]}
+                        series={cargarDataGrafico()}
+                        />
+                    </div>
+                }
+                
                 <Line/>
                     <h2> Monitoreo de comportamiento</h2>
                     <Box sx={{ display:"flex", flexDirection: 'row', justifyContent:"space-around", alignContent:"center", alignItems:"center", marginBottom:"5%"}}>
