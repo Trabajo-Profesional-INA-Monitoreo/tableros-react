@@ -97,7 +97,7 @@ export default function SideBar({children}) {
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" open={open}>
-        <Toolbar sx={{backgroundColor: '#83baf0'}}>
+        <Toolbar sx={{backgroundColor: '#1976d2'}}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
