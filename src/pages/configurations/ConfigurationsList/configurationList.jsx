@@ -17,6 +17,7 @@ import { CONFIGURATION_VIEWS } from '../configuraciones';
 import { getConfigurationID, setConfigurationID, setConfigurationName } from '../../../utils/storage';
 import { NoResultStyles } from './Style';
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
+import { CurrentConfiguration } from '../../../components/currentConfiguration/currentConfiguration';
 function getDeleteConfigModalContent(configuration, presenter, handleDelete){
     return(
         <div>
@@ -55,7 +56,7 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
     const {userInfo} = useUser()
     const [configurations, setConfigurations] = useState([]);
     const [isLoading, setLoading] = useState(true)
-    const isAdmin = true //userInfo.roles?.includes("admin")
+    const isAdmin = userInfo.roles?.includes("admin")
     
     const handleDelete = (id) => {
         const updatedData = configurations.filter((item) => item.Id !== id);
@@ -65,6 +66,11 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
     const fetchConfigData = useCallback(async( func)=> {
         const data = await func();
         setConfigurations(data)
+        const confID = getConfigurationID()
+        if(!confID && data.length>0) { //setteo por default la primera
+            selectConfig(data[0].Id, data[0].Name);
+            saveSelectedId(data[0].Id, data[0].Name)
+        }
         setLoading(false)
     }, [])
     
@@ -75,7 +81,21 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
     const styles= NoResultStyles()
 
     return (
-        <Box sx={{width: '80%', bgcolor: 'background.paper', margin:"5%"}}>
+        <>
+        <CurrentConfiguration/>
+            {isAdmin ?
+                <Button
+                    variant={configurations.length===0? "contained":"outlined"}
+                    sx={{
+                        position: "fixed",
+                        bottom: "30px",
+                        right: "20px",
+                    }}
+                    onClick={() => setCurrentView(CONFIGURATION_VIEWS.CREATE)}
+                >
+                    Agregar configuración
+                </Button> :<></>}
+
             {isLoading?
                 <CircularProgress 
                     style={{
@@ -88,7 +108,7 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
                     }}
                 />
                 :(configurations.length>0? 
-                    <Box sx={{width: '80%', bgcolor: 'background.paper', margin:"5%"}}>
+                    <Box sx={{width: '90%', bgcolor: 'background.paper', margin:"5%"}}>
 
                     <Box sx={{
                         display:"flex",
@@ -110,9 +130,9 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
                                     secondaryAction={
                                         <div>
                                             <Button variant="outlined"size='small' onClick={()=>{
-                                                selectConfig(configuration.Id, configuration.Name);
-                                                saveSelectedId(configuration.Id, configuration.Name)
-                                            }}
+                                                    selectConfig(configuration.Id, configuration.Name);
+                                                    saveSelectedId(configuration.Id, configuration.Name)
+                                                }}
                                                 disabled={configuration.Id === getConfigId()}
                                             >
                                                 usar
@@ -120,15 +140,17 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
                                             <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.VIEW); setSelectedConfigurationID(configuration.Id); }}>
                                                 <VisibilityOutlinedIcon color='primary'/>
                                             </IconButton>
-                                            <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.EDIT); setSelectedConfigurationID(configuration.Id); }}>
-                                                <EditIcon color='primary'/>
-                                            </IconButton>
                                             {isAdmin ?
+                                            <>
+                                                <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.EDIT); setSelectedConfigurationID(configuration.Id); }}>
+                                                    <EditIcon color='primary'/>
+                                                </IconButton>
                                                 <IconButton aria-label="trash" onClick={() => {
                                                     presenter.onDeleteConfigPressed(getDeleteConfigModalContent( configuration, presenter, handleDelete))
                                                     }}>
                                                     <DeleteForeverIcon color='error'/>
-                                                </IconButton> : <></>}
+                                                </IconButton>
+                                            </> : <></>}
                                         </div>
                                     }
                                 >
@@ -149,7 +171,6 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
                 )
                 
             }
-            {isAdmin ? <Button variant={configurations.length===0? "contained":"outlined"} sx={{marginTop:"5%"}} onClick={() => setCurrentView(CONFIGURATION_VIEWS.CREATE)}>Agregar configuración</Button> :<></>}
-        </Box>
+        </>
     );
 }
