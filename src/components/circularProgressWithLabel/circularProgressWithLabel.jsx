@@ -19,12 +19,13 @@ const CircularProgressWithLabel = ( {text, percentage, color}) => {
                         }}
                     >
                         <Typography
-                        variant="h3"
+                        variant="h4"
                         component="div"
                         color="text.primary"
                         align='center'
+                        sx={{fontWeight:"bold"}}
                         >{percentage}%</Typography>
-
+                        
                         <Typography
                         variant="caption"
                         component="div"

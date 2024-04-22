@@ -1,15 +1,13 @@
+import InputsService from "../services/inputsService"
+
 export class InputsPresenter {
-
-    getCantSeries(){
-        return "24"
+    
+    service = new InputsService()
+    
+    getNulosEnSeries= async(params) => {
+        return this.service.getNullsInSeries(params)
     }
-
-    getCantEstaciones(){
-        return "39"
+    getMetricas= async(configId) => {
+        return this.service.getMetricas(configId)
     }
-
-    getCantRedes(){
-        return "59"
-    }
-
 }

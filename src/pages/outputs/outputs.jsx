@@ -4,8 +4,6 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Line from '../../components/line/line';
 
 import { DatePicker } from '@mui/x-date-pickers';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { TextField, Button, Typography} from '@mui/material';
 import { CircularProgress } from '@mui/material';
@@ -193,7 +191,7 @@ export const Outputs = () => {
             const filteredErrorsPerDayResponse = await service.getErroresPorDia(params)
             const erroresAgrupados = groupErrors(filteredErrorsPerDayResponse, desde.toDate(), hasta.toDate());
             setErroresPorDias(erroresAgrupados);
-            
+
             const filteredBehavior = await service.getBehaviorFilterd(params)
             setNivelAlertaPorcentaje(filteredBehavior.TotalValuesCount? filteredBehavior.CountAlertLevel/filteredBehavior.TotalValuesCount:0)
             setevacuacionPorcentaje(filteredBehavior.TotalValuesCount? filteredBehavior.CountEvacuationLevel/filteredBehavior.TotalValuesCount:0)
@@ -293,31 +291,34 @@ export const Outputs = () => {
                         {metrics.map(metric => metricsBox(metric.name, metric.value, true))}
                     </Box>
                 </div>
-                <div style={{ display:"flex", justifyContent: "center", margin: "5%"}}>
-                {erroresPorDias && <BarChart
-                    width={800}
-                    height={400}
-                    xAxis={[{ scaleType: 'band', data: calcularDias(graficoDesde.toDate(),graficohasta.toDate()) }]}
-                    series={cargarDataGrafico()}
-                    />}
-                </div>
+                {Object.keys(erroresPorDias).length > 0 &&
+                    <div style={{ display:"flex", justifyContent: "center", margin: "5%"}}>
+                        <BarChart
+                        width={800}
+                        height={400}
+                        xAxis={[{ scaleType: 'band', data: calcularDias(graficoDesde.toDate(),graficohasta.toDate()) }]}
+                        series={cargarDataGrafico()}
+                        />
+                    </div>
+                }
+                
                 <Line/>
                     <h2> Monitoreo de comportamiento</h2>
                     <Box sx={{ display:"flex", flexDirection: 'row', justifyContent:"space-around", alignContent:"center", alignItems:"center", marginBottom:"5%"}}>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
 
                         <h3>Nivel de alerta</h3>
-                        <CircularProgressWithLabel text="observaciones por debajo del nivel de alerta " percentage={nivelAlertaPorcentaje} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
+                        <CircularProgressWithLabel text="observaciones por debajo del nivel de alerta " percentage={nivelAlertaPorcentaje.toFixed(1)} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
                         </Box>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
 
                         <h3>Nivel de evacuación</h3>
-                        <CircularProgressWithLabel text="observaciones debajo del nivel de evacuacion" percentage={evacuacionPorcentaje} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
+                        <CircularProgressWithLabel text="observaciones debajo del nivel de evacuacion" percentage={evacuacionPorcentaje.toFixed(1)} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
                         </Box>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
 
                         <h3>Nivel de aguas bajas</h3>
-                        <CircularProgressWithLabel text="observaciones supera el nivel de aguas bajas" percentage={aguasBajasPorcentaje} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
+                        <CircularProgressWithLabel text="observaciones supera el nivel de aguas bajas" percentage={aguasBajasPorcentaje.toFixed(1)} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
                         </Box>
                     </Box>
             <Line/>

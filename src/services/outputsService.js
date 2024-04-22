@@ -8,7 +8,6 @@ export default class OutputService{
         return res
     }
     async getFilteredIndicators(params){
-        console.log(params)
         const response = await fetch(BASE_URL+`/errores/indicadores?`+ new URLSearchParams(params));
         const res = await response.json()
         return res

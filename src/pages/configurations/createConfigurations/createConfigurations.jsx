@@ -16,8 +16,6 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
 import { CONFIGURATION_VIEWS } from "../configuraciones";
 import { CreateConfigurationPresenter } from "../../../presenters/createConfigurationPresenter";
 import { METRICS, SERIES_TYPES } from "../../../utils/constants";
@@ -50,6 +48,8 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         return metrics;
     })
 
+    const [notificaciones, setNotificaciones] = useState(false)
+
     const serie = {
         idSerie: idSerie,
         idNode: idNode, 
@@ -81,7 +81,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
 
     const handleAddConfiguracion = () => {
         if (presenter.isValidConfiguration(configurationName, nodes, series)) {
-            const body = presenter.buildConfigurationBody(configurationName, nodes, series);
+            const body = presenter.buildConfigurationBody(configurationName, nodes, series, notificaciones);
             if (configurationID & editable) {
                 presenter.putConfiguration(body).then(_ => notifySuccess("Configuración modificada exitosamente"));
             } else {
@@ -101,6 +101,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const getConfiguration = async () => {
         if (configurationID) {
             const response = await presenter.getConfiguration(configurationID);
+            setNotificaciones(response.SendNotifications)
             setNodes(presenter.buildNodesFromConfiguration(response));
             setSeries(presenter.buildSeriesFromConfiguration(response));
             setConfigurationName(response.Name);
@@ -130,8 +131,17 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
 
     return (
         <>
-        <Box className='row space-between'>
+        <Box className='row'>
             <TextField label='Nombre de la configuración' value={configurationName} disabled={!editable} onChange={e => setConfigurationName(e.target.value)}/>
+            <FormControlLabel label={"Notificarme en Telegram"} disabled={!editable} sx={{marginRight: 'auto'}}
+                control={
+                    <Checkbox
+                    checked={notificaciones}
+                    onChange={e =>setNotificaciones(e.target.checked)}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                    />
+                }
+            />
             <Button className='button' onClick={() => setCurrentView(CONFIGURATION_VIEWS.LIST)}>Volver a lista de configuraciones</Button>
         </Box>
         <div className='button-container add-config' style={{display: editable ? 'block' : 'none'}}>
@@ -236,8 +246,8 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
                 {series.map((serie, serieIndex) => serie.idNode !== node.id ? null : 
                 <Box>
                     <Box key={serie.idSerie} className='serie' onMouseEnter={e => handlePopoverOpen(e, serie.idSerie)} onMouseLeave={() => handlePopoverClose()}>
-                        <Typography>Serie</Typography>
-                        <Typography>{serie.idSerie}</Typography>
+                        <Typography  sx={{marginTop:1}} >Serie</Typography>
+                        <Typography >{serie.idSerie}</Typography>
                         <Button style={{display: editable ? 'block' : 'none'}} onClick={() => setSeries(series.filter((_, index) => serieIndex !== index))}>Eliminar</Button>
                     </Box>
                     <Popover

@@ -1,13 +1,12 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { Box, CircularProgress, Modal, Typography, TextField, Button } from '@mui/material';
+import { SeriesPresenter } from '../../../presenters/seriesPresenter';
+import { Box, CircularProgress, Modal, Typography, Tooltip } from '@mui/material';
 import { LineChart, BarChart } from '@mui/x-charts';
 import { DatePicker } from '@mui/x-date-pickers';
-import { SeriesPresenter } from '../../../presenters/seriesPresenter';
 import Line from '../../../components/line/line';
 import dayjs from 'dayjs';
 import './serieModal.css'
-import { dayjsToString } from '../../../utils/dates';
 
 const loadingStyle = {
   display: 'flex',
@@ -166,7 +165,6 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
         {presenter.buildBehaviourMetrics(serieMetadata.Metrics).length > 0 ? 
           section('Comportamiento', presenter.buildBehaviourMetrics(serieMetadata.Metrics)) : null
         }
-        
         <Line/>
         <Typography variant="h6" align='center'><b>Valores de la serie</b></Typography>
         <SerieValuesChart 
@@ -201,22 +199,24 @@ const TitleAndValue = ({title, value}) => {
   )
 }
 
-const metricsBox = (title, subtitle) => {
+const metricsBox = (title, subtitle, helper) => {
   return (
-   <Box sx={{height: 100, width: 200, border: '1.5px solid #E0E6ED',}}>
-      <Typography align='center' sx={{mt: 2}}> {title} </Typography>
-      <Typography align='center' sx={{mt: 2}}> {subtitle} </Typography>
-   </Box>
+		<Tooltip title={helper}>
+			<Box sx={{height: 100, width: 200, border: '1.5px solid #E0E6ED'}}>
+					<Typography align='center' sx={{mt: 2}}> {title} </Typography>
+					<Typography align='center' sx={{padding:1}}> {subtitle} </Typography>
+			</Box>
+		</Tooltip>
   )
 }
 
-const section = (title, metrics) => {
+const section = (title, metrics, total) => {
   return (
     <>
     <Line/>
     <Typography variant="h6" align='center'><b>{title}</b></Typography>
     <Box className='row space-around wrap'>
-      {metrics.map(metric => metricsBox(metric.Name, metric.Value))}
+      {metrics.map(metric => metricsBox(metric.Name, total? (metric.Value/total).toFixed(1)+"%" : metric.Value, `Cantidad: ${metric.Value} - Total:  ${total}`) )}
     </Box>
     </>
   )

@@ -20,8 +20,9 @@
     align-items: center;
     border: 2px solid rgb(224, 230, 237);
     border-radius: 20px;
-    height: 80px;
-    width: 80px;
+    min-height: 106px;
+    min-width: 94px;
+    padding-inline: 10px;
 }
 
 .row {

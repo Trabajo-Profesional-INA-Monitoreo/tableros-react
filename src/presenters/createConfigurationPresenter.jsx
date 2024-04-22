@@ -72,11 +72,12 @@ export class CreateConfigurationPresenter {
         return allNodesHaveSeries;
     }
     
-    buildConfigurationBody = (configurationName, nodes, series) => {
+    buildConfigurationBody = (configurationName, nodes, series, notificaciones) => {
         var configuration = {};
         configuration['name'] = configurationName
         configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node.id}) )
         console.log('hola: ', nodes);
+        configuration['sendNotifications'] = notificaciones
         configuration['nodes'].forEach(node => {
             node['configuredStreams'] = []
             series.forEach(serie => {
