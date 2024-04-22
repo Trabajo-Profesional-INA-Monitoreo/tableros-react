@@ -1,22 +1,31 @@
 import serieService from "../services/serieService";
+import { dayjsToString } from "../utils/dates";
 
 export class SeriesPresenter {
 
     serieService = new serieService()
 
-    getSerieMetadata = async(serieID, configuredSerieID) => {
-        return this.serieService.getSerieMetadata(serieID, configuredSerieID);
+    getSerieMetadata = async(serieID, configuredSerieID, startDate, endDate) => {
+        const _startDate = dayjsToString(startDate);
+        const _endDate = dayjsToString(endDate);
+        return this.serieService.getSerieMetadata(serieID, configuredSerieID, _startDate, _endDate);
     }
 
-    getSerieValues = async(serieID, serieType, calibrationID) => {
+    getSerieValues = async(serieID, serieType, calibrationID, startDate, endDate) => {
+        const _startDate = dayjsToString(startDate);
+        const _endDate = dayjsToString(endDate);
         switch(serieType){
             case 0:
-                return this.serieService.getObservedSerieValues(serieID);
+                return this.serieService.getObservedSerieValues(serieID, _startDate, _endDate);
             case 1:
-                return this.serieService.getForacastedSerieValues(calibrationID);
+                return this.serieService.getForacastedSerieValues(calibrationID, _startDate, _endDate);
             case 2:
-                return this.serieService.getCuratedSerieValues(serieID);
+                return this.serieService.getCuratedSerieValues(serieID, _startDate, _endDate);
         }
+    }
+
+    getSeriePage = async(page, params) => {
+        return this.serieService.getSeriePage(page, params);
     }
 
     buildGeneralMetrics = (metrics) => {

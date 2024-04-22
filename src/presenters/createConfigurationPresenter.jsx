@@ -76,6 +76,7 @@ export class CreateConfigurationPresenter {
         var configuration = {};
         configuration['name'] = configurationName
         configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node.id}) )
+        console.log('hola: ', nodes);
         configuration['nodes'].forEach(node => {
             node['configuredStreams'] = []
             series.forEach(serie => {

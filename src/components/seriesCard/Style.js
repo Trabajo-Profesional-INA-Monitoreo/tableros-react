@@ -7,7 +7,8 @@ export const Styles = () => ({
     cardHeader: {
         borderBottom:0.5,
         borderBottomColor: "#c3c3c3",
-        color: "default"
+        color: "default",
+        textAlign: 'center'
     },
     subHeader: {
         color: "#6e6e6e"
@@ -15,7 +16,8 @@ export const Styles = () => ({
     cardInfoContainer:{
         display: "flex",
         flexDirection:"row",
-        marginTop:10
+        marginTop:10,
+        textAlign: 'center'
     },
     cardInfo:{
         marginLeft: 10,
@@ -25,7 +27,8 @@ export const Styles = () => ({
         alignItems:"center"
     },
     cardContainer:{
-        minWidth: 252,
+        width: 350,
+        height: 300,
         padding: "10px",
         backgroundColor: "white"
     }

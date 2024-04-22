@@ -8,4 +8,8 @@ export class StationPresenter {
         return this.stationService.getStations(configurationId);
     }
 
+    getAllStationsNames = async() => {
+        return this.stationService.getAllStationsNames();
+    }
+
 }
