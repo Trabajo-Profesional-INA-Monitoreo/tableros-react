@@ -51,9 +51,9 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     })
 
     const serie = {
-        idSerie: idSerie, 
+        idSerie: idSerie,
         idNode: idNode, 
-        actualizationFrequency: actualizationFrequency, 
+        actualizationFrequency: actualizationFrequency,
         serieType: serieType,
         calibrationID: calibrationID,
         relatedObservedStreamID: relatedObservedStreamID,
@@ -269,44 +269,4 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
         </Box>)}
         </>
     );
-}
-
-const Notification = ({message}) => {
-
-    const [open, setOpen] = useState(true);
-
-    return (
-        <>
-            <Snackbar
-                open={open}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                autoHideDuration={6000}
-                onClose={() => setOpen(false)}
-                message={message}
-            />
-        </>
-    );
-}
-
-const SuccessNotification = ({message}) => {
-    const [open, setOpen] = useState(true);
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-    return (
-    <Snackbar 
-        open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-            
-        <Alert
-            onClose={handleClose}
-            severity="success"
-            variant="filled"
-            sx={{ width: '100%' }}
-        >
-        {message}
-        </Alert>
-    </Snackbar>
-    )
 }
