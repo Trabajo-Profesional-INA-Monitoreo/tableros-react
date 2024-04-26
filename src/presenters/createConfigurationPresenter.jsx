@@ -19,7 +19,7 @@ export class CreateConfigurationPresenter {
         if (stream.idSerie === '') {
             notifyError("El ID de la serie es necesario");
             isValidStream = false;
-        } else if (!stream.idNode) {
+        } else if (!stream._idNode) {
             notifyError("Indiqué a que nodo debe pertenecer la serie");
             isValidStream = false;
         } else if (stream.actualizationFrequency === '') {
@@ -65,24 +65,29 @@ export class CreateConfigurationPresenter {
     allNodesHaveSeries = (nodes, series) => {
         var allNodesHaveSeries = true;
         nodes.forEach(node => {
-            if (series.filter(serie => serie.idNode === node.id).length === 0){
+            if (series.filter(serie => serie._idNode === node._id).length === 0){
                 allNodesHaveSeries = false
             } 
         })
         return allNodesHaveSeries;
     }
     
-    buildConfigurationBody = (configurationName, nodes, series, notificaciones) => {
+    buildConfigurationBody = (configurationName, nodes, series, notificaciones, configurationId, isPut) => {
+        console.log(nodes);
         var configuration = {};
-        configuration['name'] = configurationName
-        configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node.id}) )
-        console.log('hola: ', nodes);
+        configuration['name'] = configurationName;
+        if (isPut && configurationId) {
+            configuration['Id'] = configurationId;
+            configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node._id, id: node.id}))
+        }
+        else
+            configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node._id}));
         configuration['sendNotifications'] = notificaciones
         configuration['nodes'].forEach(node => {
-            node['configuredStreams'] = []
+            node['configuredStreams'] = [];
             series.forEach(serie => {
-                if (node._id === serie.idNode) {
-                    node['configuredStreams'].push({
+                if (node._id === serie._idNode) {
+                    const _serie = {
                         streamId: Number(serie.idSerie),
                         streamType: STREAM_TYPE_CODE[serie.serieType],
                         updateFrequency: Number(serie.actualizationFrequency),
@@ -93,7 +98,11 @@ export class CreateConfigurationPresenter {
                         relatedObservedStreamId: Number(serie.relatedObservedStreamID) ? Number(serie.relatedObservedStreamID) : null,
                         redundanciesIds: serie.redundantSeriesIDs,
                         metrics: Object.keys(serie.metrics).filter(key => serie.metrics[key]).map(key => METRICS_CODE[key])
-                    })
+                    }
+                    if (serie.ConfiguredStreamId) {
+                        _serie['ConfiguredStreamId'] = serie.ConfiguredStreamId
+                    }
+                    node['configuredStreams'].push(_serie)
                 }
             })
         })
@@ -106,7 +115,8 @@ export class CreateConfigurationPresenter {
 
     buildNodesFromConfiguration = (configuration) => {
         let nodes = [];
-        configuration.Nodes.forEach(node => nodes.push({"name": node.Name, "id": node.Id}))
+        configuration.Nodes.forEach((node, index) => nodes.push({"name": node.Name, "id": node.Id, "_id": index+1}))
+        console.log('nodesFromConfig: ', nodes)
         return nodes;
     }
 
@@ -119,12 +129,13 @@ export class CreateConfigurationPresenter {
             return metrics;
         }
 
-        configuration.Nodes.forEach(node => {
-            
+        configuration.Nodes.forEach((node, index) => {
             series = series.concat(node.ConfiguredStreams.map(serie => (
                 {
                     idSerie: String(serie.StreamId),
+                    ConfiguredStreamId: serie.ConfiguredStreamId,
                     idNode: Number(node.Id),
+                    _idNode: index + 1,
                     actualizationFrequency: String(serie.UpdateFrequency),
                     serieType: String(serie.StreamType),
                     calibrationID: serie.CalibrationId !== 0 ? String(serie.CalibrationId) : '',
@@ -138,7 +149,7 @@ export class CreateConfigurationPresenter {
             ));
 
         })
-
+        console.log(series);
         return series;
     }
 }
