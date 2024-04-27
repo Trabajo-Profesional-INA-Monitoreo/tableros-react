@@ -42,7 +42,7 @@ const appRoutes = [
 			sidebarProps: {
 				displayText: "Nodos",
 				icon: <CellTowerIcon />
-			}
+			},
 		},
 		{
 			path: "/series",

@@ -1,10 +1,11 @@
 import { ListItemButton, ListItemIcon } from "@mui/material";
 import ListItem from '@mui/material/ListItem';
 import { Link } from "react-router-dom";
+import { getConfigurationName } from '../../utils/storage';
 
 
 const SidebarItem = ({ item }) => {
-
+  let desabilitado = getConfigurationName() == null
   return (
     item.sidebarProps && item.path ? (
       <ListItem disablePadding sx={{ display: 'block' }}>
@@ -15,9 +16,10 @@ const SidebarItem = ({ item }) => {
           }}
           component={Link}
           to={item.path}
+          disabled={desabilitado && item.path!=="/configuraciones"}
         >
           <ListItemIcon sx={{
-            color:  "#1A1F36",
+            color: "#1A1F36",
             justifyContent: 'left',
           }}>
             {item.sidebarProps.icon && item.sidebarProps.icon}
