@@ -165,7 +165,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
           section('Métricas generales', presenter.buildGeneralMetrics(serieMetadata.Metrics)) : null
         }
         {presenter.buildBehaviourMetrics(serieMetadata.Metrics).length > 0 ? 
-          section('Comportamiento', presenter.buildBehaviourMetrics(serieMetadata.Metrics)) : null
+          section('Comportamiento', presenter.buildBehaviourMetrics(serieMetadata.Metrics), presenter.getTotalBehaviourMetrics(serieMetadata.Metrics)) : null
         }
         <Line/>
         <Typography variant="h6" align='center'><b>Valores de la serie</b></Typography>
@@ -218,7 +218,7 @@ const section = (title, metrics, total) => {
     <Line/>
     <Typography variant="h6" align='center'><b>{title}</b></Typography>
     <Box className='row space-around wrap'>
-      {metrics.map(metric => metricsBox(metric.Name, total? (metric.Value/total).toFixed(1)+"%" : metric.Value, `Cantidad: ${metric.Value} - Total:  ${total}`) )}
+      {metrics.map(metric => metricsBox(metric.Name, total? (metric.Value/total).toFixed(1)+"%" : metric.Value,total&& `Cantidad: ${metric.Value} - Total:  ${total}`))}
     </Box>
     </>
   )
