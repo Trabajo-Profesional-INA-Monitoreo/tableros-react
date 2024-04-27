@@ -333,12 +333,12 @@ export const Outputs = () => {
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
 
                         <h3>Nivel de evacuación</h3>
-                        <CircularProgressWithLabel text="observaciones debajo del nivel de evacuacion" percentage={evacuacionPorcentaje.toFixed(1)} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
+                        <CircularProgressWithLabel text="observaciones debajo del nivel de evacuacion" percentage={evacuacionPorcentaje.toFixed(1)} color={evacuacionPorcentaje<30? "success": (evacuacionPorcentaje<60?"warning":"error")}/>
                         </Box>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
 
                         <h3>Nivel de aguas bajas</h3>
-                        <CircularProgressWithLabel text="observaciones supera el nivel de aguas bajas" percentage={aguasBajasPorcentaje.toFixed(1)} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
+                        <CircularProgressWithLabel text="observaciones supera el nivel de aguas bajas" percentage={aguasBajasPorcentaje.toFixed(1)} color={aguasBajasPorcentaje<30? "success": (aguasBajasPorcentaje<60?"warning":"error")}/>
                         </Box>
                     </Box>
             <Line/>
