@@ -16,26 +16,24 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
 import { CONFIGURATION_VIEWS } from "../configuraciones";
 import { CreateConfigurationPresenter } from "../../../presenters/createConfigurationPresenter";
 import { METRICS, SERIES_TYPES } from "../../../utils/constants";
 import './createConfigurations.css';
 import { notifySuccess } from "../../../utils/notification";
-import TelegramIcon from '@mui/icons-material/Telegram';
-import CancelScheduleSendIcon from '@mui/icons-material/CancelScheduleSend';
+import { setConfigurationID } from "../../../utils/storage";
 
 export const CreateConfigurations = ({setCurrentView, configurationID, editable}) => {
 
     const presenter = new CreateConfigurationPresenter();
 
     const [configurationName, setConfigurationName] = useState('');
+    const [shouldNotify, setShouldNotify] = useState(false)
     const [series, setSeries] = useState([]);
     const [nodes, setNodes] = useState([]);
     const [nodeName, setNodeName] = useState('');
-    const [idNodeCounter, setIdNodeCounter] = useState(1);
-    const [idNode, setIdNode] = useState('');
+    const [_idNodeCounter, _setIdNodeCounter] = useState(1);
+    const [_idNode, _setIdNode] = useState('');
     const [idSerie, setIdSerie] = useState('');
     const [checkErrors, setCheckErrors] = useState(false);
     const [actualizationFrequency, setActualizationFrequency] = useState('');
@@ -50,14 +48,12 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         var metrics = {};
         METRICS.forEach((metric) => metrics[metric] = false);
         return metrics;
-    })
-
-    const [notificaciones, setNotificaciones] = useState(false)
+    }) 
 
     const serie = {
-        idSerie: idSerie, 
-        idNode: idNode, 
-        actualizationFrequency: actualizationFrequency, 
+        idSerie: idSerie,
+        _idNode: _idNode, 
+        actualizationFrequency: actualizationFrequency,
         serieType: serieType,
         calibrationID: calibrationID,
         relatedObservedStreamID: relatedObservedStreamID,
@@ -78,15 +74,17 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const handleAddNodo = () => {
         if (presenter.isValidNode(nodeName)) {
             notifySuccess('Nodo agregado exitosamente');
-            setNodes([...nodes, {id: idNodeCounter, name: nodeName}]);
-            setIdNodeCounter(idNodeCounter + 1);
+            setNodes([...nodes, {_id: _idNodeCounter, name: nodeName}]);
+            _setIdNodeCounter(_idNodeCounter + 1);
         }
     }
 
     const handleAddConfiguracion = () => {
         if (presenter.isValidConfiguration(configurationName, nodes, series)) {
-            const body = presenter.buildConfigurationBody(configurationName, nodes, series, notificaciones);
-            if (configurationID & editable) {
+            const isPut = configurationID && editable;
+            const body = presenter.buildConfigurationBody(configurationName, nodes, series, shouldNotify, configurationID, isPut);
+            console.log(body);
+            if (isPut) {
                 presenter.putConfiguration(body).then(_ => notifySuccess("Configuración modificada exitosamente"));
             } else {
                 presenter.postConfiguration(body).then(_ => notifySuccess('Configuración creada exitosamente'));
@@ -105,9 +103,14 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const getConfiguration = async () => {
         if (configurationID) {
             const response = await presenter.getConfiguration(configurationID);
-            setNotificaciones(response.SendNotifications)
-            setNodes(presenter.buildNodesFromConfiguration(response));
-            setSeries(presenter.buildSeriesFromConfiguration(response));
+            const nodes = await presenter.buildNodesFromConfiguration(response);
+            const series = await presenter.buildSeriesFromConfiguration(response);
+            console.log('BUILT NODES: ', nodes)
+            console.log('BUILT SERIES: ', series)
+            setShouldNotify(response.SendNotifications);
+            setNodes(nodes);
+            _setIdNodeCounter(nodes.length + 1);
+            setSeries(series);
             setConfigurationName(response.Name);
         }    
     }
@@ -118,7 +121,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
 
     useEffect(() => {
         setIdSerie('');
-        setIdNode('');
+        _setIdNode('');
         setActualizationFrequency('');
         setRedundantSerieID('');
         setRedundantSeriesIDs([]);
@@ -135,15 +138,13 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
 
     return (
         <>
-        <Box className='row space-between'>
+        <Box className='row'>
             <TextField label='Nombre de la configuración' value={configurationName} disabled={!editable} onChange={e => setConfigurationName(e.target.value)}/>
-            <FormControlLabel label={"Notificarme en Telegram"} disabled={!editable}
+            <FormControlLabel label={"Notificarme en Telegram"} disabled={!editable} sx={{marginRight: 'auto'}}
                 control={
                     <Checkbox
-                    checked={notificaciones}
-                    onChange={e =>setNotificaciones(e.target.checked)}
-                    inputProps={{ 'aria-label': 'controlled' }}
-                    />
+                    checked={shouldNotify}
+                    onChange={e => setShouldNotify(e.target.checked)}/>
                 }
             />
             <Button className='button' onClick={() => setCurrentView(CONFIGURATION_VIEWS.LIST)}>Volver a lista de configuraciones</Button>
@@ -163,8 +164,8 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                 <TextField type='number' label='Id Serie' value={idSerie} onChange={e => setIdSerie(e.target.value)}/>
                 <FormControl sx={{minWidth: 220}}>
                     <InputLabel id="nodo">Nodo</InputLabel>
-                    <Select label="Nodo" id="nodo" labelId="nodo" value={idNode} onChange={e => setIdNode(e.target.value)} disabled={nodes.length === 0}>
-                        {nodes.map((node, index) => <MenuItem key={node.id} value={node.id}>{`${index+1} - ${node.name}`}</MenuItem>)}
+                    <Select label="Nodo" id="nodo" labelId="nodo" value={_idNode} onChange={e => _setIdNode(e.target.value)} disabled={nodes.length === 0}>
+                        {nodes.map((node, index) => <MenuItem key={node._id} value={node._id}>{`${index+1} - ${node.name}`}</MenuItem>)}
                     </Select>
                 </FormControl>
                 <TextField type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)} helperText="En minutos"/>
@@ -243,11 +244,11 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
         <>
         {nodes.length === 0 ? 'Aún no ha agregado nodos. Cuando agregue nodos aparecerán aquí.': null}
         {nodes.map((node, index) => 
-        <Box className='node' key={node.id}>
+        <Box className='node' key={node._id}>
             <h4 style={{margin: 0}}>{`Nodo ${index + 1} - ${node.name}`}</h4>
             <Box className='row wrap'>
-                {series.filter(serie => serie.idNode === node.id).length !== 0 ? null : 'Aún no ha agregado series a este nodo. Cuando agregue series aparecerán aquí.'}
-                {series.map((serie, serieIndex) => serie.idNode !== node.id ? null : 
+                {series.filter(serie => serie._idNode === node._id).length !== 0 ? null : 'Aún no ha agregado series a este nodo. Cuando agregue series aparecerán aquí.'}
+                {series.map((serie, serieIndex) => serie._idNode !== node._id ? null : 
                 <Box>
                     <Box key={serie.idSerie} className='serie' onMouseEnter={e => handlePopoverOpen(e, serie.idSerie)} onMouseLeave={() => handlePopoverClose()}>
                         <Typography  sx={{marginTop:1}} >Serie</Typography>
@@ -276,51 +277,11 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
             </Box>
             <Button variant="outlined" style={{display: editable ? 'block' : 'none'}}
                 onClick={() => {
-                    setSeries(series.filter(serie => serie.idNode !== node.id));
-                    setNodes(nodes.filter(node_ => node_.id !== node.id));
+                    setSeries(series.filter(serie => serie._idNode !== node._id));
+                    setNodes(nodes.filter(_node => _node._id !== node._id));
                 }}>Eliminar nodo
             </Button>
         </Box>)}
         </>
     );
-}
-
-const Notification = ({message}) => {
-
-    const [open, setOpen] = useState(true);
-
-    return (
-        <>
-            <Snackbar
-                open={open}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                autoHideDuration={6000}
-                onClose={() => setOpen(false)}
-                message={message}
-            />
-        </>
-    );
-}
-
-const SuccessNotification = ({message}) => {
-    const [open, setOpen] = useState(true);
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-    return (
-    <Snackbar 
-        open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-            
-        <Alert
-            onClose={handleClose}
-            severity="success"
-            variant="filled"
-            sx={{ width: '100%' }}
-        >
-        {message}
-        </Alert>
-    </Snackbar>
-    )
 }

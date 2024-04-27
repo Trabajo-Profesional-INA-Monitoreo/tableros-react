@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import { Box } from '@mui/material';
+import { Box, Modal } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import Line from '../../components/line/line';
 
@@ -13,6 +13,7 @@ import CircularProgressWithLabel from '../../components/circularProgressWithLabe
 import dayjs from 'dayjs';
 import { getConfigurationID, getConfigurationName } from '../../utils/storage';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
+import { ErrorModal, NoErrorModal } from './errorModal';
 
 function dateParser(date){
     const year = date.getFullYear();
@@ -76,8 +77,9 @@ const map_metrics = (metrics, errores) => {
         updateObjectInArray(metrics, "Errores desconocidos", { value: 0 }  )
     }
     for (const errorobj of errores) {
+        console.log('ASDASD: ', errorobj)
         if(errorobj.ErrorType === 'NullValue'){
-            updateObjectInArray(metrics, "Valores nulos", { value: errorobj.Count }  )
+            updateObjectInArray(metrics, "Valores nulos", { value: errorobj.Count })
         }else if(errorobj.ErrorType === 'Missing4DaysHorizon'){
             updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { value: errorobj.Count }  )
         }else if(errorobj.ErrorType === 'OutsideOfErrorBands'){
@@ -85,7 +87,8 @@ const map_metrics = (metrics, errores) => {
         }else if(errorobj.ErrorType === "ForecastMissing"){
             updateObjectInArray(metrics, "Errores de falta de pronostico", { value: errorobj.Count }  )
         }else if(errorobj.ErrorType === "ObservedOutlier"){
-            updateObjectInArray(metrics, "Outliers observados", { value: errorobj.Count }  )
+            updateObjectInArray(metrics, "Outliers observados", { value: errorobj.Count })
+            updateObjectInArray(metrics, "Outliers observados", { id: errorobj.ErrorId })
         }else if(errorobj.ErrorType === "ForecastOutOfBounds"){
             updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { value: errorobj.Count }  )
         }
@@ -120,14 +123,16 @@ export const Outputs = () => {
 
     const [indicadores, setIndicadores] =  useState([]);
 
+    const [openMetric, setOpenMetric] = useState(null);
+
     const [metrics, setMetrics] = useState([
-        {name: "Valores nulos", value: 0},
-        {name: "Errores de falta de horizonte a 4 dias", value: 0},
-        {name: "Valores fuera de banda de errores", value: 0},
-        {name: "Errores de falta de pronostico", value: 0},
-        {name: "Outliers observados", value: 0},
-        {name: "Pronosticos fuera de umbrales", value: 0},
-        {name: "Errores desconocidos", value: 0},
+        {name: "Valores nulos", value: 0, id: -1},
+        {name: "Errores de falta de horizonte a 4 dias", value: 0, id: -1},
+        {name: "Valores fuera de banda de errores", value: 0, id: -1},
+        {name: "Errores de falta de pronostico", value: 0, id: -1},
+        {name: "Outliers observados", value: 0, id: -1},
+        {name: "Pronosticos fuera de umbrales", value: 0, id: -1},
+        {name: "Errores desconocidos", value: 0, id: -1},
     ]);
     const [erroresPorDias, setErroresPorDias] = useState({})
 
@@ -166,6 +171,7 @@ export const Outputs = () => {
         setIndicadores(indicadoresResponse)
         map_metrics(metrics, indicadoresResponse)
         setMetrics(metrics)
+        console.log('XXXXX: ', metrics)
     },[])
 
     const loadBehavior = useCallback (async()=>{
@@ -288,9 +294,23 @@ export const Outputs = () => {
 
                 <div style={{padding: 10, marginTop:"5%"}}>
                     <Box className='row space-around wrap'>
-                        {metrics.map(metric => metricsBox(metric.name, metric.value, true))}
+                        {metrics.map(metric => 
+                            <Box onClick={() => setOpenMetric(metric.id)}>
+                                {metricsBox(metric.name, metric.value, true)}
+                            </Box>
+                        )}
                     </Box>
                 </div>
+                {metrics.map(metric => 
+                    <ErrorModal
+                        open={metric.id === openMetric && metric.id !== -1} 
+                        onClose={() => setOpenMetric(null)}
+                        errorType={metric.id}>
+                    </ErrorModal>)}
+                    <NoErrorModal
+                        open={openMetric === -1} 
+                        onClose={() => setOpenMetric(null)}>
+                    </NoErrorModal>
                 {Object.keys(erroresPorDias).length > 0 &&
                     <div style={{ display:"flex", justifyContent: "center", margin: "5%"}}>
                         <BarChart

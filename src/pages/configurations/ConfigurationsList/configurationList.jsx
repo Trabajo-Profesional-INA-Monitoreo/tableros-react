@@ -56,16 +56,16 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
     const {userInfo} = useUser()
     const [configurations, setConfigurations] = useState([]);
     const [isLoading, setLoading] = useState(true)
-    const isAdmin = userInfo.roles?.includes("admin")
+    const isAdmin = true //userInfo.roles?.includes("admin")
     
     const handleDelete = (id) => {
         const updatedData = configurations.filter((item) => item.Id !== id);
-        setConfigurations(updatedData);
+        setConfigurations(updatedData ? updatedData : []);
     };
 
     const fetchConfigData = useCallback(async( func)=> {
         const data = await func();
-        setConfigurations(data)
+        setConfigurations(data ? data : [])
         const confID = getConfigurationID()
         if(!confID && data.length>0) { //setteo por default la primera
             selectConfig(data[0].Id, data[0].Name);

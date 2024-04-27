@@ -1,13 +1,12 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { Box, CircularProgress, Tooltip } from '@mui/material';
-import Typography from '@mui/material/Typography';
-import Modal from '@mui/material/Modal';
-import { LineChart } from '@mui/x-charts/LineChart';
-import { BarChart } from '@mui/x-charts/BarChart';
-import './serieModal.css'
-import Line from '../../../components/line/line';
 import { SeriesPresenter } from '../../../presenters/seriesPresenter';
+import { Box, CircularProgress, Modal, Typography, Tooltip } from '@mui/material';
+import { LineChart, BarChart } from '@mui/x-charts';
+import { DatePicker } from '@mui/x-date-pickers';
+import Line from '../../../components/line/line';
+import dayjs from 'dayjs';
+import './serieModal.css'
 
 const loadingStyle = {
   display: 'flex',
@@ -83,12 +82,16 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
   const [serieMetadata, setSerieMetadata] = useState({});
   const [serieValues, setSerieValues] = useState([]);
   const [serieP05Values, setSerieP05Values] = useState([]);
-  const [serieP95Values, setSerieP95Values] = useState([]); 
-  
+  const [serieP95Values, setSerieP95Values] = useState([]);
+  const [startDate, setStartDate] = useState(dayjs().subtract(7, 'day'));
+  const [endDate, setEndDate] = useState(dayjs());
+
   const getSerieMetadataAndValues = async () => {
     if (open) {
-      let serieMetadata = await presenter.getSerieMetadata(serieId, configuredSerieId);
-      let serieValues = await presenter.getSerieValues(serieId, serieType, calibrationId);
+      let serieMetadata = await presenter.getSerieMetadata(serieId, configuredSerieId, startDate, endDate);
+      let serieValues = await presenter.getSerieValues(serieId, serieType, calibrationId, startDate, endDate);
+      let serieErrors = await presenter.getSerieErrors(configuredSerieId, startDate, endDate);
+      console.log(serieErrors)
       switch (serieType) {
         case 0:
         case 2:
@@ -109,60 +112,85 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
       getSerieMetadataAndValues();
   }, [open]);
 
-    return (
-        <Modal open={open} onClose={handleClose}>
-        {isLoading ? <Box sx={style}><CircularProgress style={loadingStyle}></CircularProgress></Box>:
-        <Box sx={style}>
-        <Typography variant="h6" align='center'><b>{serieMetadata.Station} | {serieId} </b></Typography>
-          <Line/>
-          <div style={{height: '100%', overflow: "hidden", overflowY: "scroll", padding: 10, paddingTop: 0}}>
-          <Box className={"row space-around wrap"}>
-            <TitleAndValue title="Variable" value={serieMetadata.VarName}/>
-            <TitleAndValue title="Unidad" value={serieMetadata.Unit}/> 
-          </Box>
-          <Box className={"row space-around wrap"}>
-            <TitleAndValue title="Procedimiento" value={`${serieMetadata.ProcId} - ${serieMetadata.Procedure}`}/>
-            <TitleAndValue title="Owner" value={serieMetadata.Owner}/>
-          </Box>
-          <Line/>
-          <Box className={"row space-around wrap"}>
-            {presenter.buildObservationsMetric(serieMetadata.Metrics).length > 0 ?
-              <TitleAndValue title="Observaciones última semana" value={presenter.buildObservationsMetric(serieMetadata.Metrics)[0].Value}/> : null
-            }
-            <TitleAndValue title="Estación" value={serieMetadata.Station}/>
-          </Box>
-          <Box className={"row space-around wrap"}>
-            <TitleAndValue title="Última actualización" value={"XXXXXXX"}/>
-            <TitleAndValue title="Actualización" value={`Cada ${serieMetadata.UpdateFrequency} minutos`}/>
-            {serieMetadata.CalibrationId ? <TitleAndValue title="ID Calibración" value={serieMetadata.CalibrationId}/> : null}
-          </Box>
-          {presenter.buildGeneralMetrics(serieMetadata.Metrics).length > 0 ? 
-            section('Métricas generales', presenter.buildGeneralMetrics(serieMetadata.Metrics)) : null
-          }
-          {presenter.buildBehaviourMetrics(serieMetadata.Metrics).length > 0 ? 
-            section('Comportamiento', presenter.buildBehaviourMetrics(serieMetadata.Metrics), presenter.getTotalBehaviourMetrics(serieMetadata.Metrics)) : null
-          }
-          <SerieValuesChart 
-            serieMetadata={serieMetadata} 
-            serieValues={serieValues} 
-            serieP05Values={serieP05Values} 
-            serieP95Values={serieP95Values}/>
-          {presenter.buildNullsMetric(serieMetadata.Metrics).length > 0 ? 
-            section("Calidad", presenter.buildNullsMetric(serieMetadata.Metrics), presenter.getTotalBehaviourMetrics(serieMetadata.Metrics)) : null
-          }
-          <Line/>
-          <Typography variant="h6" align='center'><b>Retardo acumulado por dia</b></Typography>
-          <BarChart
-            dataset={dataset}
-            xAxis={[{ scaleType: 'band', dataKey: 'month'}]}
-            series={[{ dataKey: 'retardo', label: 'Horas acumuladas', valueFormatter }]}
-            {...chartSetting}
-          />
-          </div>
+  useEffect(() => {
+    getSerieMetadataAndValues();
+  }, [startDate, endDate]);
+
+  return (
+      <Modal open={open} onClose={handleClose}>
+      {isLoading ? <Box sx={style}><CircularProgress style={loadingStyle}></CircularProgress></Box>:
+      <Box sx={style}>
+      <Box className='row'>
+        <Typography variant="h6" align='center'sx={{marginLeft: 'auto', marginRight: 'auto'}}><b>{serieMetadata.Station} | {serieId}</b></Typography>
+        <DatePicker 
+          label="Desde"
+          inputFormat="YYYY/MM/DD"
+          value={startDate}
+          onChange = {value => setStartDate(value)}
+          maxDate={dayjs()}
+          sx={{maxWidth: '150px'}}
+        />
+        <DatePicker 
+            label="Hasta"
+            inputFormat="YYYY/MM/DD"
+            value={endDate}
+            onChange = {e => setEndDate(e)}
+            maxDate={dayjs()}
+            sx={{maxWidth: '150px'}}
+        />
+      </Box>
+        <Line/>
+        <div style={{height: '100%', overflow: "hidden", overflowY: "scroll", padding: 10, paddingTop: 0}}>
+        <Box className={"row space-around wrap"}>
+          <TitleAndValue title="Variable" value={serieMetadata.VarName}/>
+          <TitleAndValue title="Unidad" value={serieMetadata.Unit}/> 
         </Box>
+        <Box className={"row space-around wrap"}>
+          <TitleAndValue title="Procedimiento" value={`${serieMetadata.ProcId} - ${serieMetadata.Procedure}`}/>
+          <TitleAndValue title="Owner" value={serieMetadata.Owner}/>
+        </Box>
+        <Line/>
+        <Box className={"row space-around wrap"}>
+          {presenter.buildObservationsMetric(serieMetadata.Metrics).length > 0 ?
+            <TitleAndValue title="Observaciones" value={presenter.buildObservationsMetric(serieMetadata.Metrics)[0].Value}/> : null
+          }
+          <TitleAndValue title="Estación" value={serieMetadata.Station}/>
+        </Box>
+        <Box className={"row space-around wrap"}>
+          <TitleAndValue title="Última actualización" value={"XXXXXXX"}/>
+          <TitleAndValue title="Actualización" value={`Cada ${serieMetadata.UpdateFrequency} minutos`}/>
+          {serieMetadata.CalibrationId ? <TitleAndValue title="ID Calibración" value={serieMetadata.CalibrationId}/> : null}
+        </Box>
+        {presenter.buildGeneralMetrics(serieMetadata.Metrics).length > 0 ? 
+          section('Métricas generales', presenter.buildGeneralMetrics(serieMetadata.Metrics)) : null
         }
-      </Modal>
-    );
+        {presenter.buildBehaviourMetrics(serieMetadata.Metrics).length > 0 ? 
+          section('Comportamiento', presenter.buildBehaviourMetrics(serieMetadata.Metrics)) : null
+        }
+        <Line/>
+        <Typography variant="h6" align='center'><b>Valores de la serie</b></Typography>
+        <SerieValuesChart 
+          serieMetadata={serieMetadata} 
+          serieValues={serieValues} 
+          serieP05Values={serieP05Values} 
+          serieP95Values={serieP95Values}
+          />
+        {presenter.buildNullsMetric(serieMetadata.Metrics).length > 0 ? 
+          section("Calidad", presenter.buildNullsMetric(serieMetadata.Metrics)) : null
+        }
+        <Line/>
+        <Typography variant="h6" align='center'><b>Retardo acumulado por dia</b></Typography>
+        <BarChart
+          dataset={dataset}
+          xAxis={[{ scaleType: 'band', dataKey: 'month'}]}
+          series={[{ dataKey: 'retardo', label: 'Horas acumuladas', valueFormatter }]}
+          {...chartSetting}
+        />
+        </div>
+      </Box>
+      }
+    </Modal>
+  );
 }
 
 const TitleAndValue = ({title, value}) => {
@@ -196,7 +224,7 @@ const section = (title, metrics, total) => {
   )
 }
 
-const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95Values}) => {
+const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95Values, startDate, endDate, setStartDate, setEndDate}) => {
 
   const plotSeries = [
     {curve: "linear", dataKey: 'Value', label: 'Valor', valueFormatter: (altura) => altura + 'm', showMark: false},
@@ -219,8 +247,6 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
     <>
     { serieValues && serieValues.length > 0 ? 
       <>
-      <Line/>
-      <Typography variant="h6" align='center'><b>Valores de la serie en la última semana</b></Typography>
       <LineChart
         dataset={serieValues}
         xAxis={[{

@@ -11,7 +11,7 @@ function renderData(description, data, style){
     }
     return (
         <div style={style.cardInfoContainer}>
-            <p><b>{description+': '}</b>{data}</p>
+            <p style={{width: '100%'}}><b>{description+': '}</b>{data}</p>
         </div>
     )
 }
@@ -21,20 +21,18 @@ function SeriesCard({serieData, onClick}) {
     return(
         <Card sx={style.cardContainer}>
             <CardActionArea onClick={onClick}>
-
-            <CardHeader
-                sx={style.cardHeader}
-                title={serieData.StationName + " | "+ serieData.StreamId}
-                
-            />
-            <CardContent>
-                {renderData("Variable de medicion",serieData.VariableName, style)}
-                {serieData.CheckErrors? renderData("Errores totales", serieData.TotalErrors, style): <></>}
-                {/*renderData("Tiempo de retraso", serieData.tiempoDeRetraso, style)*/}
-                {renderData("Procedimiento",serieData.ProcedureName, style)}
-                {renderData("Tipo de serie", STREAM_TYPE_CODE_INVERSE[serieData.StreamType], style)}
-            </CardContent>
-            </CardActionArea>
+                <CardHeader
+                    title={serieData.StationName + " | "+ serieData.StreamId}
+                    sx={style.cardHeader}>              
+                </CardHeader>
+                <CardContent>
+                    {renderData("Variable de medicion",serieData.VariableName, style)}
+                    {serieData.CheckErrors? renderData("Errores última semana", serieData.TotalErrors, style): <></>}
+                    {/*renderData("Tiempo de retraso", serieData.tiempoDeRetraso, style)*/}
+                    {renderData("Procedimiento",serieData.ProcedureName, style)}
+                    {renderData("Tipo de serie", STREAM_TYPE_CODE_INVERSE[serieData.StreamType], style)}
+                </CardContent>
+            </CardActionArea>          
         </Card>
     )
 }

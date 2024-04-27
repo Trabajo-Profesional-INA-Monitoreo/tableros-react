@@ -1,4 +1,5 @@
 import { BASE_URL } from "../utils/service";
+import { getConfigurationID } from "../utils/storage";
 
 export default class stationService {
 
@@ -8,4 +9,10 @@ export default class stationService {
         return res;
     }
 
+    async getAllStationsNames() {
+        const response = await fetch(`${BASE_URL}/filtro/estaciones`);
+        const res = await response.json();
+        return res;
+    }
+    
 }
