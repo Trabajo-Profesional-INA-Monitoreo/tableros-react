@@ -44,4 +44,10 @@ export default class serieService {
         const res = await response.json()
         return res
     }
+
+    async getSeriesbyIdConfig(id) {
+        const response = await fetch(BASE_URL+"/series?configurationId="+id)
+        const res = await response.json()
+        return res
+    }
 }
