@@ -171,15 +171,14 @@ export const Outputs = () => {
         setIndicadores(indicadoresResponse)
         map_metrics(metrics, indicadoresResponse)
         setMetrics(metrics)
-        console.log('XXXXX: ', metrics)
     },[])
 
     const loadBehavior = useCallback (async()=>{
         const configId = getConfigurationID();
         const behaviorResponse = await service.getBehaviorByConfigId(configId)
-        setNivelAlertaPorcentaje(behaviorResponse.TotalValuesCount? behaviorResponse.CountAlertLevel/behaviorResponse.TotalValuesCount:0)
-        setevacuacionPorcentaje(behaviorResponse.TotalValuesCount? behaviorResponse.CountEvacuationLevel/behaviorResponse.TotalValuesCount:0)
-        setAguasBajasPorcentaje(behaviorResponse.TotalValuesCount? behaviorResponse.CountLowWaterLevel/behaviorResponse.TotalValuesCount:0)
+        setNivelAlertaPorcentaje(behaviorResponse.TotalValuesCount? (behaviorResponse.CountAlertLevel*100)/behaviorResponse.TotalValuesCount:0)
+        setevacuacionPorcentaje(behaviorResponse.TotalValuesCount? (behaviorResponse.CountEvacuationLevel*100)/behaviorResponse.TotalValuesCount:0)
+        setAguasBajasPorcentaje(behaviorResponse.TotalValuesCount? (behaviorResponse.CountLowWaterLevel*100)/behaviorResponse.TotalValuesCount:0)
     },[])
 
     async function aplicarFiltros(){
@@ -199,10 +198,9 @@ export const Outputs = () => {
             setErroresPorDias(erroresAgrupados);
 
             const filteredBehavior = await service.getBehaviorFilterd(params)
-            setNivelAlertaPorcentaje(filteredBehavior.TotalValuesCount? filteredBehavior.CountAlertLevel/filteredBehavior.TotalValuesCount:0)
-            setevacuacionPorcentaje(filteredBehavior.TotalValuesCount? filteredBehavior.CountEvacuationLevel/filteredBehavior.TotalValuesCount:0)
-            setAguasBajasPorcentaje(filteredBehavior.TotalValuesCount? filteredBehavior.CountLowWaterLevel/filteredBehavior.TotalValuesCount:0)
-            
+            setNivelAlertaPorcentaje(filteredBehavior.TotalValuesCount? (filteredBehavior.CountAlertLevel *100)/ filteredBehavior.TotalValuesCount :0)
+            setevacuacionPorcentaje(filteredBehavior.TotalValuesCount? (filteredBehavior.CountEvacuationLevel *100)/ filteredBehavior.TotalValuesCount:0)
+            setAguasBajasPorcentaje(filteredBehavior.TotalValuesCount? (filteredBehavior.CountLowWaterLevel*100)/ filteredBehavior.TotalValuesCount:0)
             setGraficoDesde(desde)
             setGraficoHasta(hasta)
             setLoading(false);
@@ -238,7 +236,6 @@ export const Outputs = () => {
         loadBehavior()
     }, [loadIndicators, loadBehavior]);
 
- 
 
     return (    
         <>
