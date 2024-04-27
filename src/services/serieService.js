@@ -32,4 +32,16 @@ export default class serieService {
         const res = await response.json()
         return res
     }
+
+    async getSerieErrors(configuredSerieId, startDate, endDate) {
+        const response = await fetch(`${BASE_URL}/errores/${configuredSerieId}?timeStart=${startDate}&timeEnd=${endDate}`)
+        const res = await response.json()
+        return res
+    }
+
+    async getImplicatedSeries(errorType) {
+        const response = await fetch(`${BASE_URL}/errores/series-implicadas?configurationId=${getConfigurationID()}&errorType=${errorType}`)
+        const res = await response.json()
+        return res
+    }
 }

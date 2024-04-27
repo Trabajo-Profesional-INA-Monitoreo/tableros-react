@@ -90,6 +90,8 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
     if (open) {
       let serieMetadata = await presenter.getSerieMetadata(serieId, configuredSerieId, startDate, endDate);
       let serieValues = await presenter.getSerieValues(serieId, serieType, calibrationId, startDate, endDate);
+      let serieErrors = await presenter.getSerieErrors(configuredSerieId, startDate, endDate);
+      console.log(serieErrors)
       switch (serieType) {
         case 0:
         case 2:

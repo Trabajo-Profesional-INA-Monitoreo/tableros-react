@@ -31,6 +31,9 @@ export class CreateConfigurationPresenter {
         } else if (stream.lowerThreshold !== '' && stream.upperThreshold !== '' && Number(stream.lowerThreshold) >= Number(stream.upperThreshold)) {
             notifyError("El umbral inferior debe ser menor al umbral superior");
             isValidStream = false;
+        } else if (stream.lowerThreshold === '' || stream.upperThreshold === '') {
+            notifyError("Los umbrales son necesarios");
+            isValidStream = false;
         }
         return isValidStream;
     }

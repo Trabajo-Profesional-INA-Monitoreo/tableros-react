@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Container, Button, Select, FormControl, InputLabel, MenuItem, Box} from '@mui/material';
+import {Container, Button, Select, FormControl, InputLabel, MenuItem, Box, TextField} from '@mui/material';
 import Line from '../../components/line/line';
 import { SerieModal } from './serieModal/serieModal';
 import Grid from '@mui/material/Unstable_Grid2';
@@ -11,16 +11,18 @@ import { SeriesPresenter } from '../../presenters/seriesPresenter';
 import { StationPresenter } from '../../presenters/stationPresenter';
 import { UtilsPresenter } from '../../presenters/utilsPresenter';
 import { getConfigurationID } from '../../utils/storage';
-
+import { useLocation } from "react-router-dom";
 
 export const Series = () => {
 
     const seriesPresenter = new SeriesPresenter();
     const stationsPresenter = new StationPresenter();
     const utilsPresenter = new UtilsPresenter();
+    const location = useLocation();
     
     const [isLoading, setIsLoading] = useState(true);
 
+    const [streamId, setStreamId] = useState('');
     const [station, setStation] = useState(null);
     const [procedure, setProcedure] = useState(null);
     const [variable, setVariable] = useState(null);
@@ -60,6 +62,8 @@ export const Series = () => {
 		getAllStationNames();
 		getAllVariables();
 		getAllProcedures();
+        const streamId = location?.state?.streamId;
+        if (streamId) setStreamId(streamId); 
 	}, []);
 
 	useEffect(() => {
@@ -68,19 +72,27 @@ export const Series = () => {
 			...(station) && {stationId:station},
 			...(procedure) && {procId: procedure},
 			...(variable) && {varId: variable},
+            ...(Number(streamId)) && {streamId: streamId},
 		}
 		setIsLoading(true);
 		getSeriePage(params);
-	}, [variable, station, procedure]);
+	}, [variable, station, procedure, streamId]);
 
     return (
       <>
-				<h1> Series </h1>
+		<h1> Series </h1>
         <CurrentConfiguration/>
         <Line/>
             {isLoading ? <CircularProgressLoading /> : 
                 <>
                     <Container sx={{display:"flex", flexFlow:"wrap", alignItems:"center", justifyContent: 'center', m: 2}}>
+                            <TextField 
+                                label='Serie ID'
+                                value={streamId}
+                                onChange={e => setStreamId(e.target.value)}
+                                autoFocus
+                                sx={{m: 1}}
+                            />
                             <SelectComponent 
                                 label={'Variable'} 
                                 currentValue={variable} 
@@ -96,10 +108,11 @@ export const Series = () => {
                                 currentValue={station} 
                                 setCurrentValue={setStation} 
                                 possibleValues={stations}/>
-														<Button sx={{alignSelf: 'center'}} variant="contained" onClick={()=>{
+							<Button sx={{alignSelf: 'center'}} variant="contained" onClick={()=>{
                                 setStation(null)
                                 setProcedure(null)
                                 setVariable(null)
+                                setStreamId('')
                             }}>
                                 Borrar filtros
                             </Button>

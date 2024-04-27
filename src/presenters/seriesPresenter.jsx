@@ -24,6 +24,14 @@ export class SeriesPresenter {
         }
     }
 
+    getSerieErrors = async(configuredSerieId, startDate, endDate) => {
+        return this.serieService.getSerieErrors(configuredSerieId, dayjsToString(startDate), dayjsToString(endDate));
+    }
+
+    getImplicatedSeries = async(errorType) => {
+        return this.serieService.getImplicatedSeries(errorType);
+    }
+
     getSeriePage = async(page, params) => {
         return this.serieService.getSeriePage(page, params);
     }
