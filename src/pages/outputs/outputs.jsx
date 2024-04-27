@@ -1,5 +1,5 @@
 import React, {useEffect, useState, useCallback} from 'react';
-import { Box, Modal } from '@mui/material';
+import { Box } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import Line from '../../components/line/line';
 
@@ -11,7 +11,7 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import OutputService from '../../services/outputsService';
 import CircularProgressWithLabel from '../../components/circularProgressWithLabel/circularProgressWithLabel';
 import dayjs from 'dayjs';
-import { getConfigurationID, getConfigurationName } from '../../utils/storage';
+import { getConfigurationID } from '../../utils/storage';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 import { ErrorModal, NoErrorModal } from './errorModal';
 
@@ -108,7 +108,6 @@ const updateObjectInArray = (arr, nameValue, updatedValue) => {
 
 export const Outputs = () => {
     const service = new OutputService()
-    const [currentConfigName, setCurrentConfigName] = useState('');
     const [currentConfigId, setCurrentConfigId] = useState('');
     const [loading, setLoading] = useState(true);
 
@@ -209,8 +208,6 @@ export const Outputs = () => {
     }
 
     useEffect(() => {
-        const configName = getConfigurationName()
-        setCurrentConfigName(configName)
         loadIndicators()
         map_metrics(metrics, indicadores)
         setMetrics(metrics)

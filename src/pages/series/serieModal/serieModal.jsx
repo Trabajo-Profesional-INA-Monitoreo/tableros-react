@@ -102,6 +102,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
           setSerieP05Values(serieValues.P05Streams);
           setSerieP95Values(serieValues.P95Streams);
           break;
+        default:
       }
       setSerieMetadata(serieMetadata);
       setIsLoading(false);

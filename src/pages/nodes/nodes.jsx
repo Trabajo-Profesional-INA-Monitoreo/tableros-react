@@ -8,7 +8,7 @@ import Line from '../../components/line/line';
 
 export const Nodes = () => {
     
-    const presenter = new NodePresenter;
+    const presenter = new NodePresenter();
     
     const [nodes, setNodes] = useState([]);
     const [isLoading, setIsLoading] = useState(true);

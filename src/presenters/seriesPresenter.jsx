@@ -21,6 +21,8 @@ export class SeriesPresenter {
                 return this.serieService.getForacastedSerieValues(calibrationID, _startDate, _endDate);
             case 2:
                 return this.serieService.getCuratedSerieValues(serieID, _startDate, _endDate);
+            default:
+                return this.serieService.getObservedSerieValues(serieID, _startDate, _endDate);
         }
     }
 

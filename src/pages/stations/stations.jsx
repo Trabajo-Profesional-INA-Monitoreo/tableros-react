@@ -7,8 +7,7 @@ import { getConfigurationID } from '../../utils/storage';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 
 export const Stations = () => {
-    
-    const presenter = new StationPresenter;
+    const presenter = new StationPresenter();
     
     const [stations, setStations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);

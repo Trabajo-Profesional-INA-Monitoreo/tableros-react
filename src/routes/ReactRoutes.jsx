@@ -1,11 +1,9 @@
-import { Home } from '../pages/home/home';
 import { Configurations } from '../pages/configurations/configuraciones';
 import { Stations } from '../pages/stations/stations';
 import { Nodes } from '../pages/nodes/nodes';
 import { Outputs } from '../pages/outputs/outputs';
 import { Series } from '../pages/series/series';
 import SettingsIcon from '@mui/icons-material/Settings';
-import HomeIcon from '@mui/icons-material/Home';
 import HouseboatIcon from '@mui/icons-material/Houseboat';
 import OutputIcon from '@mui/icons-material/Output';
 import InputIcon from '@mui/icons-material/Input';

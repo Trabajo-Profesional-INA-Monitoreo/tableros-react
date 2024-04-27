@@ -1,5 +1,4 @@
 import { BASE_URL } from "../utils/service";
-import { getConfigurationID } from "../utils/storage";
 
 export default class stationService {
 
