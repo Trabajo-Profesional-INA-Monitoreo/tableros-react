@@ -39,10 +39,10 @@ export const Inputs = () => {
             ...(hasta) && {timeEnd: dateParser(hasta.toDate())},
         }
         let nulls = await presenter.getNulosEnSeries(params);
-        nulls.percentage= nulls.TotalStreamsWithNull/nulls.TotalStreams
+        nulls.percentage= (nulls.TotalStreamsWithNull*100)/nulls.TotalStreams 
         setNulos(nulls);
         const outliersData = await presenter.getOutliers(params)
-        outliersData.percentage = outliersData.TotalStreamsWithObservedOutlier/outliersData.TotalStreams
+        outliersData.percentage = (outliersData.TotalStreamsWithObservedOutlier *100)/outliersData.TotalStreams
         setOutliers(outliersData)
         const metricsRes = await presenter.getMetricas(confID)
         setMetrics(metricsRes)
