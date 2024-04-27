@@ -218,7 +218,7 @@ const section = (title, metrics, total) => {
     <Line/>
     <Typography variant="h6" align='center'><b>{title}</b></Typography>
     <Box className='row space-around wrap'>
-      {metrics.map(metric => metricsBox(metric.Name, total? (metric.Value/total).toFixed(1)+"%" : metric.Value,total&& `Cantidad: ${metric.Value} - Total:  ${total}`))}
+      {metrics.map(metric => metricsBox(metric.Name, total? (metric.Value/total * 100).toFixed(1)+"%" : metric.Value,total&& `Cantidad: ${metric.Value} - Total:  ${total}`))}
     </Box>
     </>
   )
