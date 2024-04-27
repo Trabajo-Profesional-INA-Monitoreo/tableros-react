@@ -22,6 +22,8 @@ export const Inputs = () => {
     
     const [isLoading, setIsLoading] = useState(true);
     const [nulos, setNulos] = useState({});
+    const [outliers, setOutliers] = useState({});
+
     const currentDate = dayjs()
     const defaultDesdeDate = dayjs().subtract(7, 'day')
 
@@ -37,8 +39,11 @@ export const Inputs = () => {
             ...(hasta) && {timeEnd: dateParser(hasta.toDate())},
         }
         let nulls = await presenter.getNulosEnSeries(params);
+        nulls.percentage= nulls.TotalStreamsWithNull/nulls.TotalStreams
         setNulos(nulls);
-
+        const outliersData = await presenter.getOutliers(params)
+        outliersData.percentage = outliersData.TotalStreamsWithObservedOutlier/outliersData.TotalStreams
+        setOutliers(outliersData)
         const metricsRes = await presenter.getMetricas(confID)
         setMetrics(metricsRes)
         setIsLoading(false);
@@ -98,7 +103,11 @@ export const Inputs = () => {
                         </Box>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
                             <h3>Datos Nulos</h3>
-                            <CircularProgressWithLabel text="series no tuvieron datos nulos" percentage={(nulos.TotalStreamsWithNull/nulos.TotalStreams).toFixed(1)} color="warning"/>
+                            <CircularProgressWithLabel text="series no tuvieron datos nulos" percentage={nulos.percentage.toFixed(1)} color={nulos.percentage<30? "success": (nulos.percentage<60?"warning":"error")}/>
+                        </Box>
+                        <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
+                            <h3>Datos fuera de umbrales</h3>
+                            <CircularProgressWithLabel text="series con outliers" percentage={outliers.percentage.toFixed(1)} color={outliers.percentage<30? "success": (outliers.percentage<60?"warning":"error")}/>
                         </Box>
                     </Box>
             <Line/>

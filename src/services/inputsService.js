@@ -13,4 +13,10 @@ export default class InputsService{
         const res = await response.json()
         return res
     }
+
+    async getOutliers(params){
+        const response = await fetch(BASE_URL+`/inputs/series-fuera-umbral?`+ new URLSearchParams(params));
+        const res = await response.json()
+        return res
+    }
 }

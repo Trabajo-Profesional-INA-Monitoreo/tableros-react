@@ -10,4 +10,8 @@ export class InputsPresenter {
     getMetricas= async(configId) => {
         return this.service.getMetricas(configId)
     }
+
+    getOutliers = async(params) => {
+        return this.service.getOutliers(params)
+    }
 }
