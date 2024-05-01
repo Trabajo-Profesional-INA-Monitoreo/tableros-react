@@ -3,7 +3,6 @@ import Layout from "./components/layout/layout";
 import { routes } from "./routes";
 import { UserContext } from "./stores/userContext";
 import MainProvider from "./providers/mainProvider";
-import Modal from "./components/modal/modal";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { SnackbarProvider } from "notistack";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -21,7 +20,6 @@ function App() {
                 </Route>
               </Routes>
             </BrowserRouter>
-            <Modal/>
           </SnackbarProvider>
         </LocalizationProvider>
       </MainProvider>
