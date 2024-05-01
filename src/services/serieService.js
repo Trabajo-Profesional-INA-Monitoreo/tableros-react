@@ -15,8 +15,8 @@ export default class serieService {
         return res
     }
 
-    async getForacastedSerieValues(calibrationID, startDate, endDate) {
-        const response = await fetch(`${BASE_URL}/series/pronosticadas/${calibrationID}?timeStart=${startDate}&timeEnd=${endDate}`)
+    async getForacastedSerieValues(calibrationID, serieID) {
+        const response = await fetch(`${BASE_URL}/series/pronosticadas/${calibrationID}?serieId=${serieID}`)
         const res = await response.json()
         return res
     }
