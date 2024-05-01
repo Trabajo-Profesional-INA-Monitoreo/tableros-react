@@ -12,37 +12,16 @@ import { CreateConfigurations } from '../createConfigurations/createConfiguratio
 import { ConfigurationListPresenter } from '../../../presenters/configurationListPresenter';
 import { ConfigurationContext } from '../../../providers/configProvider';
 import useUser from '../../../stores/useUser';
-import PersonSearchOutlinedIcon from '@mui/icons-material/PersonSearchOutlined';
 import { CONFIGURATION_VIEWS } from '../configuraciones';
 import { getConfigurationID, setConfigurationID, setConfigurationName } from '../../../utils/storage';
 import { NoResultStyles } from './Style';
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import { CurrentConfiguration } from '../../../components/currentConfiguration/currentConfiguration';
-function getDeleteConfigModalContent(configuration, presenter, handleDelete){
-    return(
-        <div>
-            <h4>
-                ¿Estas seguro que quieres eliminar {configuration.Name}?
-            </h4>
-            <div>
-                <Button variant="contained" color='error' onClick={()=> {
-                    presenter.onDeleteConfig(configuration.Id)
-                    handleDelete(configuration.Id)
-                    }} sx={{marginX:5}}>
-                    Si
-                </Button>
-                <Button variant="contained" sx={{marginX:5}} onClick={presenter.onCancelDeleteConfig}>
-                    No
-                </Button>
-            </div>
-        </div>
-    )
-}
+import { DeleteModal } from '../deleteModal/deleteModal';
 
 const saveSelectedId = (id, name) => {
     setConfigurationID(id);
     setConfigurationName(name);
-    console.log('xxxxx')
 };
 
 const getConfigId = () => {
@@ -52,12 +31,12 @@ const getConfigId = () => {
 export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID}) => {
     const presenter = new ConfigurationListPresenter()
     const {currentConfigID, selectConfig} = useContext(ConfigurationContext);
-    
     const {userInfo} = useUser()
     const [configurations, setConfigurations] = useState([]);
     const [isLoading, setLoading] = useState(true)
     const isAdmin = userInfo.roles?.includes("admin")
-    
+    const [modalId, setModalId] = useState(null);
+
     const handleDelete = (id) => {
         const updatedData = configurations.filter((item) => item.Id !== id);
         setConfigurations(updatedData);
@@ -71,7 +50,7 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
             if(!confID && data.length>0) { //setteo por default la primera
                 selectConfig(data[0].Id, data[0].Name);
                 saveSelectedId(data[0].Id, data[0].Name)
-        }
+            }
         }
         setLoading(false)
     }, [])
@@ -120,7 +99,7 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
                         <span style={{ fontWeight: 'bold' }}>Nombre de configuracion</span>
                         <span style={{ fontWeight: 'bold', marginRight: 50}}>Acción</span>
                     </Box>
-                    <Line></Line>
+                    <Line/>
                     <List>
                         {configurations?.map((configuration) => (
                             <ListItemButton
@@ -143,35 +122,41 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
                                                 <VisibilityOutlinedIcon color='primary'/>
                                             </IconButton>
                                             {isAdmin ?
-                                            <>
-                                                <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.EDIT); setSelectedConfigurationID(configuration.Id); }}>
-                                                    <EditIcon color='primary'/>
-                                                </IconButton>
-                                                <IconButton aria-label="trash" onClick={() => {
-                                                    presenter.onDeleteConfigPressed(getDeleteConfigModalContent( configuration, presenter, handleDelete))
-                                                    }}>
-                                                    <DeleteForeverIcon color='error'/>
-                                                </IconButton>
-                                            </> : <></>}
-                                        </div>
-                                    }
-                                >
-                                    <ListItemText primary={`${configuration.Name}`} />
-                                </ListItem>
-                            </ListItemButton>
-                        ))
+                                                <>
+                                                    <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.EDIT); setSelectedConfigurationID(configuration.Id); }}>
+                                                        <EditIcon color='primary'/>
+                                                    </IconButton>
+                                                    <IconButton aria-label="trash" onClick={() =>{setModalId(configuration.Id)}}>
+                                                        <DeleteForeverIcon color='error'/>
+                                                    </IconButton>
+                                                </> : <></>}
+                                            </div>
+                                        }
+                                    >
+                                        <ListItemText primary={`${configuration.Name}`} />
+                                    </ListItem>
+                                </ListItemButton>
+                            ))
                         }
                     </List>
+                    {configurations.map((config) => (
+                        <DeleteModal 
+                            open={config.Id === modalId} 
+                            handleClose={() => setModalId(null)} 
+                            configuration={config}
+                            onDeleteConfig={presenter.onDeleteConfig}
+                            updateData={handleDelete}
+                        />
+                    ))}
                 </Box>
-                    :
+                :
                     <>
-                <div style={styles.mainContainer}>
-                    <ManageSearchIcon sx={styles.icon}/>
-                    <h1 style={styles.text}>No se encontraron configuraciones</h1>
-                </div>
-            </>
+                        <div style={styles.mainContainer}>
+                            <ManageSearchIcon sx={styles.icon}/>
+                            <h1 style={styles.text}>No se encontraron configuraciones</h1>
+                        </div>
+                    </>
                 )
-                
             }
         </>
     );
