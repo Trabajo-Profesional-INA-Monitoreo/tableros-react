@@ -80,17 +80,22 @@ const map_metrics = (metrics, errores) => {
         console.log('ASDASD: ', errorobj)
         if(errorobj.ErrorType === 'NullValue'){
             updateObjectInArray(metrics, "Valores nulos", { value: errorobj.Count })
+            updateObjectInArray(metrics, "Valores nulos", { id: errorobj.ErrorId })
         }else if(errorobj.ErrorType === 'Missing4DaysHorizon'){
-            updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { value: errorobj.Count }  )
+            updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { value: errorobj.Count })
+            updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { id: errorobj.ErrorId })
         }else if(errorobj.ErrorType === 'OutsideOfErrorBands'){
-            updateObjectInArray(metrics, "Valores fuera de banda de errores", { value: errorobj.Count }  )
+            updateObjectInArray(metrics, "Valores fuera de banda de errores", { value: errorobj.Count })
+            updateObjectInArray(metrics, "Valores fuera de banda de errores", { id: errorobj.ErrorId })
         }else if(errorobj.ErrorType === "ForecastMissing"){
-            updateObjectInArray(metrics, "Errores de falta de pronostico", { value: errorobj.Count }  )
+            updateObjectInArray(metrics, "Errores de falta de pronostico", { value: errorobj.Count })
+            updateObjectInArray(metrics, "Errores de falta de pronostico", { id: errorobj.ErrorId })
         }else if(errorobj.ErrorType === "ObservedOutlier"){
             updateObjectInArray(metrics, "Outliers observados", { value: errorobj.Count })
             updateObjectInArray(metrics, "Outliers observados", { id: errorobj.ErrorId })
         }else if(errorobj.ErrorType === "ForecastOutOfBounds"){
-            updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { value: errorobj.Count }  )
+            updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { value: errorobj.Count })
+            updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { id: errorobj.ErrorId })
         }
         else{ 
             updateObjectInArray(metrics, "Errores desconocidos", { value: errorobj.Count }  )
@@ -289,7 +294,7 @@ export const Outputs = () => {
                 <div style={{padding: 10, marginTop:"5%"}}>
                     <Box className='row space-around wrap'>
                         {metrics.map(metric => 
-                            <Box onClick={() => setOpenMetric(metric.id)}>
+                            <Box style={{cursor:'pointer'}} onClick={() => {console.log('m: ', metric); setOpenMetric(metric.id)}}>
                                 {metricsBox(metric.name, metric.value, true)}
                             </Box>
                         )}

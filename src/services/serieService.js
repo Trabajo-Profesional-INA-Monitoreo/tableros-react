@@ -50,4 +50,10 @@ export default class serieService {
         const res = await response.json()
         return res
     }
+
+    async getSerieRedundancies(configuredSerieID) {
+        const response = await fetch(BASE_URL+"/series/redundancias/"+configuredSerieID)
+        const res = await response.json()
+        return res
+    }
 }

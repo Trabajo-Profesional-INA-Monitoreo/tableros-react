@@ -38,6 +38,10 @@ export class SeriesPresenter {
         return this.serieService.getSeriePage(page, params);
     }
 
+    getSerieRedundancies =  (configuredSerieID) => {
+        return this.serieService.getSerieRedundancies(configuredSerieID);
+    }
+
     buildGeneralMetrics = (metrics) => {
         if (!metrics) return [];
         const validMetricNames = ["Mediana", "Media", "Máximo", "Mínimo"];

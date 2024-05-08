@@ -22,10 +22,12 @@ export const Series = () => {
     
     const [isLoading, setIsLoading] = useState(true);
 
-    const [streamId, setStreamId] = useState('');
+    const [_streamId, _setStreamId] = useState(location?.state?.streamId ? location?.state?.streamId : '');
+    const [streamId, setStreamId] = useState(location?.state?.streamId ? location?.state?.streamId : '');
     const [station, setStation] = useState(null);
     const [procedure, setProcedure] = useState(null);
     const [variable, setVariable] = useState(null);
+    const [timeoutId, setTimeoutId] = useState(null);
 
     const [stations, setStations] = useState([]);
     const [procedures, setProcedures] = useState([]);
@@ -67,7 +69,7 @@ export const Series = () => {
 	}, []);
 
 	useEffect(() => {
-		const params = {
+        const params = {
 			configurationId: getConfigurationID(),
 			...(station) && {stationId:station},
 			...(procedure) && {procId: procedure},
@@ -77,6 +79,20 @@ export const Series = () => {
 		setIsLoading(true);
 		getSeriePage(params);
 	}, [variable, station, procedure, streamId]);
+
+    const handleChangeStreamId = newStreamId => {
+        _setStreamId(newStreamId);
+        if (timeoutId) clearTimeout(timeoutId);
+        const _timeoutId = setTimeout(() => setStreamId(newStreamId), 1000);
+        setTimeoutId(_timeoutId);
+    }
+
+    const handleDeleteFilters = () => {
+        setStation(null)
+        setProcedure(null)
+        setVariable(null)
+        setStreamId('')
+    }
 
     return (
       <>
@@ -88,8 +104,8 @@ export const Series = () => {
                     <Container sx={{display:"flex", flexFlow:"wrap", alignItems:"center", justifyContent: 'center', m: 2}}>
                             <TextField 
                                 label='Serie ID'
-                                value={streamId}
-                                onChange={e => setStreamId(e.target.value)}
+                                value={_streamId}
+                                onChange={e => handleChangeStreamId(e.target.value)}
                                 autoFocus
                                 sx={{m: 1}}
                             />
@@ -108,12 +124,7 @@ export const Series = () => {
                                 currentValue={station} 
                                 setCurrentValue={setStation} 
                                 possibleValues={stations}/>
-							<Button sx={{alignSelf: 'center'}} variant="contained" onClick={()=>{
-                                setStation(null)
-                                setProcedure(null)
-                                setVariable(null)
-                                setStreamId('')
-                            }}>
+							<Button sx={{alignSelf: 'center'}} variant="contained" onClick={()=>handleDeleteFilters()}>
                                 Borrar filtros
                             </Button>
                     </Container>
