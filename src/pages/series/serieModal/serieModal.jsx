@@ -1,13 +1,14 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { SeriesPresenter } from '../../../presenters/seriesPresenter';
-import { Box, CircularProgress, Modal, Typography, Tooltip, Button, TextField } from '@mui/material';
-import { LineChart, BarChart } from '@mui/x-charts';
+import { Box, CircularProgress, Modal, Typography, Tooltip, Button } from '@mui/material';
+import { BarChart, LineChart } from '@mui/x-charts';
 import { DatePicker } from '@mui/x-date-pickers';
 import { DataGrid } from '@mui/x-data-grid';
 import Line from '../../../components/line/line';
 import dayjs from 'dayjs';
 import './serieModal.css'
+import { union } from '../../../utils/functions';
 
 const loadingStyle = {
   display: 'flex',
@@ -96,10 +97,6 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
       let serieValues = await presenter.getSerieValues(serieId, serieType, calibrationId, startDate, endDate);
       let serieErrors = await presenter.getSerieErrors(configuredSerieId, startDate, endDate);
       let redundancies = await presenter.getSerieRedundancies(configuredSerieId);
-      if (serieMetadata.ObservedRelatedStreamId) {
-        let observedRelatedValues = await presenter.getSerieValues(serieMetadata.ObservedRelatedStreamId, 0, null, startDate, endDate);
-        setObservedRelatedValues(observedRelatedValues.Streams);
-      }
       switch (serieType) {
         case 0:
         case 2:
@@ -110,7 +107,8 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
           setSerieP05Values(serieValues.P05Streams);
           setSerieP95Values(serieValues.P95Streams);
           if (serieMetadata.ObservedRelatedStreamId) {
-            
+            let observedRelatedValues = await presenter.getSerieValues(serieMetadata.ObservedRelatedStreamId, 0, null, startDate, dayjs(serieValues.MainStreams[0].Time).add(1, 'day'));
+            setObservedRelatedValues(observedRelatedValues.Streams);
           }
           break;
         default:
@@ -259,39 +257,50 @@ const section = (title, metrics, total) => {
 const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95Values, observedRelatedValues}) => {
 
   const [showThresholds, setShowTresholds] = useState(false);
+  const [showErrorBands, setShowErrorBands] = useState(false);
   const [showLevels, setShowLevels] = useState(false);
-  const [plotSeries, setPlotSeries] = useState([])
-  
+  const [plotSeries, setPlotSeries] = useState([]);
+  const [dataset, setDataset] = useState([]);
+  const [xAxis, setXAxis] = useState([]);
 
   useEffect(() => {
-    const _plotSeries = [
-      {curve: "linear", dataKey: 'Value', label: 'Valor', valueFormatter: (altura) => altura + 'm', showMark: false},
-    ]
+    const _plotSeries = [];
+    let xAxisLength = serieValues.length;
+    const _valueFormatter = (altura) => altura ? altura + 'm' : 'No data';
 
+    if (observedRelatedValues && observedRelatedValues.length > 0) {
+      const unionSeries = union(serieValues, observedRelatedValues);
+      setDataset(unionSeries);
+      _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Valor', valueFormatter: _valueFormatter, showMark: false})
+      _plotSeries.push({curve: "linear", dataKey: 'Value2', label: `Observada (${serieMetadata.ObservedRelatedStreamId})`, valueFormatter: _valueFormatter, showMark: true, color: '#222222', id: 'related'})
+      xAxisLength = unionSeries.length;
+      setXAxis(unionSeries.map(point => new Date(point.Time)))
+    } else {
+      _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Valor', valueFormatter: _valueFormatter, showMark: false})
+      setXAxis(serieValues.map(point => new Date(point.Time)))
+      setDataset(serieValues);
+    }
+    
     if (serieMetadata.EvacuationLevel && serieMetadata.AlertLevel && serieMetadata.LowWaterLevel && showLevels) {
-      _plotSeries.push({curve: "linear", data: Array(serieValues.length).fill(serieMetadata.EvacuationLevel), label: 'Evacuacion', showMark: false, color: '#e15759', valueFormatter: (altura) => altura + 'm'});
-      _plotSeries.push({curve: "linear", data: Array(serieValues.length).fill(serieMetadata.AlertLevel), label: 'Alerta', showMark: false, color:'#e15759', valueFormatter: (altura) => altura + 'm'});
-      _plotSeries.push({curve: "linear", data: Array(serieValues.length).fill(serieMetadata.LowWaterLevel), label: 'Aguas bajas', showMark: false, color: '#e15759', valueFormatter: (altura) => altura + 'm'});
+      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.EvacuationLevel), label: 'Evacuacion', showMark: false, color: '#e15759', valueFormatter: _valueFormatter});
+      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.AlertLevel), label: 'Alerta', showMark: false, color:'#e15759', valueFormatter: _valueFormatter});
+      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.LowWaterLevel), label: 'Aguas bajas', showMark: false, color: '#e15759', valueFormatter: _valueFormatter});
     }
 
     if (showThresholds) {
-      _plotSeries.push({curve: "linear", data: Array(serieValues.length).fill(serieMetadata.NormalLowerThreshold), label: 'Umbral inferior', showMark: false, color: '#A020F0', valueFormatter: (altura) => altura + 'm'});
-      _plotSeries.push({curve: "linear", data: Array(serieValues.length).fill(serieMetadata.NormalUpperThreshold), label: 'Umbral superior', showMark: false, color:'#A020F0', valueFormatter: (altura) => altura + 'm'});
+      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.NormalLowerThreshold), label: 'Umbral inferior', showMark: false, color: '#A020F0', valueFormatter: _valueFormatter});
+      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.NormalUpperThreshold), label: 'Umbral superior', showMark: false, color:'#A020F0', valueFormatter: _valueFormatter});
     }
   
-    if (serieP05Values && serieP05Values.length > 0) {
+    if (serieP05Values && (serieP05Values.length > 0) && showErrorBands) {
       _plotSeries.push({curve: "linear", data: serieP05Values.map(point => point.Value), label: 'P05', valueFormatter: (altura) => altura + 'm', showMark: false, color: '#2E9BFF'})
     }
-    if (serieP95Values && serieP95Values.length > 0) {
+    if (serieP95Values && (serieP95Values.length > 0) && showErrorBands) {
       _plotSeries.push({curve: "linear", data: serieP95Values.map(point => point.Value), label: 'P95', valueFormatter: (altura) => altura + 'm', showMark: false, color: '#2E9BFF'})
     }
 
-    if (observedRelatedValues && observedRelatedValues.length > 0) {
-      //_plotSeries.push({xAxisKey: 'axis2', curve: "linear", data: observedRelatedValues.map(point => point.Value), label: 'Observada relacionada  ', valueFormatter: (altura) => altura + 'm', showMark: false, color: '#2E9BFF'})
-    }
-
     setPlotSeries(_plotSeries);
-  }, [showThresholds, showLevels]) 
+  }, [showThresholds, showLevels, showErrorBands, observedRelatedValues, serieValues]) 
   
 
   return (
@@ -301,24 +310,23 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
       <Line/>
       <Typography variant="h6" align='center'><b>Valores de la serie</b></Typography>
       <LineChart
-        dataset={serieValues}
+        dataset={dataset}
         xAxis={[{
-          id: 'axis1',
-          dataKey: 'Time',
-          scaleType: 'band',
-          valueFormatter: (date) => date.slice(0, 10) + ' \n' + date.slice(11, 16) +'hs'
-        },
-        {
-          id: 'axis2',
-          data: observedRelatedValues.map(point => point.Time),
-          scaleType: 'band',
-          valueFormatter: (date) => date.slice(0, 10) + ' \n' + date.slice(11, 16) +'hs'
+          data: xAxis,
+          scaleType: 'time',
+          valueFormatter: (dateObject) => dateObject.toISOString().replace('T', ' ').slice(0, -8) + 'hs'
         }
       ]}
         series={plotSeries}
         height={300}
         grid={{horizontal: true}}
-        //yAxis={[{min: -0.5, max: 7}]}
+        sx={
+          {
+          '.MuiLineElement-series-related': { strokeWidth: 0 },
+          '.MuiLineElement-series-observed': { strokeWidth: 0 }
+        }
+        }
+        yAxis={[{min: -0.5}]}
       />
       <Box className='row space-around wrap'>
         <Button
@@ -328,6 +336,10 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
         <Button sx={{display: serieMetadata.EvacuationLevel && serieMetadata.AlertLevel && serieMetadata.LowWaterLevel ? 'inline' : 'none'}} 
           onClick={() => setShowLevels(!showLevels)}> 
           {!showLevels ? 'Mostrar niveles' : 'Ocultar niveles'} 
+        </Button>
+        <Button sx={{display: ((serieP05Values && serieP05Values.length > 0) || (serieP95Values && serieP95Values.length > 0)) ?  'inline' : 'none'}} 
+          onClick={() => setShowErrorBands(!showErrorBands)}> 
+          {!showErrorBands ? 'Mostrar bandas de error' : 'Ocultar bandas de error'} 
         </Button>
       </Box>
       </>
@@ -350,9 +362,8 @@ const ErrorTable = ({serieErrors}) => {
           getRowHeight={() => 'auto'} 
           columns={
               [
-                  { field: 'ErrorId', headerName: 'ID', width: 25 },
+                  { field: 'ErrorTypeName', headerName: 'Tipo', width: 25 },
                   { field: 'DetectedDate', headerName: 'Fecha de detección', width: 150},
-                  { field: 'ErrorTypeId', headerName: 'Tipo', width: 25},
                   { field: 'ExtraInfo', headerName: 'Informacion extra', minWidth: 150, flex: 1}
               ]
           }
