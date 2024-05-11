@@ -1,14 +1,13 @@
 import { ListItemButton, ListItemIcon } from "@mui/material";
 import ListItem from '@mui/material/ListItem';
 import { Link } from "react-router-dom";
-import { getConfigurationName } from '../../utils/storage';
-import { useContext, useEffect, useState } from "react";
+import { useContext} from "react";
 import { ConfigurationContext } from "../../providers/configProvider";
 
 
 const SidebarItem = ({ item }) => {
   const {currentConfigID} = useContext(ConfigurationContext)
-  
+  console.log(currentConfigID)
   return (
     item.sidebarProps && item.path ? (
       <ListItem disablePadding sx={{ display: 'block' }}>
@@ -17,6 +16,7 @@ const SidebarItem = ({ item }) => {
             minHeight: 48,
             ml: 0.5
           }}
+          key={item.displayText}
           component={Link}
           to={item.path}
           disabled={currentConfigID===null && item.path!=="/configuraciones"}
