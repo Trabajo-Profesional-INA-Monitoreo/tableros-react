@@ -6,7 +6,12 @@ export const getConfigurationName = () => {
 }
 
 export const getConfigurationID = () => {
-    return parseInt(localStorage.getItem(CONFIGURATION_ID));
+    const currentId = localStorage.getItem(CONFIGURATION_ID)
+    if (!currentId){
+        return null
+    }
+    
+    return parseInt(currentId);
 }
 
 export const setConfigurationName = (name) => {
