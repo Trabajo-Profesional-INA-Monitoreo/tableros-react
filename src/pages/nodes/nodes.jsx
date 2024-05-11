@@ -33,9 +33,9 @@ export const Nodes = () => {
                 <InformativeCard 
                     title={node.NodeName+' | '+node.NodeId}
                     subtitle={node.StreamsCount + (Number(node.StreamsCount) > 1 ? ' series' : ' serie')}
-                    heading1={'XXXXX'}
+                    heading1={node.LastUpdate}
                     heading2={node.ErrorCount}
-                    heading3={'XXXXX'}
+                    heading3={node.TotalWaterLevels>0? (node.AlertWaterLevels / node.TotalWaterLevels)*100 : 0}
                     subheading1={'Última actualización'}
                     subheading2={'Errores'}
                     subheading3={'Nivel'}
