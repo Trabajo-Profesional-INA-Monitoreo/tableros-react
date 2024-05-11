@@ -35,9 +35,9 @@ const UserDataRow = () => {
                     onClick={handleOpenUserMenu}
                     style={{cursor:"pointer"}}
                 >         
-                   <text style={{wordBreak: 'break-all', width: '100%', padding: '0px 10px 0px 10px'}}>
+                   <h4 style={{wordBreak: 'break-all', width: '100%', padding: '0px 10px 0px 10px'}}>
                         <b>{userInfo.userName}</b>
-                    </text>
+                    </h4>
                     <Avatar/>
                 </Stack>
             </Tooltip>
