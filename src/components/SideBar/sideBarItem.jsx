@@ -7,7 +7,6 @@ import { ConfigurationContext } from "../../providers/configProvider";
 
 const SidebarItem = ({ item }) => {
   const {currentConfigID} = useContext(ConfigurationContext)
-  console.log(currentConfigID)
   return (
     item.sidebarProps && item.path ? (
       <ListItem disablePadding sx={{ display: 'block' }}>
