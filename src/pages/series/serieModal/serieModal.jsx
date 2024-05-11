@@ -169,7 +169,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
           <TitleAndValue title="Estación" value={serieMetadata.Station}/>
         </Box>
         <Box className={"row space-around wrap"}>
-          <TitleAndValue title="Última actualización" value={serieMetadata.LastUpdate ? serieMetadata.LastUpdate : 'No informado'}/>
+          <TitleAndValue title="Última actualización" value={serieMetadata.LastUpdate ? serieMetadata.LastUpdate.replace('T', ' ').replace('Z', '') : 'No informado'}/>
           <TitleAndValue title="Actualización" value={`Cada ${serieMetadata.UpdateFrequency} minutos`}/>
           {serieMetadata.CalibrationId ? <TitleAndValue title="ID Calibración" value={serieMetadata.CalibrationId}/> : null}
         </Box>
@@ -265,18 +265,25 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
 
   useEffect(() => {
     const _plotSeries = [];
-    let xAxisLength = serieValues.length;
-    const _valueFormatter = (altura) => altura ? altura + 'm' : 'No data';
+    let xAxisLength = serieValues?.length;
+    const _valueFormatter = (altura) => (altura || altura === 0) ? altura + 'm' : 'No data';
 
     if (observedRelatedValues && observedRelatedValues.length > 0) {
       const unionSeries = union(serieValues, observedRelatedValues);
-      setDataset(unionSeries);
-      _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Valor', valueFormatter: _valueFormatter, showMark: false})
-      _plotSeries.push({curve: "linear", dataKey: 'Value2', label: `Observada (${serieMetadata.ObservedRelatedStreamId})`, valueFormatter: _valueFormatter, showMark: true, color: '#222222', id: 'related'})
+      _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Pronóstico', valueFormatter: _valueFormatter, showMark: false})
+      _plotSeries.push({curve: "linear", dataKey: 'Value2', label: `Observado (${serieMetadata.ObservedRelatedStreamId})`, valueFormatter: _valueFormatter, showMark: true, color: '#222222', id: 'related'})
       xAxisLength = unionSeries.length;
       setXAxis(unionSeries.map(point => new Date(point.Time)))
-    } else {
-      _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Valor', valueFormatter: _valueFormatter, showMark: false})
+      setDataset(unionSeries);
+    } else if (serieValues && serieValues.length > 0){
+        if (serieMetadata.StreamType === 0){
+          _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Observado', valueFormatter: _valueFormatter, id: 'observed', color: '#222222'})
+        } else if (serieMetadata.StreamType === 1){
+          _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Pronosticado', valueFormatter: _valueFormatter, showMark: false})
+        }else if (serieMetadata.StreamType === 2){
+          _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Curado', valueFormatter: _valueFormatter, showMark: false})
+        } 
+        
       setXAxis(serieValues.map(point => new Date(point.Time)))
       setDataset(serieValues);
     }
@@ -323,7 +330,8 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
         sx={
           {
           '.MuiLineElement-series-related': { strokeWidth: 0 },
-          '.MuiLineElement-series-observed': { strokeWidth: 0 }
+          '.MuiLineElement-series-observed': { strokeWidth: 0 },
+          '.MuiLineElement-series-curated': { strokeWidth: 0 }
         }
         }
         yAxis={[{min: -0.5}]}

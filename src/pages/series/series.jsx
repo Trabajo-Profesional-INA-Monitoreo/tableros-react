@@ -106,7 +106,6 @@ export const Series = () => {
                                 label='Serie ID'
                                 value={_streamId}
                                 onChange={e => handleChangeStreamId(e.target.value)}
-                                autoFocus
                                 sx={{m: 1}}
                             />
                             <SelectComponent 
