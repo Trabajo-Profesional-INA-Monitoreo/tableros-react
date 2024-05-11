@@ -57,7 +57,7 @@ export const ErrorModal = ({open, onClose, errorType}) => {
                                 { field: 'Ver', renderCell: (cellValues) => {
                                     return <Button onClick={() => navigate('/series', {
                                         state: {
-                                          streamId: 52,
+                                          streamId: cellValues.row.StreamId,
                                         }
                                       })}>Ver</Button>
                                 } }
