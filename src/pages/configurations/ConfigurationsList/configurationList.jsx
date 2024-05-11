@@ -46,8 +46,7 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
         const data = await func();
         if (data){
             setConfigurations(data)
-            const confID = getConfigurationID()
-            if(!confID && data.length>0) { //setteo por default la primera
+            if(!currentConfigID && data.length>0) { //setteo por default la primera
                 selectConfig(data[0].Id, data[0].Name);
                 saveSelectedId(data[0].Id, data[0].Name)
             }
