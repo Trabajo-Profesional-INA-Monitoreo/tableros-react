@@ -1,10 +1,11 @@
 import React, {createContext, useState} from 'react';
+import { getConfigurationID, getConfigurationName } from '../utils/storage';
 
 export const ConfigurationContext = createContext();
 
 function ConfigurationProvider(props){
-    const [currentConfigID, setCurrentConfigID] = useState(null);
-    const [currentConfigName, setCurrentConfigName] = useState("");
+    const [currentConfigID, setCurrentConfigID] = useState(getConfigurationID());
+    const [currentConfigName, setCurrentConfigName] = useState(getConfigurationName());
     
     const selectConfig = ( configId, configName ) => {
         setCurrentConfigID(configId)
