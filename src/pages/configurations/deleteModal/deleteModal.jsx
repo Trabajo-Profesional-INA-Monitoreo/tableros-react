@@ -21,6 +21,7 @@ const style = {
 export const DeleteModal = ({open, handleClose, configuration, onDeleteConfig, updateData}) => {
     return (
         <Modal
+            key={configuration.Id}
             open={open}
             onClose={handleClose}
         >
