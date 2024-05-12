@@ -18,6 +18,8 @@ Se debe configurar la URL de la API en el archivo `.env`:
 REACT_APP_API_URL = '<API_URL>'
 ```
 
+Incluir en la URL el path base `/api/v1`
+
 ### Herramientas
 
 Se dejan referencias a la documentación de herramientas utilizadas:

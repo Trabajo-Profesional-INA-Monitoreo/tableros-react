@@ -7,5 +7,9 @@ run:
 .PHONY: run
 
 docker-run:
-	docker-compose -f docker-compose.yaml up -d --build
+	docker-compose -f docker-compose.yaml up -d 
 .PHONY: docker-run
+
+docker-image:
+	docker build -f ./Dockerfile -t "web-monitoreo:latest" .
+.PHONY: docker-image
