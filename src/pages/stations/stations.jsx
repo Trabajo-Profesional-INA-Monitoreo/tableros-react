@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { InformativeCard, InformativeCardContainer } from '../../components/informativeCard/informativeCard';
 import Line from '../../components/line/line';
-import { Box } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { StationPresenter } from '../../presenters/stationPresenter';
 import { getConfigurationID } from '../../utils/storage';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
@@ -28,7 +28,19 @@ export const Stations = () => {
             <CurrentConfiguration/>
             <Line/>
             <InformativeCardContainer>
-            {isLoading ? null : stations.map(station => 
+            {isLoading ?
+                <CircularProgress 
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: '100vh',
+                        margin: 'auto',
+                        width: '10vw'
+                    }}
+                />
+                :
+                stations.map(station => 
                 <InformativeCard 
                     title={station.StationName+' | '+station.StationId}
                     subtitle={station.StreamsCount + (Number(station.StreamsCount) > 1 ? ' series' : ' serie')}

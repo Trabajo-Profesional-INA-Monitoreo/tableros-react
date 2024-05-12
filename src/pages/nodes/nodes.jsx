@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { Box } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { InformativeCard, InformativeCardContainer } from '../../components/informativeCard/informativeCard';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 import { NodePresenter } from '../../presenters/nodePresenter';
@@ -43,18 +43,30 @@ export const Nodes = () => {
             <CurrentConfiguration/>
             <Line/>
             <InformativeCardContainer>
-            {isLoading ? null : nodes.map(node => 
-                <InformativeCard 
-                    title={node.NodeName+' | '+node.NodeId}
-                    subtitle={`${node.StreamsCount + (Number(node.StreamsCount) > 1 ? ' series' : ' serie')} ${node.MainStreamId ? (' | Serie principal: ' + node.MainStreamId) :"" }`}
-                    heading1={node.LastUpdate && formatDate(node.LastUpdate)}
-                    heading2={node.ErrorCount}
-                    heading3={node.TotalWaterLevels>0? (node.AlertWaterLevels / node.TotalWaterLevels)*100 : 0}
-                    subheading1={'Última actualización'}
-                    subheading2={'Errores'}
-                    subheading3={'Nivel'}
-                />
-            )}    
+                    {isLoading ?
+                        <CircularProgress 
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            height: '100vh',
+                            margin: 'auto',
+                            width: '10vw'
+                        }}
+                        />
+                        :
+                        nodes.map(node => 
+                            <InformativeCard 
+                                title={node.NodeName+' | '+node.NodeId}
+                                subtitle={`${node.StreamsCount + (Number(node.StreamsCount) > 1 ? ' series' : ' serie')} ${node.MainStreamId ? (' | Serie principal: ' + node.MainStreamId) :"" }`}
+                                heading1={node.LastUpdate && formatDate(node.LastUpdate)}
+                                heading2={node.ErrorCount}
+                                heading3={node.TotalWaterLevels>0? (node.AlertWaterLevels / node.TotalWaterLevels)*100 : 0}
+                                subheading1={'Última actualización'}
+                                subheading2={'Errores'}
+                                subheading3={'Nivel'}
+                            />
+                    )}            
             </InformativeCardContainer>
         </Box>
     );
