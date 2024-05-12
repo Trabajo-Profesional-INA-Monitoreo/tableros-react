@@ -27,5 +27,5 @@ function TitleSubtitle({heading, subheading, width}){
 };
 
 export function InformativeCardContainer({children}){
-  return <Box className='cards-container'>{children}</Box>
+  return <Box className='cards-container' sx={{justifyContent: "center"}}>{children}</Box>
 };
