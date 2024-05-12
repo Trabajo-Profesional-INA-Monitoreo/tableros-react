@@ -7,5 +7,5 @@ run:
 .PHONY: run
 
 docker-run:
-	docker-compose up
+	docker-compose -f docker-compose.yaml up -d --build
 .PHONY: docker-run
