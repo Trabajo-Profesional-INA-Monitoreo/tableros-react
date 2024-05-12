@@ -55,7 +55,7 @@ export const Inputs = () => {
     return (    
         
         <div>
-            <h1> Tablero de inputs </h1>
+            <h1> Descripción general </h1>
             <CurrentConfiguration/>
             <Line/>
             <h2> Metricas </h2>

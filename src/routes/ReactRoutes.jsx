@@ -5,11 +5,11 @@ import { Outputs } from '../pages/outputs/outputs';
 import { Series } from '../pages/series/series';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HouseboatIcon from '@mui/icons-material/Houseboat';
-import OutputIcon from '@mui/icons-material/Output';
-import InputIcon from '@mui/icons-material/Input';
-import ShowChartIcon from '@mui/icons-material/ShowChart';
 import CellTowerIcon from '@mui/icons-material/CellTower';
 import { Inputs } from '../pages/inputs/inputs';
+import PestControlIcon from '@mui/icons-material/PestControl';
+import InsertChartOutlinedOutlinedIcon from '@mui/icons-material/InsertChartOutlinedOutlined';
+import TimelineOutlinedIcon from '@mui/icons-material/TimelineOutlined';
 
 const appRoutes = [
 		{
@@ -20,6 +20,16 @@ const appRoutes = [
 			sidebarProps: {
 				displayText: "Configuraciones",
 				icon: <SettingsIcon />
+			}
+		},
+		{
+			path: "/inputs",
+			index: true,
+			element: <Inputs />,
+			state: "inputs",
+			sidebarProps: {
+				displayText: "Inputs",
+				icon: <InsertChartOutlinedOutlinedIcon />
 			}
 		},
 		{
@@ -49,7 +59,7 @@ const appRoutes = [
 			state: "Series",
 			sidebarProps: {
 				displayText: "Series",
-				icon: <ShowChartIcon />
+				icon: <TimelineOutlinedIcon />
 			}
 		},
 		{
@@ -59,19 +69,10 @@ const appRoutes = [
 			state: "Outputs",
 			sidebarProps: {
 				displayText: "Outputs",
-				icon: <OutputIcon />
+				icon: <PestControlIcon />
 			}
 		},
-		{
-			path: "/inputs",
-			index: true,
-			element: <Inputs />,
-			state: "inputs",
-			sidebarProps: {
-				displayText: "Inputs",
-				icon: <InputIcon />
-			}
-		}
+		
 	];
 	
 export default appRoutes;

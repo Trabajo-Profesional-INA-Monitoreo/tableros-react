@@ -242,7 +242,7 @@ export const Outputs = () => {
     return (    
         <>
         <Box>
-            <h1>Tablero de outputs</h1>
+            <h1>Tablero de errores</h1>
             <CurrentConfiguration/>
             <Line/>
             <Grid items sx={{display:"flex", alignItems:"center"}}>
