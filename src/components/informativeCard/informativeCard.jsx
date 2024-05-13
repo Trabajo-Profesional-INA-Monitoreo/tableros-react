@@ -8,7 +8,7 @@ export function InformativeCard({title, subtitle, heading1, heading2, heading3, 
     <Box className='column container'>
         <TitleSubtitle heading={title} subheading={subtitle}/>
         <Line/>
-        <Box className='row'> 
+        <Box className='row-i'> 
             {heading1 && <TitleSubtitle heading={heading1} subheading={subheading1} width={titleSubtitleWidth}/>}
             <TitleSubtitle heading={heading2} subheading={subheading2} width={titleSubtitleWidth}/>
             <TitleSubtitle heading={heading3} subheading={subheading3} width={titleSubtitleWidth}/>

@@ -28,6 +28,8 @@
 .row {
     display: flex;
     flex-direction: row !important;
+    flex-wrap: wrap !important;
+    flex-flow: wrap !important;
     gap: 10px;
     margin: 10px 0px 10px 0px;
     justify-content: left !important;
@@ -46,10 +48,11 @@
     justify-content: space-between !important;
 }
 
-.column-textfields {
+.row-textfields {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-start;
+    flex-wrap: wrap;
     gap: 10px;
 }
 

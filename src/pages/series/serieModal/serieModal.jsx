@@ -9,6 +9,7 @@ import Line from '../../../components/line/line';
 import dayjs from 'dayjs';
 import './serieModal.css'
 import { union } from '../../../utils/functions';
+import { ERROR_TYPE_CODE } from '../../../utils/constants'
 
 const loadingStyle = {
   display: 'flex',
@@ -107,7 +108,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
           setSerieP05Values(serieValues.P05Streams);
           setSerieP95Values(serieValues.P95Streams);
           if (serieMetadata.ObservedRelatedStreamId) {
-            let observedRelatedValues = await presenter.getSerieValues(serieMetadata.ObservedRelatedStreamId, 0, null, startDate, dayjs(serieValues.MainStreams[0].Time).add(1, 'day'));
+            let observedRelatedValues = await presenter.getSerieValues(serieMetadata.ObservedRelatedStreamId, 0, null, startDate, endDate);
             setObservedRelatedValues(observedRelatedValues.Streams);
           }
           break;
@@ -248,7 +249,11 @@ const section = (title, metrics, total) => {
     <Line/>
     <Typography variant="h6" align='center'><b>{title}</b></Typography>
     <Box className='row space-around wrap'>
-      {metrics.map(metric => metricsBox(metric.Name, total? (metric.Value/total * 100).toFixed(1)+"%" : metric.Value,total&& `Cantidad: ${metric.Value} - Total:  ${total}`))}
+      {metrics.map(metric => metricsBox(
+          metric.Name, 
+          total ? (metric.Value/total * 100).toFixed(2)+ "%" : metric.Value.toFixed(2), 
+          total && `Cantidad: ${metric.Value} - Total:  ${total}`
+      ))}
     </Box>
     </>
   )
@@ -280,7 +285,7 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
           _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Observado', valueFormatter: _valueFormatter, id: 'observed', color: '#222222'})
         } else if (serieMetadata.StreamType === 1){
           _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Pronosticado', valueFormatter: _valueFormatter, showMark: false})
-        }else if (serieMetadata.StreamType === 2){
+        } else if (serieMetadata.StreamType === 2){
           _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Curado', valueFormatter: _valueFormatter, showMark: false})
         } 
         
@@ -366,13 +371,17 @@ const ErrorTable = ({serieErrors}) => {
 
       {serieErrors.Content.length > 0 ? 
           <DataGrid
-          rows= {serieErrors.Content.map((error, index) => ({...error, id:error.ErrorId}))}
+          rows= {serieErrors.Content.map(error => ({...error, id:error.ErrorId}))}
           getRowHeight={() => 'auto'} 
           columns={
               [
-                  { field: 'ErrorTypeName', headerName: 'Tipo', width: 25 },
-                  { field: 'DetectedDate', headerName: 'Fecha de detección', width: 150},
-                  { field: 'ExtraInfo', headerName: 'Informacion extra', minWidth: 150, flex: 1}
+                  { field: 'ErrorTypeName', headerName: 'Tipo', width: 100, renderCell: (params) => {
+                    return ERROR_TYPE_CODE[params.value];
+                }},
+                  { field: 'DetectedDate', headerName: 'Fecha', width: 100, renderCell: (params) => {
+                    return params.value.replace('T', ' ').slice(0, 16);
+                }},
+                  { field: 'ExtraInfo', headerName: 'Informacion extra', minWidth: 250, flex: 1}
               ]
           }
           initialState={{

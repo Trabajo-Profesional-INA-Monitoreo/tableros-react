@@ -105,8 +105,6 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
             const response = await presenter.getConfiguration(configurationID);
             const nodes = await presenter.buildNodesFromConfiguration(response);
             const series = await presenter.buildSeriesFromConfiguration(response);
-            console.log('BUILT NODES: ', nodes)
-            console.log('BUILT SERIES: ', series)
             setShouldNotify(response.SendNotifications);
             setNodes(nodes);
             _setIdNodeCounter(nodes.length + 1);
@@ -160,19 +158,19 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                 <div className='button-container'><Button className='button' variant='outlined' color='success' onClick={() => handleAddNodo()}>Agregar nodo</Button></div>
                 <h3>Series</h3>
                 <Line/>
-                <Box className='column-textfields'>
-                <TextField type='number' label='Id Serie' value={idSerie} onChange={e => setIdSerie(e.target.value)}/>
-                <FormControl sx={{minWidth: 220}}>
-                    <InputLabel id="nodo">Nodo</InputLabel>
-                    <Select label="Nodo" id="nodo" labelId="nodo" value={_idNode} onChange={e => _setIdNode(e.target.value)} disabled={nodes.length === 0}>
-                        {nodes.map((node, index) => <MenuItem key={node._id} value={node._id}>{`${index+1} - ${node.name}`}</MenuItem>)}
-                    </Select>
-                </FormControl>
-                <TextField type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)} helperText="En minutos"/>
+                <Box className='row-textfields'>
+                    <Box sx={{minWidth: 220}}><TextField fullWidth type='number' label='Id Serie' value={idSerie} onChange={e => setIdSerie(e.target.value)}/></Box>
+                    <FormControl sx={{minWidth: 220}}>
+                        <InputLabel id="nodo">Nodo</InputLabel>
+                        <Select label="Nodo" id="nodo" labelId="nodo" value={_idNode} onChange={e => _setIdNode(e.target.value)} disabled={nodes.length === 0}>
+                            {nodes.map((node, index) => <MenuItem key={node._id} value={node._id}>{`${index+1} - ${node.name}`}</MenuItem>)}
+                        </Select>
+                    </FormControl>
+                    <Box sx={{minWidth: 220}}><TextField fullWidth type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)} helperText="En minutos"/></Box>               
                 </Box>
                 <h4>Tipo de serie</h4>
-                <RadioGroup value={serieType} onChange={e => handleChangeSerieType(e)} >
-                    {Object.keys(SERIES_TYPES).map(key => 
+                <RadioGroup className='row' value={serieType} onChange={e => handleChangeSerieType(e)}>
+                    {Object.keys(SERIES_TYPES).map(key =>
                         <FormControlLabel key={SERIES_TYPES[key]} value={SERIES_TYPES[key]} control={<Radio/>} label={SERIES_TYPES[key]}/>)}
                 </RadioGroup>
                 <Box className='row'>
@@ -188,7 +186,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                         <RemoveCircleOutlineIcon color='primary'/>
                     </IconButton>
                 </Box>}
-                <Box className='column-textfields'>
+                <Box className='row-textfields'>
                     <TextField label='ID Calibrado' placeholder='ID Calibrado' type='number' value={calibrationID} onChange={e => setCalibrationID(e.target.value)} disabled={serieType !== SERIES_TYPES.PRONOSTICADA}/>
                     <TextField label='ID Serie Observada asociada' placeholder='ID Serie Observada asociada' type='number' value={relatedObservedStreamID} onChange={e => setRelatedObservedStreamID(e.target.value)} disabled={serieType !== SERIES_TYPES.PRONOSTICADA}/>
                 </Box>

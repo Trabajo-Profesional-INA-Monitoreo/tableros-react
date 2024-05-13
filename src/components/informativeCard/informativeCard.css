@@ -19,7 +19,7 @@ p {
     justify-content: space-around;
 }
 
-.row {
+.row-i {
     display: flex;
     flex-direction: row;
     justify-content: space-around;

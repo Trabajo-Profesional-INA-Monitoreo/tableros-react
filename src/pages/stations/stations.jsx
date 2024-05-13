@@ -1,10 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { InformativeCard, InformativeCardContainer } from '../../components/informativeCard/informativeCard';
 import Line from '../../components/line/line';
-import { Box, CircularProgress } from '@mui/material';
+import { Box } from '@mui/material';
+import CircularProgressLoading from '../../components/circularProgressLoading/circularProgressLoading'
 import { StationPresenter } from '../../presenters/stationPresenter';
 import { getConfigurationID } from '../../utils/storage';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
+
+function formatDate(isoDate) {
+    const date = new Date(isoDate);
+    const offset = -3 * 60 * 60 * 1000; // GMT-3 offset in milliseconds
+    const gmt3Date = new Date(date.getTime() + offset);
+    const day = gmt3Date.getDate().toString().padStart(2, '0');
+    const month = (gmt3Date.getMonth() + 1).toString().padStart(2, '0');
+    const year = gmt3Date.getFullYear();
+    const hours = gmt3Date.getHours().toString().padStart(2, '0');
+    const minutes = gmt3Date.getMinutes().toString().padStart(2, '0');
+    const seconds = gmt3Date.getSeconds().toString().padStart(2, '0');
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+}
 
 export const Stations = () => {
     const presenter = new StationPresenter();
@@ -28,29 +42,19 @@ export const Stations = () => {
             <CurrentConfiguration/>
             <Line/>
             <InformativeCardContainer>
-            {isLoading ?
-                <CircularProgress 
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        height: '100vh',
-                        margin: 'auto',
-                        width: '10vw'
-                    }}
-                />
-                :
+            {isLoading ? <CircularProgressLoading/> :
                 stations.map(station => 
                 <InformativeCard 
                     title={station.StationName+' | '+station.StationId}
-                    subtitle={station.StreamsCount + (Number(station.StreamsCount) > 1 ? ' series' : ' serie')}
-                    heading1={'XXXXX'}
+                    subtitle={`${station.StreamsCount + (Number(station.StreamsCount) > 1 ? ' series' : ' serie')} ${station.MainStreamId ? (' | Serie principal: ' + station.MainStreamId) :"" }`}
+                    heading1={station.LastUpdate && formatDate(station.LastUpdate)}
                     heading2={station.ErrorCount}
-                    heading3={'XXXXX'}
+                    heading3={station.TotalWaterLevels>0? (station.AlertWaterLevels / station.TotalWaterLevels)*100 : 0}
                     subheading1={'Última actualización'}
                     subheading2={'Errores'}
                     subheading3={'Nivel'}
                 />
+                
             )}    
             </InformativeCardContainer>
         </Box>

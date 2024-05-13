@@ -74,10 +74,8 @@ const map_metrics = (metrics, errores) => {
         updateObjectInArray(metrics, "Errores de falta de pronostico", { value: 0 }  )
         updateObjectInArray(metrics, "Outliers observados", { value: 0 }  )
         updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { value: 0 }  )
-        updateObjectInArray(metrics, "Errores desconocidos", { value: 0 }  )
     }
     for (const errorobj of errores) {
-        console.log('ASDASD: ', errorobj)
         if(errorobj.ErrorType === 'NullValue'){
             updateObjectInArray(metrics, "Valores nulos", { value: errorobj.Count })
             updateObjectInArray(metrics, "Valores nulos", { id: errorobj.ErrorId })
@@ -96,9 +94,6 @@ const map_metrics = (metrics, errores) => {
         }else if(errorobj.ErrorType === "ForecastOutOfBounds"){
             updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { value: errorobj.Count })
             updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { id: errorobj.ErrorId })
-        }
-        else{ 
-            updateObjectInArray(metrics, "Errores desconocidos", { value: errorobj.Count }  )
         }
     }
 }
@@ -136,7 +131,6 @@ export const Outputs = () => {
         {name: "Errores de falta de pronostico", value: 0, id: -1},
         {name: "Outliers observados", value: 0, id: -1},
         {name: "Pronosticos fuera de umbrales", value: 0, id: -1},
-        {name: "Errores desconocidos", value: 0, id: -1},
     ]);
     const [erroresPorDias, setErroresPorDias] = useState({})
 
@@ -161,9 +155,6 @@ export const Outputs = () => {
         }
         if(erroresPorDias["ObservedOutlier"]){
             dataGraficos.push({data:erroresPorDias['ObservedOutlier'], label:'Outliers observados', stack: 'total'})
-        }
-        if(erroresPorDias["UnknownErrors"]){
-            dataGraficos.push({data:erroresPorDias['UnknownErrors'], label:'Desconocidos', stack: 'total'})
         }
         return dataGraficos
     }
@@ -291,7 +282,7 @@ export const Outputs = () => {
             />
             : <>
 
-                <div style={{padding: 10, marginTop:"5%"}}>
+                <div style={{padding: 10, marginTop:5}}>
                     <Box className='row space-around wrap'>
                         {metrics.map(metric => 
                             <Box style={{cursor:'pointer'}} onClick={() => {console.log('m: ', metric); setOpenMetric(metric.id)}}>
