@@ -12,13 +12,18 @@ El `Makefile` tiene las acciones:
 La aplicación utiliza el puerto 3000.
 
 ### Configuración
-Se debe configurar la URL de la API en el archivo `.env`:
+Se deben configurar la URL de la API en el archivo `public/env_config.js` junto con los datos de Keycloak:
 
 ```
 REACT_APP_API_URL = '<API_URL>'
+REACT_APP_REALM = '<REALM>'
+REACT_APP_KC_URL = '<URL_KEYCLOAK>'
+REACT_APP_CLIENT = '<CLIENTE_KEYCLOAK>'
 ```
 
 Incluir en la URL el path base `/api/v1`
+
+Este archivo es cargado y recibido por el cliente con la configuracion del entorno. Ver `src/utils/service.js`
 
 ### Herramientas
 

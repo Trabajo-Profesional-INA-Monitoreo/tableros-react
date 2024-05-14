@@ -1,12 +1,19 @@
 import { ReactKeycloakProvider } from '@react-keycloak/web';
 // import React, { useState } from 'react'
+import { KC_REALM,KC_URL,KC_CLIENT } from '../utils/service';
 import Keycloak from "keycloak-js";
 import {jwtDecode} from 'jwt-decode';
 import useUser from '../stores/useUser';
 
 // Setup Keycloak instance as needed
 // Pass initialization options as required or leave blank to load from 'keycloak.json'
-const _kc = new Keycloak('/keycloak.json')
+const configKc = {
+    realm: KC_REALM,
+    url: KC_URL,
+    clientId: KC_CLIENT
+}
+
+const _kc = new Keycloak(configKc)
 const initConfig = {onLoad: 'login-required', checkLoginIframe: false}
 
 function UserLogout() {
