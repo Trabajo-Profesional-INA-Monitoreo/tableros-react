@@ -38,7 +38,6 @@ export const Series = () => {
     const [totalPages, setTotalPages] = useState(0);
 
     const [modalId, setModalId] = useState(null);
-
     const getAllStationNames = async() => {
         const stationNames = await stationsPresenter.getAllStationsNames();
         setStations(stationNames);
@@ -59,6 +58,16 @@ export const Series = () => {
 		setTotalPages(data.Pageable.Pages);
 		setIsLoading(false);
 	}
+
+    const buildParams = () => {
+        return {
+			configurationId: getConfigurationID(),
+			...(station) && {stationId:station},
+			...(procedure) && {procId: procedure},
+			...(variable) && {varId: variable},
+            ...(Number(streamId)) && {streamId: streamId},
+		}
+    }
 
 	useEffect(() => {
 		getAllStationNames();
@@ -149,7 +158,7 @@ export const Series = () => {
                             calibrationId={serie.CalibrationId}/>
                     ))}
             
-                <PaginationComponent page={page} setPage={setPage} totalPages={totalPages}/>
+                <PaginationComponent page={page} setPage={setPage} totalPages={totalPages} func={ seriesPresenter.getSeriePage} params={buildParams()} setterData={setSeries}/>
             </>
             }
         </>
