@@ -28,7 +28,6 @@ export const Styles = () => ({
     },
     cardContainer:{
         width: 350,
-        height: 300,
         padding: "10px",
         backgroundColor: "white"
     }

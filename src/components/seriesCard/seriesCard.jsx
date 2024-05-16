@@ -19,8 +19,8 @@ function renderData(description, data, style){
 function SeriesCard({serieData, onClick}) {
     const style = Styles()
     return(
-        <Card sx={style.cardContainer}>
-            <CardActionArea onClick={onClick}>
+        <Card >
+            <CardActionArea onClick={onClick} sx={style.cardContainer}>
                 <CardHeader
                     title={serieData.StationName + " | "+ serieData.StreamId}
                     sx={style.cardHeader}>              
