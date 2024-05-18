@@ -1,0 +1,63 @@
+.form {
+    width: 50%;
+}
+
+.nodes {
+    min-width: 50%;
+}
+
+.node { 
+    border: 2px solid rgb(224, 230, 237);
+    margin: 15px;
+    padding: 15px;
+    border-radius: 20px;
+}
+
+.serie {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid rgb(224, 230, 237);
+    border-radius: 20px;
+    min-height: 106px;
+    min-width: 94px;
+    padding-inline: 10px;
+}
+
+.row {
+    display: flex;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    flex-flow: wrap !important;
+    gap: 10px;
+    margin: 10px 0px 10px 0px;
+    justify-content: left !important;
+}
+
+.wrap {
+    flex-wrap: wrap;
+}
+
+.button-container {
+    margin: 10px 0px 0px 0px;
+    display: block;
+}
+
+.space-between {
+    justify-content: space-between !important;
+}
+
+.row-textfields {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.add-config {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+}

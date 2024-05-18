@@ -1,0 +1,13 @@
+version: '3.9'
+name: monitoreo
+services:
+  tableros-app:
+    image: inamonitoreo/web-monitoreo:latest
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+    environment:
+      - REACT_APP_API_URL=http://localhost:8082/api/v1
+    volumes:
+      - ./public/keycloak.json:/usr/share/nginx/html/keycloak.json

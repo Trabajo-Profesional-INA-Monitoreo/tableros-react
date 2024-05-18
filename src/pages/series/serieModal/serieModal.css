@@ -1,0 +1,22 @@
+.modal-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    min-height: 800px;
+    min-width: 400px;
+}
+
+.row {
+    display: flex;
+    flex-direction: row !important;
+    gap: 10px;
+    margin: 10px 0px 10px 0px; 
+}
+
+.space-around {
+    justify-content: space-around !important;
+}
+
+.wrap {
+    flex-wrap: wrap;
+}
