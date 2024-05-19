@@ -24,8 +24,8 @@ export const Series = () => {
 
     const [_streamId, _setStreamId] = useState(location?.state?.streamId ? location?.state?.streamId : '');
     const [streamId, setStreamId] = useState(location?.state?.streamId ? location?.state?.streamId : '');
-    const [station, setStation] = useState(null);
-    const [node, setNode] = useState(null);
+    const [station, setStation] = useState(location?.state?.stationId ? location?.state?.stationId : null);
+    const [node, setNode] = useState(location?.state?.nodeId ? location?.state?.nodeId : null);
     const [procedure, setProcedure] = useState(null);
     const [variable, setVariable] = useState(null);
     const [timeoutId, setTimeoutId] = useState(null);
