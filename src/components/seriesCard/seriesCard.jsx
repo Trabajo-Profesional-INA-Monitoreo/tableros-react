@@ -28,7 +28,7 @@ function SeriesCard({serieData, onClick}) {
                 <CardContent>
                     {renderData("Variable de medicion",serieData.VariableName, style)}
                     {serieData.CheckErrors? renderData("Errores última semana", serieData.TotalErrors, style): <></>}
-                    {renderData("Procedimiento",serieData.ProcedureName, style)}
+                    {renderData("Procedimiento", serieData.ProcedureName, style)}
                     {renderData("Tipo de serie", STREAM_TYPE_CODE_INVERSE[serieData.StreamType], style)}
                 </CardContent>
             </CardActionArea>          
