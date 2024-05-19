@@ -268,7 +268,7 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
                         {metrics(serie).length > 0 ? popOverRow('Métricas: ' +  metrics(serie)) : null}
                         {serie.redundantSeriesIDs.length > 0? popOverRow('ID Series Redundantes: ' + serie.redundantSeriesIDs) : null}
                         {serie.calibrationID !== '' ? popOverRow('ID Calibrado: ' + serie.calibrationID) : null}
-                        {serie.relatedObservedStreamID !== '' ? popOverRow('ID Serie Observada asociada: ' + serie.relatedObservedStreamID) : null}
+                        {!!serie.relatedObservedStreamID ? popOverRow('ID Serie Observada asociada: ' + serie.relatedObservedStreamID) : null}
                         {serie.lowerThreshold !== '' && serie.upperThreshold !== '' ? popOverRow('Umbrales: ' + serie.lowerThreshold + ', ' + serie.upperThreshold): null}
                     </Popover>
                 </Box>)}
