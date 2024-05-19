@@ -221,7 +221,6 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
 
 
 const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) => {
-    
     const [openedPopOverIndex, setOpenedPopOverIndex] = useState(null);
     const [anchorEl, setAnchorEl] = useState(null);
 
@@ -270,6 +269,8 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
                         {serie.calibrationID !== '' ? popOverRow('ID Calibrado: ' + serie.calibrationID) : null}
                         {!!serie.relatedObservedStreamID ? popOverRow('ID Serie Observada asociada: ' + serie.relatedObservedStreamID) : null}
                         {serie.lowerThreshold !== '' && serie.upperThreshold !== '' ? popOverRow('Umbrales: ' + serie.lowerThreshold + ', ' + serie.upperThreshold): null}
+                        {serie.RedundanciesIds && serie.popOverRow(`Series redundantes: ' + ${serie.RedundanciesIds}`)}
+
                     </Popover>
                 </Box>)}
             </Box>
