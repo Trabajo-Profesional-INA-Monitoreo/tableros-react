@@ -91,9 +91,6 @@ export const Series = () => {
 
     const handleChangeStreamId = newStreamId => {
         _setStreamId(newStreamId);
-        if (timeoutId) clearTimeout(timeoutId);
-        const _timeoutId = setTimeout(() => setStreamId(newStreamId), 1000);
-        setTimeoutId(_timeoutId);
     }
 
     const handleDeleteFilters = () => {
@@ -101,6 +98,7 @@ export const Series = () => {
         setProcedure(null)
         setVariable(null)
         setStreamId('')
+        _setStreamId('')
     }
 
     return (
@@ -115,6 +113,11 @@ export const Series = () => {
                                 label='Serie ID'
                                 value={_streamId}
                                 onChange={e => handleChangeStreamId(e.target.value)}
+                                onKeyDown={(ev) => {
+                                    if (ev.key === 'Enter') {
+                                        setStreamId(ev.target.value)
+                                    }
+                                }}
                                 sx={{m: 1}}
                             />
                             <SelectComponent 
