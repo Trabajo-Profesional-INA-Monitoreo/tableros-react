@@ -6,6 +6,7 @@ import CircularProgressLoading from '../../components/circularProgressLoading/ci
 import { StationPresenter } from '../../presenters/stationPresenter';
 import { getConfigurationID } from '../../utils/storage';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
+import PaginationComponent from '../../components/pagination/paginationComponent';
 
 function formatDate(isoDate) {
     const date = new Date(isoDate);
@@ -25,10 +26,13 @@ export const Stations = () => {
     
     const [stations, setStations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
+
     const getStations = async() => {
-        const response = await presenter.getStations(getConfigurationID());
+        const response = await presenter.getStations(page);
         setStations(response.Stations);
+        setTotalPages(response.Pageable.Pages);
         setIsLoading(false);
     }
 
@@ -57,6 +61,7 @@ export const Stations = () => {
                 
             )}    
             </InformativeCardContainer>
+            <PaginationComponent totalPages={totalPages} func={ presenter.getStations} params={null} setterData={setStations} isStation={true} setLoading={setIsLoading}/>
         </Box>
     );
 }

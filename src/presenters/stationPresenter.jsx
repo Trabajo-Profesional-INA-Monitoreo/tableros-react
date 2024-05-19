@@ -4,8 +4,8 @@ export class StationPresenter {
 
     stationService = new stationService();
 
-    getStations = async(configurationId) => {
-        return this.stationService.getStations(configurationId);
+    getStations = async(page) => {
+        return this.stationService.getStations(page);
     }
 
     getAllStationsNames = async() => {
