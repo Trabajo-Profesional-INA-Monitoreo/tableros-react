@@ -166,7 +166,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                             {nodes.map((node, index) => <MenuItem key={node._id} value={node._id}>{`${index+1} - ${node.name}`}</MenuItem>)}
                         </Select>
                     </FormControl>
-                    <Box sx={{minWidth: 220}}><TextField fullWidth type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)} helperText="En minutos"/></Box>               
+                    <Box sx={{minWidth: 100}}><TextField fullWidth type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)} helperText="En minutos"/></Box>               
                 </Box>
                 <h4>Tipo de serie</h4>
                 <RadioGroup className='row' value={serieType} onChange={e => handleChangeSerieType(e)}>
@@ -175,7 +175,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                 </RadioGroup>
                 <Box className='row'>
                     <TextField label='ID Serie Redundante' type='number' value={redundantSerieID} onChange={e => setRedundantSerieID(e.target.value)} disabled={serieType !== SERIES_TYPES.OBSERVADA}/>
-                    <IconButton style={{display: serieType === SERIES_TYPES.OBSERVADA ? 'block' : 'none'}} size='large' onClick={() => { setRedundantSeriesIDs([...redundantSeriesIDs, redundantSerieID]); setRedundantSerieID('')}}>
+                    <IconButton style={{display: serieType === SERIES_TYPES.OBSERVADA ? 'block' : 'none'}} size='large' onClick={() => { setRedundantSeriesIDs([...redundantSeriesIDs, parseInt(redundantSerieID)]); setRedundantSerieID('')}}>
                         <AddCircleOutlineIcon color='primary'/>
                     </IconButton>
                 </Box>
