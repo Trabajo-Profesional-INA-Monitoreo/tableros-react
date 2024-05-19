@@ -8,10 +8,10 @@ const PaginationComponent = ({totalPages, func, params, setterData, isStation, s
                 count={totalPages}
                 sx={{marginTop:6}}
                 onChange={async (event, page) =>  {
-                    setLoading(true)
+                    setLoading && setLoading(true)
                     const data = await func( page, params)
                     isStation? setterData(data.Stations): setterData(data.Content)
-                    setLoading(false)
+                    setLoading && setLoading(false)
                 }}
             />
         </div>

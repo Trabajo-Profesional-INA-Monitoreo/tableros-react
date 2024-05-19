@@ -160,7 +160,8 @@ export const Series = () => {
                             serieType={serie.StreamType} 
                             calibrationId={serie.CalibrationId}/>
                     ))}
-                <PaginationComponent totalPages={totalPages} func={ seriesPresenter.getSeriePage} params={buildParams()} setterData={setSeries} setLoading={setIsLoading}/>
+                <PaginationComponent totalPages={totalPages} func={ seriesPresenter.getSeriePage} params={buildParams()} setterData={setSeries} isStation={false}/>
+
             </>
             }
         </>
