@@ -1,35 +1,21 @@
-export function union(arr1, arr2) {
+export function union(arr1, arr2, key) {
     let unionArray = [];
     let i = 0;
     let j = 0;
 
     while (i < arr1.length && j < arr2.length) {
         if (arr1[i].Time < arr2[j].Time) {
-            unionArray.push(
-                {
-                    Time: arr1[i].Time,
-                    Value: arr1[i].Value,
-                    Value2: null
-                }
-            );
+            arr1[i][key] = null
+            unionArray.push(arr1[i]);
             i++;
         } else if (arr1[i].Time > arr2[j].Time) {
-            unionArray.push(
-                {
-                    Time: arr2[j].Time,
-                    Value: null,
-                    Value2: arr2[j].Value
-                }
-            );
+            arr2[j][key] = arr2[j].Value
+            arr2[j].Value = null
+            unionArray.push(arr2[j]);
             j++;
         } else {
-            unionArray.push(
-                {
-                    Time: arr1[i].Time,
-                    Value: arr1[i].Value,
-                    Value2: arr2[j].Value
-                }
-            );
+            arr1[i][key] = arr2[j].Value
+            unionArray.push(arr1[i]);
             i++;
             j++;
         }
@@ -41,12 +27,9 @@ export function union(arr1, arr2) {
     }
 
     while (j < arr2.length) {
-        unionArray.push(
-            {
-                Time: arr2[j].Time,
-                Value2: arr2[j].Value
-            }
-        );
+        arr2[j][key] = arr2[j].Value
+        arr2[j].Value = null
+        unionArray.push(arr2[j]);
         j++;
     }
 
