@@ -9,6 +9,7 @@ import Line from '../../../components/line/line';
 import dayjs from 'dayjs';
 import './serieModal.css'
 import { union } from '../../../utils/functions';
+import { formatMinutes } from '../../../utils/dates';
 import { ERROR_TYPE_CODE } from '../../../utils/constants'
 
 const loadingStyle = {
@@ -171,7 +172,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
         </Box>
         <Box className={"row space-around wrap"}>
           <TitleAndValue title="Última actualización" value={serieMetadata.LastUpdate ? serieMetadata.LastUpdate.replace('T', ' ').replace('Z', '') : 'No informado'}/>
-          <TitleAndValue title="Actualización" value={`Cada ${serieMetadata.UpdateFrequency} minutos`}/>
+          <TitleAndValue title="Actualización" value={`Cada ${formatMinutes(serieMetadata.UpdateFrequency)}`}/>
           {serieMetadata.CalibrationId ? <TitleAndValue title="ID Calibración" value={serieMetadata.CalibrationId}/> : null}
         </Box>
         {redundancies.length === 0 ? null : 
