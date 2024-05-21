@@ -276,13 +276,10 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
     const _valueFormatter = (altura) => (altura || altura === 0) ? altura + 'm' : 'No data';
 
     if (observedRelatedValues && observedRelatedValues.length > 0) {
-      unionSeries = union(serieValues, observedRelatedValues, 'Value2');
-      console.log('UNION: ', unionSeries)
-      _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Pronóstico', valueFormatter: _valueFormatter, showMark: false})
-      _plotSeries.push({curve: "linear", dataKey: 'Value2', label: `Observado (${serieMetadata.ObservedRelatedStreamId})`, valueFormatter: _valueFormatter, showMark: true, color: '#222222', id: 'related'})
+      unionSeries = union(serieValues, observedRelatedValues, 'ValueObs');
       xAxisLength = unionSeries.length;
-      setXAxis(unionSeries.map(point => new Date(point.Time)))
-      setDataset(unionSeries);
+      _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Pronóstico', valueFormatter: _valueFormatter, showMark: false})
+      _plotSeries.push({curve: "linear", dataKey: 'ValueObs', label: `Observado (${serieMetadata.ObservedRelatedStreamId})`, valueFormatter: _valueFormatter, showMark: true, color: '#222222', id: 'related'})
     } else if (serieValues && serieValues.length > 0){
       if (serieMetadata.StreamType === 0){
         _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Observado', valueFormatter: _valueFormatter, id: 'observed', color: '#222222'})
@@ -291,16 +288,12 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
       } else if (serieMetadata.StreamType === 2){
         _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Curado', valueFormatter: _valueFormatter, showMark: false})
       } 
-      setXAxis(serieValues.map(point => new Date(point.Time)))
-      setDataset(serieValues);
     }
 
     if (serieP05Values && (serieP05Values.length > 0) && showErrorBands) {
       if (observedRelatedValues && observedRelatedValues.length > 0) {
         unionSeries = union(unionSeries, serieP05Values, 'ValueP05');
         xAxisLength = unionSeries.length;
-        setXAxis(unionSeries.map(point => new Date(point.Time)))
-        setDataset(unionSeries);
         _plotSeries.push({curve: "linear", dataKey: 'ValueP05', label: 'P05', valueFormatter: _valueFormatter, showMark: false, color: '#2E9BFF'})
       } else {
         _plotSeries.push({curve: "linear", data: serieP05Values.map(point => point.Value), label: 'P05', _valueFormatter, showMark: false, color: '#2E9BFF'})
@@ -311,8 +304,6 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
       if (observedRelatedValues && observedRelatedValues.length > 0) {
         unionSeries = union(unionSeries, serieP95Values, 'ValueP95');
         xAxisLength = unionSeries.length;
-        setXAxis(unionSeries.map(point => new Date(point.Time)))
-        setDataset(unionSeries);
         _plotSeries.push({curve: "linear", dataKey: 'ValueP95', label: 'P95', valueFormatter: _valueFormatter, showMark: false, color: '#2E9BFF'})
       } else {
         _plotSeries.push({curve: "linear", data: serieP95Values.map(point => point.Value), label: 'P95', valueFormatter: _valueFormatter, showMark: false, color: '#2E9BFF'})
@@ -320,7 +311,7 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
     }
     
     if (serieMetadata.EvacuationLevel && serieMetadata.AlertLevel && serieMetadata.LowWaterLevel && showLevels) {
-      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.EvacuationLevel), label: 'Evacuacion', showMark: false, color: '#e15759', valueFormatter: _valueFormatter});
+      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.EvacuationLevel), label: 'Evacuación', showMark: false, color: '#e15759', valueFormatter: _valueFormatter});
       _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.AlertLevel), label: 'Alerta', showMark: false, color:'#e15759', valueFormatter: _valueFormatter});
       _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.LowWaterLevel), label: 'Aguas bajas', showMark: false, color: '#e15759', valueFormatter: _valueFormatter});
     }
@@ -330,8 +321,17 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
       _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.NormalUpperThreshold), label: 'Umbral superior', showMark: false, color:'#A020F0', valueFormatter: _valueFormatter});
     }
 
+
+    if (observedRelatedValues && observedRelatedValues.length > 0) {
+      setXAxis(unionSeries.map(point => new Date(point.Time)))
+      setDataset(unionSeries);
+    } else if (serieValues && serieValues.length > 0) {
+      setXAxis(serieValues.map(point => new Date(point.Time)))
+      setDataset(serieValues);
+    }
+
     setPlotSeries(_plotSeries);
-  }, [showThresholds, showLevels, showErrorBands, observedRelatedValues, serieValues]) 
+  }, [showThresholds, showLevels, showErrorBands, observedRelatedValues, serieValues, serieP95Values, serieP05Values]) 
   
 
   return (
@@ -359,7 +359,15 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
           '.MuiMarkElement-root': { scale: '0.5'}
         }
         }
-        yAxis={[{min: -0.5}]}
+        yAxis={[{min: -0.1}]}
+        slotProps={{
+          legend: {
+            itemGap: 5,
+            labelStyle: {
+              fontSize: 12.5,
+            },
+          },
+        }}
       />
       <Box className='row space-around wrap'>
         <Button

@@ -1,5 +1,7 @@
-export function union(arr1, arr2, key) {
+export function union(arr1_, arr2_, key) {
     let unionArray = [];
+    let arr1 = arr1_.map(a => {return {...a}});
+    let arr2 = arr2_.map(a => {return {...a}});
     let i = 0;
     let j = 0;
 
