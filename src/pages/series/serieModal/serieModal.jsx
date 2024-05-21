@@ -9,6 +9,7 @@ import Line from '../../../components/line/line';
 import dayjs from 'dayjs';
 import './serieModal.css'
 import { union } from '../../../utils/functions';
+import { formatMinutes } from '../../../utils/dates';
 import { ERROR_TYPE_CODE } from '../../../utils/constants'
 
 const loadingStyle = {
@@ -171,7 +172,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
         </Box>
         <Box className={"row space-around wrap"}>
           <TitleAndValue title="Última actualización" value={serieMetadata.LastUpdate ? serieMetadata.LastUpdate.replace('T', ' ').replace('Z', '') : 'No informado'}/>
-          <TitleAndValue title="Actualización" value={`Cada ${serieMetadata.UpdateFrequency} minutos`}/>
+          <TitleAndValue title="Actualización" value={`Cada ${formatMinutes(serieMetadata.UpdateFrequency)}`}/>
           {serieMetadata.CalibrationId ? <TitleAndValue title="ID Calibración" value={serieMetadata.CalibrationId}/> : null}
         </Box>
         {redundancies.length === 0 ? null : 
@@ -270,31 +271,47 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
 
   useEffect(() => {
     const _plotSeries = [];
+    let unionSeries = [];
     let xAxisLength = serieValues?.length;
     const _valueFormatter = (altura) => (altura || altura === 0) ? altura + 'm' : 'No data';
 
     if (observedRelatedValues && observedRelatedValues.length > 0) {
-      const unionSeries = union(serieValues, observedRelatedValues);
-      _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Pronóstico', valueFormatter: _valueFormatter, showMark: false})
-      _plotSeries.push({curve: "linear", dataKey: 'Value2', label: `Observado (${serieMetadata.ObservedRelatedStreamId})`, valueFormatter: _valueFormatter, showMark: true, color: '#222222', id: 'related'})
+      unionSeries = union(serieValues, observedRelatedValues, 'ValueObs');
       xAxisLength = unionSeries.length;
-      setXAxis(unionSeries.map(point => new Date(point.Time)))
-      setDataset(unionSeries);
+      _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Pronóstico', valueFormatter: _valueFormatter, showMark: false})
+      _plotSeries.push({curve: "linear", dataKey: 'ValueObs', label: `Observado (${serieMetadata.ObservedRelatedStreamId})`, valueFormatter: _valueFormatter, showMark: true, color: '#222222', id: 'related'})
     } else if (serieValues && serieValues.length > 0){
-        if (serieMetadata.StreamType === 0){
-          _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Observado', valueFormatter: _valueFormatter, id: 'observed', color: '#222222'})
-        } else if (serieMetadata.StreamType === 1){
-          _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Pronosticado', valueFormatter: _valueFormatter, showMark: false})
-        } else if (serieMetadata.StreamType === 2){
-          _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Curado', valueFormatter: _valueFormatter, showMark: false})
-        } 
-        
-      setXAxis(serieValues.map(point => new Date(point.Time)))
-      setDataset(serieValues);
+      if (serieMetadata.StreamType === 0){
+        _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Observado', valueFormatter: _valueFormatter, id: 'observed', color: '#222222'})
+      } else if (serieMetadata.StreamType === 1){
+        _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Pronosticado', valueFormatter: _valueFormatter, showMark: false})
+      } else if (serieMetadata.StreamType === 2){
+        _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Curado', valueFormatter: _valueFormatter, showMark: false})
+      } 
+    }
+
+    if (serieP05Values && (serieP05Values.length > 0) && showErrorBands) {
+      if (observedRelatedValues && observedRelatedValues.length > 0) {
+        unionSeries = union(unionSeries, serieP05Values, 'ValueP05');
+        xAxisLength = unionSeries.length;
+        _plotSeries.push({curve: "linear", dataKey: 'ValueP05', label: 'P05', valueFormatter: _valueFormatter, showMark: false, color: '#2E9BFF'})
+      } else {
+        _plotSeries.push({curve: "linear", data: serieP05Values.map(point => point.Value), label: 'P05', _valueFormatter, showMark: false, color: '#2E9BFF'})
+      }
+    }
+
+    if (serieP95Values && (serieP95Values.length > 0) && showErrorBands) {
+      if (observedRelatedValues && observedRelatedValues.length > 0) {
+        unionSeries = union(unionSeries, serieP95Values, 'ValueP95');
+        xAxisLength = unionSeries.length;
+        _plotSeries.push({curve: "linear", dataKey: 'ValueP95', label: 'P95', valueFormatter: _valueFormatter, showMark: false, color: '#2E9BFF'})
+      } else {
+        _plotSeries.push({curve: "linear", data: serieP95Values.map(point => point.Value), label: 'P95', valueFormatter: _valueFormatter, showMark: false, color: '#2E9BFF'})
+      }
     }
     
     if (serieMetadata.EvacuationLevel && serieMetadata.AlertLevel && serieMetadata.LowWaterLevel && showLevels) {
-      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.EvacuationLevel), label: 'Evacuacion', showMark: false, color: '#e15759', valueFormatter: _valueFormatter});
+      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.EvacuationLevel), label: 'Evacuación', showMark: false, color: '#e15759', valueFormatter: _valueFormatter});
       _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.AlertLevel), label: 'Alerta', showMark: false, color:'#e15759', valueFormatter: _valueFormatter});
       _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.LowWaterLevel), label: 'Aguas bajas', showMark: false, color: '#e15759', valueFormatter: _valueFormatter});
     }
@@ -303,16 +320,18 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
       _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.NormalLowerThreshold), label: 'Umbral inferior', showMark: false, color: '#A020F0', valueFormatter: _valueFormatter});
       _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.NormalUpperThreshold), label: 'Umbral superior', showMark: false, color:'#A020F0', valueFormatter: _valueFormatter});
     }
-  
-    if (serieP05Values && (serieP05Values.length > 0) && showErrorBands) {
-      _plotSeries.push({curve: "linear", data: serieP05Values.map(point => point.Value), label: 'P05', valueFormatter: (altura) => altura + 'm', showMark: false, color: '#2E9BFF'})
-    }
-    if (serieP95Values && (serieP95Values.length > 0) && showErrorBands) {
-      _plotSeries.push({curve: "linear", data: serieP95Values.map(point => point.Value), label: 'P95', valueFormatter: (altura) => altura + 'm', showMark: false, color: '#2E9BFF'})
+
+
+    if (observedRelatedValues && observedRelatedValues.length > 0) {
+      setXAxis(unionSeries.map(point => new Date(point.Time)))
+      setDataset(unionSeries);
+    } else if (serieValues && serieValues.length > 0) {
+      setXAxis(serieValues.map(point => new Date(point.Time)))
+      setDataset(serieValues);
     }
 
     setPlotSeries(_plotSeries);
-  }, [showThresholds, showLevels, showErrorBands, observedRelatedValues, serieValues]) 
+  }, [showThresholds, showLevels, showErrorBands, observedRelatedValues, serieValues, serieP95Values, serieP05Values]) 
   
 
   return (
@@ -336,10 +355,19 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
           {
           '.MuiLineElement-series-related': { strokeWidth: 0 },
           '.MuiLineElement-series-observed': { strokeWidth: 0 },
-          '.MuiLineElement-series-curated': { strokeWidth: 0 }
+          '.MuiLineElement-series-curated': { strokeWidth: 0 },
+          '.MuiMarkElement-root': { scale: '0.5'}
         }
         }
-        yAxis={[{min: -0.5}]}
+        yAxis={[{min: -0.1}]}
+        slotProps={{
+          legend: {
+            itemGap: 5,
+            labelStyle: {
+              fontSize: 12.5,
+            },
+          },
+        }}
       />
       <Box className='row space-around wrap'>
         <Button

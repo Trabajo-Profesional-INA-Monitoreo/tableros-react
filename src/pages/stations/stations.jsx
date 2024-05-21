@@ -57,6 +57,7 @@ export const Stations = () => {
                     subheading1={'Última actualización'}
                     subheading2={'Errores'}
                     subheading3={'Nivel'}
+                    id={station.StationId}
                 />
                 
             )}    

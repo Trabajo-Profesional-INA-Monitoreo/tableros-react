@@ -16,4 +16,10 @@ export default class utilsService {
         return res;
     }
 
+    async getAllNodes() {
+        const response = await fetch(`${BASE_URL}/filtro/nodos?configurationId=${getConfigurationID()}`, getOptions());
+        const res = await response.json();
+        return res;
+    }
+
 }

@@ -1,11 +1,13 @@
 import Line from '../line/line';
 import { Box } from '@mui/material';
 import './informativeCard.css';
+import { useNavigate } from "react-router-dom";
 
-export function InformativeCard({title, subtitle, heading1, heading2, heading3, subheading1, subheading2, subheading3}) {
+export function InformativeCard({title, subtitle, heading1, heading2, heading3, subheading1, subheading2, subheading3, id, node}) {
   const titleSubtitleWidth = 100;
+  const navigate = useNavigate();
   return (
-    <Box className='column container'>
+    <Box className='column card-container' onClick={() => navigate('/series', {state: { [node ? 'nodeId' : 'stationId']: id }})}>
         <TitleSubtitle heading={title} subheading={subtitle}/>
         <Line/>
         <Box className='row-i'> 

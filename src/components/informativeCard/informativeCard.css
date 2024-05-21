@@ -2,7 +2,7 @@ p {
     margin: 5px;
 }
 
-.container {
+.card-container {
     width: 350px;
     border: solid; 
     border-color: #E0E6ED; 
@@ -10,6 +10,11 @@ p {
     border-width: 1px;
     box-shadow: 2px 2px 2px 1px rgb(181 253 249 / 20%); 
     padding: 20px;
+    cursor: pointer;
+}
+
+.card-container:hover {
+    background-color: #F5F5F5;
 }
 
 .column {
