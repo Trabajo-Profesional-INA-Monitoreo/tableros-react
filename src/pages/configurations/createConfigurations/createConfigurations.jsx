@@ -18,10 +18,10 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { CONFIGURATION_VIEWS } from "../configuraciones";
 import { CreateConfigurationPresenter } from "../../../presenters/createConfigurationPresenter";
-import { METRICS, SERIES_TYPES } from "../../../utils/constants";
+import { METRICS, SERIES_TYPES, STREAM_TYPE_CODE_INVERSE } from "../../../utils/constants";
 import './createConfigurations.css';
 import { notifySuccess } from "../../../utils/notification";
-import { setConfigurationID } from "../../../utils/storage";
+import { formatMinutes } from "../../../utils/dates";
 
 export const CreateConfigurations = ({setCurrentView, configurationID, editable}) => {
 
@@ -261,8 +261,8 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
                         onClose={() => setAnchorEl(null)}
                         disableRestoreFocus
                     >
-                        {popOverRow('Frecuencia de actualizacion: ' + serie.actualizationFrequency)}
-                        {popOverRow('Tipo de serie: ' + serie.serieType)}
+                        {popOverRow('Frecuencia de actualización: ' + formatMinutes(Number(serie.actualizationFrequency)) )}
+                        {popOverRow('Tipo de serie: ' + STREAM_TYPE_CODE_INVERSE[serie.serieType])}
                         {popOverRow('Incluir validacion de errores: ' + (serie.checkErrors ? 'Sí' : 'No'))}
                         {metrics(serie).length > 0 ? popOverRow('Métricas: ' +  metrics(serie)) : null}
                         {serie.redundantSeriesIDs.length > 0? popOverRow('ID Series Redundantes: ' + serie.redundantSeriesIDs) : null}
