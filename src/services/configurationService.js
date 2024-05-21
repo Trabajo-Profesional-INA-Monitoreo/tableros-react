@@ -1,5 +1,4 @@
 import { BASE_URL } from '../utils/service';
-import {getToken} from '../utils/storage';
 import { getOptions } from "../utils/service";
 
 export default class configurationService{

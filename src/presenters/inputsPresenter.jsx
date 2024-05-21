@@ -7,6 +7,7 @@ export class InputsPresenter {
     getNulosEnSeries= async(params) => {
         return this.service.getNullsInSeries(params)
     }
+    
     getMetricas= async(configId) => {
         return this.service.getMetricas(configId)
     }
