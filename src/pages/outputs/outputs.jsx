@@ -14,6 +14,7 @@ import dayjs from 'dayjs';
 import { getConfigurationID } from '../../utils/storage';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 import { ErrorModal, NoErrorModal } from './errorModal';
+import { OutputsPresenter } from '../../presenters/outputsService';
 
 function dateParser(date){
     const year = date.getFullYear();
@@ -108,6 +109,7 @@ const updateObjectInArray = (arr, nameValue, updatedValue) => {
 
 export const Outputs = () => {
     const service = new OutputService()
+    const presenter = new OutputsPresenter()
     const [currentConfigId, setCurrentConfigId] = useState('');
     const [loading, setLoading] = useState(true);
 
@@ -210,20 +212,10 @@ export const Outputs = () => {
         const configId = getConfigurationID();
         setCurrentConfigId(configId)
         const fetchDataPorDia = async () => {
-            try {
-                const erorres_por_dia = await fetch(
-                    `http://localhost:8081/api/v1/errores/por-dia?configurationId=${configId}`
-                );
-                if (!erorres_por_dia.ok) {
-                throw new Error(`HTTP error: Status ${erorres_por_dia.status}`);
-                }
-                let dataPorDia = await erorres_por_dia.json();
-                const erroresAgrupados = groupErrors(dataPorDia, desde.toDate(), hasta.toDate());
-                setErroresPorDias(erroresAgrupados);
-            
-            } finally {
-                setLoading(false);
-            }
+            let dataPorDia = await presenter.getErroresPorDia(configId)
+            const erroresAgrupados = groupErrors(dataPorDia, desde.toDate(), hasta.toDate());
+            setErroresPorDias(erroresAgrupados);
+            setLoading(false);
         };
         fetchDataPorDia();
         loadBehavior()

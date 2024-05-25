@@ -34,7 +34,7 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
     const {userInfo} = useUser()
     const [configurations, setConfigurations] = useState([]);
     const [isLoading, setLoading] = useState(true)
-    const isAdmin = userInfo.roles?.includes("admin")
+    const isAdmin = true//userInfo.roles?.includes("admin")
     const [modalId, setModalId] = useState(null);
 
     const handleDelete = (id) => {
