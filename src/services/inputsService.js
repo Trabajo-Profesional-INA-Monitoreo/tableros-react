@@ -3,6 +3,12 @@ import { getOptions } from "../utils/service";
 
 export default class InputsService{
 
+    async getRetardos(params){
+        const response = await fetch(BASE_URL+`/inputs/series-retardos?`+ new URLSearchParams(params), getOptions());
+        const res = await response.json()
+        return res
+    }
+    
     async getNullsInSeries(params){
         const response = await fetch(BASE_URL+`/inputs/series-con-nulos?`+ new URLSearchParams(params), getOptions());
         const res = await response.json()
