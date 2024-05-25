@@ -97,7 +97,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
     if (open) {
       let serieMetadata = await presenter.getSerieMetadata(serieId, configuredSerieId, startDate, endDate);
       let serieValues = await presenter.getSerieValues(serieId, serieType, calibrationId, startDate, endDate);
-      let serieErrors = await presenter.getSerieErrors(configuredSerieId, startDate, endDate);
+      let serieErrors = await presenter.getSerieErrors(configuredSerieId, startDate, endDate, 1, 15);
       let redundancies = await presenter.getSerieRedundancies(configuredSerieId);
       switch (serieType) {
         case 0:
@@ -124,11 +124,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
 
   useEffect(() => {
       getSerieMetadataAndValues();
-  }, [open]);
-
-  useEffect(() => {
-    getSerieMetadataAndValues();
-  }, [startDate, endDate]);
+  }, [open, startDate, endDate]);
 
   return (
       <Modal open={open} onClose={handleClose}>
@@ -208,7 +204,12 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
           series={[{ dataKey: 'retardo', label: 'Horas acumuladas', valueFormatter }]}
           {...chartSetting}
         />
-        <ErrorTable serieErrors={serieErrors}/>
+        <ErrorTable 
+          serieErrors={serieErrors} 
+          getErrors={async(page, pageSize) => {
+            const _serieErrors = await presenter.getSerieErrors(configuredSerieId, startDate, endDate, page + 1, pageSize);
+            setSerieErrors(_serieErrors);
+          }}/>
         </div>
       </Box>
       }
@@ -390,39 +391,42 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
   )
 }
 
-const ErrorTable = ({serieErrors}) => {
+const ErrorTable = ({serieErrors, getErrors}) => {
+
+  const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 15})
+
+  useEffect(() => {
+    getErrors(paginationModel.page, paginationModel.pageSize);
+}, [paginationModel]);
 
   return (
   <>
-      <Line/>
-      <Typography variant="h6" align='center' sx={{mb: 2}}><b>Errores detectados</b></Typography>
+    <Line/>
+    <Typography variant="h6" align='center' sx={{mb: 2}}><b>Errores detectados</b></Typography>
 
-      {serieErrors.Content.length > 0 ? 
-          <DataGrid
-          rows= {serieErrors.Content.map(error => ({...error, id:error.ErrorId}))}
-          getRowHeight={() => 'auto'} 
-          columns={
-              [
-                  { field: 'ErrorTypeName', headerName: 'Tipo', width: 100, renderCell: (params) => {
-                    return ERROR_TYPE_CODE[params.value];
-                }},
-                  { field: 'DetectedDate', headerName: 'Fecha', width: 100, renderCell: (params) => {
-                    return params.value.replace('T', ' ').slice(0, 16);
-                }},
-                  { field: 'ExtraInfo', headerName: 'Informacion extra', minWidth: 250, flex: 1}
-              ]
-          }
-          initialState={{
-              pagination: {
-                  paginationModel: {
-                  pageSize: 15,
-                  },
-              },
-          }}
-          pageSizeOptions={[15]}
-          disableRowSelectionOnClick
-      /> : <Typography align='center'sx={{marginLeft: 'auto', marginRight: 'auto'}}> No se detectaron errores para esta serie </Typography>}
-      
-    </>
+    {serieErrors.Content.length > 0 ? 
+        <DataGrid
+        rows= {serieErrors.Content.map(error => ({...error, id:error.ErrorId}))}
+        getRowHeight={() => 'auto'} 
+        columns={
+            [
+              { field: 'ErrorTypeName', headerName: 'Tipo', width: 100, renderCell: (params) => {
+                return ERROR_TYPE_CODE[params.value];
+              }},
+              { field: 'DetectedDate', headerName: 'Fecha', width: 100, renderCell: (params) => {
+                return params.value.replace('T', ' ').slice(0, 16);
+              }},
+              { field: 'ExtraInfo', headerName: 'Informacion extra', minWidth: 250, flex: 1}
+            ]
+        }
+        rowCount={serieErrors.Pageable.TotalElements}
+        pageSizeOptions={[15]}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        paginationMode="server"
+        disableRowSelectionOnClick
+    /> 
+    : <Typography align='center'sx={{marginLeft: 'auto', marginRight: 'auto'}}> No se detectaron errores para esta serie </Typography>}
+  </>
   )
 }

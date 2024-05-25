@@ -28,6 +28,7 @@ export const ErrorModal = ({open, onClose, errorType}) => {
 
     const [isLoading, setIsLoading] = useState(true);
     const [implicatedSeries, setImplicatedSeries] = useState([]);
+    const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 2});
 
     const getImplicatedSeries = async() => {
         const implicatedSeries = await presenter.getImplicatedSeries(errorType);
@@ -63,14 +64,9 @@ export const ErrorModal = ({open, onClose, errorType}) => {
                                 } }
                             ]
                         }
-                        initialState={{
-                            pagination: {
-                                paginationModel: {
-                                pageSize: 5,
-                                },
-                            },
-                        }}
-                        pageSizeOptions={[5]}
+                        pageSizeOptions={[2]}
+                        paginationModel={paginationModel}
+                        onPaginationModelChange={setPaginationModel}
                         disableRowSelectionOnClick
                    />
                 }

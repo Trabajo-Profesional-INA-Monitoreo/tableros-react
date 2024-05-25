@@ -34,8 +34,8 @@ export default class serieService {
         return res
     }
 
-    async getSerieErrors(configuredSerieId, startDate, endDate) {
-        const response = await fetch(`${BASE_URL}/errores/${configuredSerieId}?timeStart=${startDate}&timeEnd=${endDate}`, getOptions())
+    async getSerieErrors(configuredSerieId, startDate, endDate, page, pageSize) {
+        const response = await fetch(`${BASE_URL}/errores/${configuredSerieId}?timeStart=${startDate}&timeEnd=${endDate}&page=${page}&pageSize=${pageSize}`, getOptions())
         const res = await response.json()
         return res
     }
