@@ -3,11 +3,11 @@ import { UserContextProvider } from "../services/userService"
 import ConfigurationProvider from "./configProvider";
 
 const MainProvider = ( { children } ) => (
-    //<UserContextProvider>
+    <UserContextProvider>
 		<ConfigurationProvider>
 				{children}
 		</ConfigurationProvider>
-	//</UserContextProvider>
+	</UserContextProvider>
 );
 
 export default MainProvider;
