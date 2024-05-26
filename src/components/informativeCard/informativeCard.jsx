@@ -7,7 +7,7 @@ export function InformativeCard({title, subtitle, heading1, heading2, heading3, 
   const titleSubtitleWidth = 100;
   const navigate = useNavigate();
   return (
-    <Box className='column card-container' onClick={() => navigate('/series', {state: { [node ? 'nodeId' : 'stationId']: id }})}>
+    <Box className='column card-container' onClick={() => navigate('/monitoreo/series', {state: { [node ? 'nodeId' : 'stationId']: id }})}>
         <TitleSubtitle heading={title} subheading={subtitle}/>
         <Line/>
         <Box className='row-i'> 

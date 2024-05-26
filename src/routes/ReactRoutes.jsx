@@ -15,10 +15,10 @@ import TimelineOutlinedIcon from '@mui/icons-material/TimelineOutlined';
 const appRoutes = [
 		{
 			path: "/",
-			element: <Navigate to="/configuraciones"/>,
+			element: <Navigate to="/monitoreo/configuraciones"/>,
 		},
 		{
-			path: "/configuraciones",	
+			path: "/monitoreo/configuraciones",	
 			element: <Configurations />,
 			sidebarProps: {
 				displayText: "Configuraciones",
@@ -26,7 +26,7 @@ const appRoutes = [
 			}
 		},
 		{
-			path: "/inputs",
+			path: "/monitoreo//inputs",
 			element: <Inputs />,
 			sidebarProps: {
 				displayText: "Inputs",
@@ -34,7 +34,7 @@ const appRoutes = [
 			}
 		},
 		{
-			path: "/estaciones",
+			path: "/monitoreo/estaciones",
 			element: <Stations />,
 			sidebarProps: {
 				displayText: "Estaciones",
@@ -42,7 +42,7 @@ const appRoutes = [
 			}
 		},
 		{
-			path: "/nodos",
+			path: "/monitoreo/nodos",
 			element: <Nodes />,
 			sidebarProps: {
 				displayText: "Nodos",
@@ -50,7 +50,7 @@ const appRoutes = [
 			},
 		},
 		{
-			path: "/series",
+			path: "/monitoreo/series",
 			element: <Series />,
 			sidebarProps: {
 				displayText: "Series",
@@ -58,7 +58,7 @@ const appRoutes = [
 			}
 		},
 		{
-			path: "/outputs",
+			path: "/monitoreo/outputs",
 			element: <Outputs />,
 			sidebarProps: {
 				displayText: "Outputs",

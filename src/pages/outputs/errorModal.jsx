@@ -56,7 +56,7 @@ export const ErrorModal = ({open, onClose, errorType}) => {
                                 { field: 'StationId', headerName: 'ID Estación', width: 90 },
                                 { field: 'StationName', headerName: 'Nombre Estación', minWidth: 300, flex: 1 },
                                 { field: 'Ver', renderCell: (cellValues) => {
-                                    return <Button onClick={() => navigate('/series', {
+                                    return <Button onClick={() => navigate('/monitoreo/series', {
                                         state: {
                                           streamId: cellValues.row.StreamId,
                                         }
