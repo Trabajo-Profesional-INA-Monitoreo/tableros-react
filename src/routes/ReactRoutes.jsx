@@ -26,7 +26,7 @@ const appRoutes = [
 			}
 		},
 		{
-			path: "/monitoreo//inputs",
+			path: "/monitoreo/inputs",
 			element: <Inputs />,
 			sidebarProps: {
 				displayText: "Inputs",
