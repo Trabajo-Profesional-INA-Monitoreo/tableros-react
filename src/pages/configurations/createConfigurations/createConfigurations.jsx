@@ -1,27 +1,14 @@
-import { useState, useEffect } from "react";
-import { Box, Button, TextField } from '@mui/material';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import React from 'react';
+import { React, useState, useEffect } from "react";
+import { Box, Button, TextField, FormGroup, FormControlLabel, Checkbox, Radio, RadioGroup, InputLabel, MenuItem, FormControl, Select, Popover, Typography, IconButton } from '@mui/material';
 import Line from '../../../components/line/line';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import Popover from '@mui/material/Popover';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { CONFIGURATION_VIEWS } from "../configuraciones";
 import { CreateConfigurationPresenter } from "../../../presenters/createConfigurationPresenter";
-import { METRICS, SERIES_TYPES, STREAM_TYPE_CODE_INVERSE } from "../../../utils/constants";
-import './createConfigurations.css';
+import { METRICS, SERIES_TYPES, STREAM_TYPE_CODE_INVERSE, INITIAL_METRICS_STATE } from "../../../utils/constants";
 import { notifySuccess } from "../../../utils/notification";
 import { formatMinutes } from "../../../utils/dates";
+import './createConfigurations.css';
 
 export const CreateConfigurations = ({setCurrentView, configurationID, editable}) => {
 
@@ -44,11 +31,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const [serieType, setSerieType] = useState(SERIES_TYPES.OBSERVADA);
     const [lowerThreshold, setLowerThreshold] = useState('');
     const [upperThreshold, setUpperThreshold] = useState('');
-    const [metrics, setMetrics] = useState(() => {
-        var metrics = {};
-        METRICS.forEach((metric) => metrics[metric] = false);
-        return metrics;
-    }) 
+    const [metrics, setMetrics] = useState(INITIAL_METRICS_STATE);
 
     const serie = {
         idSerie: idSerie,
@@ -127,9 +110,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         setRelatedObservedStreamID('');
         setSerieType(SERIES_TYPES.OBSERVADA);
         setCheckErrors(false);
-        var metrics = {};
-        METRICS.forEach((metric) => metrics[metric] = false);
-        setMetrics(metrics);
+        setMetrics(INITIAL_METRICS_STATE);
         setLowerThreshold('');
         setUpperThreshold('');
       }, [series]);
@@ -197,9 +178,9 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                 </RadioGroup>
                 <h4>Métricas</h4>
                 <FormGroup className='row'>
-                {METRICS.map(metrica => 
-                    <FormControlLabel label={metrica} key={metrica} 
-                        control={<Checkbox checked={metrics[metrica]} onChange={e => setMetrics((metrics) => ({...metrics, [metrica]: e.target.checked}))}/>}/>)}
+                {METRICS.map(metric => 
+                    <FormControlLabel label={metric} key={metric} 
+                        control={<Checkbox checked={metrics[metric]} onClick={e => setMetrics({...metrics, [metric]: e.target.checked})}/>}/>)}
                 </FormGroup>
                 <h4>Umbrales</h4>
                 <Box className='row'>

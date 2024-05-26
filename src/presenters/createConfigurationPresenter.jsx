@@ -119,7 +119,6 @@ export class CreateConfigurationPresenter {
     buildNodesFromConfiguration = (configuration) => {
         let nodes = [];
         configuration.Nodes.forEach((node, index) => nodes.push({"name": node.Name, "id": node.Id, "_id": index+1}))
-        console.log('nodesFromConfig: ', nodes)
         return nodes;
     }
 
@@ -152,7 +151,6 @@ export class CreateConfigurationPresenter {
             ));
 
         })
-        console.log(series);
         return series;
     }
 }
