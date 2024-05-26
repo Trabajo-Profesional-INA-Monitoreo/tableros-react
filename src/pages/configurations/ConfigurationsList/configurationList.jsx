@@ -63,18 +63,6 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
     return (
         <>
         <CurrentConfiguration/>
-            {isAdmin ?
-                <Button
-                    variant={configurations.length===0? "contained":"outlined"}
-                    sx={{
-                        position: "fixed",
-                        bottom: "30px",
-                        right: "20px",
-                    }}
-                    onClick={() => setCurrentView(CONFIGURATION_VIEWS.CREATE)}
-                >
-                    Agregar configuración
-                </Button> :<></>}
 
             {isLoading?
                 <CircularProgress 
@@ -147,6 +135,20 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
                             updateData={handleDelete}
                         />
                     ))}
+
+                {isAdmin ?
+                    <Button
+                        variant="contained"
+                        sx={{
+                            position: "fixed",
+                            bottom: "30px",
+                            right: "20px",
+                        }}
+                        onClick={() => setCurrentView(CONFIGURATION_VIEWS.CREATE)}
+                    >
+                        Agregar configuración
+                    </Button> :<></>}
+
                 </Box>
                 :
                     <>

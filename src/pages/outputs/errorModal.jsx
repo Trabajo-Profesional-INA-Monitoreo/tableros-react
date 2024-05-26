@@ -28,6 +28,7 @@ export const ErrorModal = ({open, onClose, errorType}) => {
 
     const [isLoading, setIsLoading] = useState(true);
     const [implicatedSeries, setImplicatedSeries] = useState([]);
+    const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 2});
 
     const getImplicatedSeries = async() => {
         const implicatedSeries = await presenter.getImplicatedSeries(errorType);
@@ -55,7 +56,7 @@ export const ErrorModal = ({open, onClose, errorType}) => {
                                 { field: 'StationId', headerName: 'ID Estación', width: 90 },
                                 { field: 'StationName', headerName: 'Nombre Estación', minWidth: 300, flex: 1 },
                                 { field: 'Ver', renderCell: (cellValues) => {
-                                    return <Button onClick={() => navigate('/series', {
+                                    return <Button onClick={() => navigate('/monitoreo/series', {
                                         state: {
                                           streamId: cellValues.row.StreamId,
                                         }
@@ -63,14 +64,9 @@ export const ErrorModal = ({open, onClose, errorType}) => {
                                 } }
                             ]
                         }
-                        initialState={{
-                            pagination: {
-                                paginationModel: {
-                                pageSize: 5,
-                                },
-                            },
-                        }}
-                        pageSizeOptions={[5]}
+                        pageSizeOptions={[2]}
+                        paginationModel={paginationModel}
+                        onPaginationModelChange={setPaginationModel}
                         disableRowSelectionOnClick
                    />
                 }

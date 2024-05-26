@@ -21,6 +21,7 @@ export const Inputs = () => {
     const presenter = new InputsPresenter();
     
     const [isLoading, setIsLoading] = useState(true);
+    const [retardos, setRetardos] = useState({})
     const [nulos, setNulos] = useState({});
     const [outliers, setOutliers] = useState({});
 
@@ -38,6 +39,10 @@ export const Inputs = () => {
             ...(desde) && {timeStart: dateParser(desde.toDate())},
             ...(hasta) && {timeEnd: dateParser(hasta.toDate())},
         }
+        let retardados = await presenter.getRetardados(params);
+        retardados.percentage= (retardados.TotalStreamsWithDelay*100)/retardados.TotalStreams 
+        setRetardos(retardados)
+
         let nulls = await presenter.getNulosEnSeries(params);
         nulls.percentage= (nulls.TotalStreamsWithNull*100)/nulls.TotalStreams 
         setNulos(nulls);
@@ -99,7 +104,7 @@ export const Inputs = () => {
                     <Box sx={{ display:"flex", flexDirection: 'row', justifyContent:"space-around", alignContent:"center", alignItems:"center", marginBottom:"5%"}}>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
                             <h3>Actualizaciones</h3>
-                            <CircularProgressWithLabel text="series no tuvieron retrasos" percentage={90} color="success"/>
+                            <CircularProgressWithLabel text="series tuvieron retrasos" percentage={retardos.percentage.toFixed(1)} color={retardos.percentage<30? "success": (retardos.percentage<60?"warning":"error")}/>
                         </Box>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
                             <h3>Datos Nulos</h3>
@@ -107,7 +112,7 @@ export const Inputs = () => {
                         </Box>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
                             <h3>Datos fuera de umbrales</h3>
-                            <CircularProgressWithLabel text="series con outliers" percentage={outliers.percentage.toFixed(1)} color={outliers.percentage<30? "success": (outliers.percentage<60?"warning":"error")}/>
+                            <CircularProgressWithLabel text="series fuera de umbrales" percentage={outliers.percentage.toFixed(1)} color={outliers.percentage<30? "success": (outliers.percentage<60?"warning":"error")}/>
                         </Box>
                     </Box>
             <Line/>

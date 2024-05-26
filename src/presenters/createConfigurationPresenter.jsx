@@ -142,7 +142,7 @@ export class CreateConfigurationPresenter {
                     actualizationFrequency: String(serie.UpdateFrequency),
                     serieType: String(serie.StreamType),
                     calibrationID: serie.CalibrationId !== 0 ? String(serie.CalibrationId) : '',
-                    redundantSeriesIDs: serie.redundanciesIds ? serie.redundanciesIds : [],
+                    redundantSeriesIDs: serie.RedundanciesIds ? serie.RedundanciesIds : [],
                     metrics: serie.Metrics ? buildMetricsFromConfiguration(serie.Metrics) : INITIAL_METRICS_STATE,
                     checkErrors: serie.CheckErrors,
                     lowerThreshold: serie.LowerThreshold ? String(serie.LowerThreshold) : '',

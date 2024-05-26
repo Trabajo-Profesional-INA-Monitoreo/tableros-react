@@ -24,7 +24,8 @@ export const Series = () => {
 
     const [_streamId, _setStreamId] = useState(location?.state?.streamId ? location?.state?.streamId : '');
     const [streamId, setStreamId] = useState(location?.state?.streamId ? location?.state?.streamId : '');
-    const [station, setStation] = useState(null);
+    const [station, setStation] = useState(location?.state?.stationId ? location?.state?.stationId : null);
+    const [node, setNode] = useState(location?.state?.nodeId ? location?.state?.nodeId : null);
     const [procedure, setProcedure] = useState(null);
     const [variable, setVariable] = useState(null);
     const [timeoutId, setTimeoutId] = useState(null);
@@ -32,12 +33,14 @@ export const Series = () => {
     const [stations, setStations] = useState([]);
     const [procedures, setProcedures] = useState([]);
     const [variables, setVariables] = useState([]);
+    const [nodes, setNodes] = useState([]);
 
     const [series, setSeries] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
 
     const [modalId, setModalId] = useState(null);
+
     const getAllStationNames = async() => {
         const stationNames = await stationsPresenter.getAllStationsNames();
         setStations(stationNames);
@@ -47,9 +50,15 @@ export const Series = () => {
         const variables = await utilsPresenter.getAllVariables();
         setVariables(variables);
     }
+
     const getAllProcedures = async() => {
         const procedures = await utilsPresenter.getAllProcedures();
         setProcedures(procedures);
+    }
+
+    const getAllNodes = async() => {
+        const nodes = await utilsPresenter.getAllNodes();
+        setNodes(nodes);
     }
 
 	const getSeriePage = async(params) => {
@@ -65,6 +74,7 @@ export const Series = () => {
 			...(station) && {stationId:station},
 			...(procedure) && {procId: procedure},
 			...(variable) && {varId: variable},
+            ...(node) && {nodeId: node},
             ...(Number(streamId)) && {streamId: streamId},
 		}
     }
@@ -72,39 +82,32 @@ export const Series = () => {
 	useEffect(() => {
 		getAllStationNames();
 		getAllVariables();
+        getAllNodes();
 		getAllProcedures();
         const streamId = location?.state?.streamId;
         if (streamId) setStreamId(streamId); 
 	}, []);
 
 	useEffect(() => {
-        const params = {
-			configurationId: getConfigurationID(),
-			...(station) && {stationId:station},
-			...(procedure) && {procId: procedure},
-			...(variable) && {varId: variable},
-            ...(Number(streamId)) && {streamId: streamId},
-		}
 		setIsLoading(true);
-		getSeriePage(params);
-	}, [variable, station, procedure, streamId]);
+		getSeriePage(buildParams());
+	}, [variable, station, procedure, node, streamId]);
 
     const handleChangeStreamId = newStreamId => {
         _setStreamId(newStreamId);
-        if (timeoutId) clearTimeout(timeoutId);
-        const _timeoutId = setTimeout(() => setStreamId(newStreamId), 1000);
-        setTimeoutId(_timeoutId);
     }
 
     const handleDeleteFilters = () => {
         setStation(null)
         setProcedure(null)
         setVariable(null)
+        setNode(null)
         setStreamId('')
+        _setStreamId('')
     }
 
     return (
-      <>
+    <>
 		<h1> Series </h1>
         <CurrentConfiguration/>
         <Line/>
@@ -115,6 +118,11 @@ export const Series = () => {
                                 label='Serie ID'
                                 value={_streamId}
                                 onChange={e => handleChangeStreamId(e.target.value)}
+                                onKeyDown={(ev) => {
+                                    if (ev.key === 'Enter') {
+                                        setStreamId(ev.target.value)
+                                    }
+                                }}
                                 sx={{m: 1}}
                             />
                             <SelectComponent 
@@ -132,6 +140,11 @@ export const Series = () => {
                                 currentValue={station} 
                                 setCurrentValue={setStation} 
                                 possibleValues={stations}/>
+                            <SelectComponent 
+                                label={'Nodos'} 
+                                currentValue={node} 
+                                setCurrentValue={setNode} 
+                                possibleValues={nodes}/>
 							<Button sx={{alignSelf: 'center'}} variant="contained" onClick={()=>handleDeleteFilters()}>
                                 Borrar filtros
                             </Button>
@@ -157,8 +170,7 @@ export const Series = () => {
                             serieType={serie.StreamType} 
                             calibrationId={serie.CalibrationId}/>
                     ))}
-            
-                <PaginationComponent page={page} setPage={setPage} totalPages={totalPages} func={ seriesPresenter.getSeriePage} params={buildParams()} setterData={setSeries}/>
+                <PaginationComponent totalPages={totalPages} func={ seriesPresenter.getSeriePage} params={buildParams()} setterData={setSeries} isStation={false}/>
             </>
             }
         </>

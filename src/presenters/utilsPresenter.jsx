@@ -12,4 +12,8 @@ export class UtilsPresenter {
         return this.utilsService.getAllProcedures();
     }
 
+    getAllNodes = async() => {
+        return this.utilsService.getAllNodes();
+    }
+
 }

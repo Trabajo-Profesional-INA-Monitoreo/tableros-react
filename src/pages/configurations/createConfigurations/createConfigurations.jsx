@@ -18,10 +18,10 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { CONFIGURATION_VIEWS } from "../configuraciones";
 import { CreateConfigurationPresenter } from "../../../presenters/createConfigurationPresenter";
-import { METRICS, SERIES_TYPES } from "../../../utils/constants";
+import { METRICS, SERIES_TYPES, STREAM_TYPE_CODE_INVERSE } from "../../../utils/constants";
 import './createConfigurations.css';
 import { notifySuccess } from "../../../utils/notification";
-import { setConfigurationID } from "../../../utils/storage";
+import { formatMinutes } from "../../../utils/dates";
 
 export const CreateConfigurations = ({setCurrentView, configurationID, editable}) => {
 
@@ -166,7 +166,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                             {nodes.map((node, index) => <MenuItem key={node._id} value={node._id}>{`${index+1} - ${node.name}`}</MenuItem>)}
                         </Select>
                     </FormControl>
-                    <Box sx={{minWidth: 220}}><TextField fullWidth type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)} helperText="En minutos"/></Box>               
+                    <Box sx={{minWidth: 100}}><TextField fullWidth type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)} helperText="En minutos"/></Box>               
                 </Box>
                 <h4>Tipo de serie</h4>
                 <RadioGroup className='row' value={serieType} onChange={e => handleChangeSerieType(e)}>
@@ -175,7 +175,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                 </RadioGroup>
                 <Box className='row'>
                     <TextField label='ID Serie Redundante' type='number' value={redundantSerieID} onChange={e => setRedundantSerieID(e.target.value)} disabled={serieType !== SERIES_TYPES.OBSERVADA}/>
-                    <IconButton style={{display: serieType === SERIES_TYPES.OBSERVADA ? 'block' : 'none'}} size='large' onClick={() => { setRedundantSeriesIDs([...redundantSeriesIDs, redundantSerieID]); setRedundantSerieID('')}}>
+                    <IconButton style={{display: serieType === SERIES_TYPES.OBSERVADA ? 'block' : 'none'}} size='large' onClick={() => { setRedundantSeriesIDs([...redundantSeriesIDs, parseInt(redundantSerieID)]); setRedundantSerieID('')}}>
                         <AddCircleOutlineIcon color='primary'/>
                     </IconButton>
                 </Box>
@@ -221,7 +221,6 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
 
 
 const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) => {
-    
     const [openedPopOverIndex, setOpenedPopOverIndex] = useState(null);
     const [anchorEl, setAnchorEl] = useState(null);
 
@@ -262,14 +261,16 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
                         onClose={() => setAnchorEl(null)}
                         disableRestoreFocus
                     >
-                        {popOverRow('Frecuencia de actualizacion: ' + serie.actualizationFrequency)}
-                        {popOverRow('Tipo de serie: ' + serie.serieType)}
+                        {popOverRow('Frecuencia de actualización: ' + formatMinutes(Number(serie.actualizationFrequency)) )}
+                        {popOverRow('Tipo de serie: ' + STREAM_TYPE_CODE_INVERSE[serie.serieType])}
                         {popOverRow('Incluir validacion de errores: ' + (serie.checkErrors ? 'Sí' : 'No'))}
                         {metrics(serie).length > 0 ? popOverRow('Métricas: ' +  metrics(serie)) : null}
                         {serie.redundantSeriesIDs.length > 0? popOverRow('ID Series Redundantes: ' + serie.redundantSeriesIDs) : null}
                         {serie.calibrationID !== '' ? popOverRow('ID Calibrado: ' + serie.calibrationID) : null}
-                        {serie.relatedObservedStreamID !== '' ? popOverRow('ID Serie Observada asociada: ' + serie.relatedObservedStreamID) : null}
+                        {!!serie.relatedObservedStreamID ? popOverRow('ID Serie Observada asociada: ' + serie.relatedObservedStreamID) : null}
                         {serie.lowerThreshold !== '' && serie.upperThreshold !== '' ? popOverRow('Umbrales: ' + serie.lowerThreshold + ', ' + serie.upperThreshold): null}
+                        {serie.RedundanciesIds && serie.popOverRow(`Series redundantes: ' + ${serie.RedundanciesIds}`)}
+
                     </Popover>
                 </Box>)}
             </Box>
