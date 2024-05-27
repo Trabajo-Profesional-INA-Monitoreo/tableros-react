@@ -81,6 +81,9 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         setCalibrationID('');
         setRelatedObservedStreamID('');
         setSerieType(e.target.value);
+        if (e.target.value === SERIES_TYPES.SIMULADA) {
+            setCheckErrors(false);
+        }
     }
 
     const getConfiguration = async () => {
@@ -173,8 +176,8 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                 </Box>
                 <h4>¿Incluir validación de errores?</h4>
                 <RadioGroup className='row' value={checkErrors} onChange={e => setCheckErrors(e.target.value)}>
-                    <FormControlLabel label={'No'} value={false} control={<Radio/>}/>
-                    <FormControlLabel label={'Sí'} value={true} control={<Radio/>}/>
+                    <FormControlLabel label={'No'} value={false} control={<Radio/>} disabled={serieType === SERIES_TYPES.SIMULADA}/>
+                    <FormControlLabel label={'Sí'} value={true} control={<Radio/>} disabled={serieType === SERIES_TYPES.SIMULADA}/>
                 </RadioGroup>
                 <h4>Métricas</h4>
                 <FormGroup className='row'>

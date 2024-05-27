@@ -78,7 +78,7 @@ const style = {
   
   const valueFormatter = (value) => `${value}h`;
 
-export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId, configuredSerieId}) => {
+export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId, configuredSerieId, checkErrors}) => {
 
   const presenter = new SeriesPresenter();
 
@@ -209,7 +209,8 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
           getErrors={async(page, pageSize) => {
             const _serieErrors = await presenter.getSerieErrors(configuredSerieId, startDate, endDate, page + 1, pageSize);
             setSerieErrors(_serieErrors);
-          }}/>
+          }}
+          checkErrors={checkErrors}/>
         </div>
       </Box>
       }
@@ -391,7 +392,7 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
   )
 }
 
-const ErrorTable = ({serieErrors, getErrors}) => {
+const ErrorTable = ({serieErrors, getErrors, checkErrors}) => {
 
   const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 15})
 
@@ -401,32 +402,40 @@ const ErrorTable = ({serieErrors, getErrors}) => {
 
   return (
   <>
-    <Line/>
-    <Typography variant="h6" align='center' sx={{mb: 2}}><b>Errores detectados</b></Typography>
-
-    {serieErrors.Content.length > 0 ? 
+    {checkErrors && (serieErrors.Content.length > 0) ?
+      <>
+        <Line/>
+        <Typography variant="h6" align='center' sx={{mb: 2}}><b>Errores detectados</b></Typography>
         <DataGrid
-        rows= {serieErrors.Content.map(error => ({...error, id:error.ErrorId}))}
-        getRowHeight={() => 'auto'} 
-        columns={
-            [
-              { field: 'ErrorTypeName', headerName: 'Tipo', width: 100, renderCell: (params) => {
-                return ERROR_TYPE_CODE[params.value];
-              }},
-              { field: 'DetectedDate', headerName: 'Fecha', width: 100, renderCell: (params) => {
-                return params.value.replace('T', ' ').slice(0, 16);
-              }},
-              { field: 'ExtraInfo', headerName: 'Informacion extra', minWidth: 250, flex: 1}
-            ]
-        }
-        rowCount={serieErrors.Pageable.TotalElements}
-        pageSizeOptions={[15]}
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        paginationMode="server"
-        disableRowSelectionOnClick
-    /> 
-    : <Typography align='center'sx={{marginLeft: 'auto', marginRight: 'auto'}}> No se detectaron errores para esta serie </Typography>}
+          rows= {serieErrors.Content.map(error => ({...error, id:error.ErrorId}))}
+          getRowHeight={() => 'auto'} 
+          columns={
+              [
+                { field: 'ErrorTypeName', headerName: 'Tipo', width: 100, renderCell: (params) => {
+                  return ERROR_TYPE_CODE[params.value];
+                }},
+                { field: 'DetectedDate', headerName: 'Fecha', width: 100, renderCell: (params) => {
+                  return params.value.replace('T', ' ').slice(0, 16);
+                }},
+                { field: 'ExtraInfo', headerName: 'Informacion extra', minWidth: 250, flex: 1}
+              ]
+          }
+          rowCount={serieErrors.Pageable.TotalElements}
+          pageSizeOptions={[15]}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          paginationMode="server"
+          disableRowSelectionOnClick
+      />
+    </>
+    : checkErrors && (serieErrors.Content.length === 0) ?
+      <>
+        <Line/>
+        <Typography variant="h6" align='center' sx={{mb: 2}}><b>Errores detectados</b></Typography>
+        <Typography align='center'sx={{marginLeft: 'auto', marginRight: 'auto'}}> No se detectaron errores para esta serie </Typography>
+      </>
+    : null
+    }
   </>
   )
 }

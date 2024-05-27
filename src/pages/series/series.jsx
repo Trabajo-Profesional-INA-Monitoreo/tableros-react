@@ -28,7 +28,6 @@ export const Series = () => {
     const [node, setNode] = useState(location?.state?.nodeId ? location?.state?.nodeId : null);
     const [procedure, setProcedure] = useState(null);
     const [variable, setVariable] = useState(null);
-    const [timeoutId, setTimeoutId] = useState(null);
 
     const [stations, setStations] = useState([]);
     const [procedures, setProcedures] = useState([]);
@@ -162,15 +161,17 @@ export const Series = () => {
                         </Grid>
                     </Container>
                     {series.map((serie) => (
-                        <SerieModal 
-                            open={serie.ConfiguredStreamId === modalId} 
-                            handleClose={() => setModalId(null)} 
-                            serieId={serie.StreamId} 
-                            configuredSerieId={serie.ConfiguredStreamId} 
-                            serieType={serie.StreamType} 
-                            calibrationId={serie.CalibrationId}/>
+                        <SerieModal
+                            open={serie.ConfiguredStreamId === modalId}
+                            handleClose={() => setModalId(null)}
+                            serieId={serie.StreamId}
+                            configuredSerieId={serie.ConfiguredStreamId}
+                            serieType={serie.StreamType}
+                            calibrationId={serie.CalibrationId}
+                            checkErrors={serie.CheckErrors}
+                            />
                     ))}
-                <PaginationComponent totalPages={totalPages} func={ seriesPresenter.getSeriePage} params={buildParams()} setterData={setSeries} isStation={false}/>
+                <PaginationComponent totalPages={totalPages} func={seriesPresenter.getSeriePage} params={buildParams()} setterData={setSeries} isStation={false}/>
             </>
             }
         </>
