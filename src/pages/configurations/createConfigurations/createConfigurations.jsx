@@ -24,6 +24,9 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const [idSerie, setIdSerie] = useState('');
     const [checkErrors, setCheckErrors] = useState(false);
     const [actualizationFrequency, setActualizationFrequency] = useState('');
+    const [days, setDays] = useState('0');
+    const [hours, setHours] = useState('0');
+    const [minutes, setMinutes] = useState('0');
     const [redundantSerieID, setRedundantSerieID] = useState('');
     const [redundantSeriesIDs, setRedundantSeriesIDs] = useState([]);
     const [calibrationID, setCalibrationID] = useState('');
@@ -31,7 +34,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const [serieType, setSerieType] = useState(SERIES_TYPES.OBSERVADA);
     const [lowerThreshold, setLowerThreshold] = useState('');
     const [upperThreshold, setUpperThreshold] = useState('');
-    const [metrics, setMetrics] = useState(INITIAL_METRICS_STATE);
+    const [metrics, setMetrics] = useState(INITIAL_METRICS_STATE());
 
     const serie = {
         idSerie: idSerie,
@@ -113,7 +116,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         setRelatedObservedStreamID('');
         setSerieType(SERIES_TYPES.OBSERVADA);
         setCheckErrors(false);
-        setMetrics(INITIAL_METRICS_STATE);
+        setMetrics(INITIAL_METRICS_STATE());
         setLowerThreshold('');
         setUpperThreshold('');
       }, [series]);
@@ -150,7 +153,12 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                             {nodes.map((node, index) => <MenuItem key={node._id} value={node._id}>{`${index+1} - ${node.name}`}</MenuItem>)}
                         </Select>
                     </FormControl>
-                    <Box sx={{minWidth: 100}}><TextField fullWidth type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)} helperText="En minutos"/></Box>               
+                </Box>
+                <h4>Frecuencia de actualización</h4>
+                <Box className='row-textfields'>
+                    <TextField inputProps={{max:10, min: 0, step: 1}} onKeyDown={(e) => false} type='number' label='Días' value={days} onChange={e => setDays(e.target.value)} style={{width: '30%'}}/>
+                    <TextField type='number' label='Horas' value={hours} onChange={e => setHours(e.target.value)} style={{width: '30%'}}/>
+                    <TextField type='number' label='Minutos' value={minutes} onChange={e => setMinutes(e.target.value)} style={{width: '30%'}}/>
                 </Box>
                 <h4>Tipo de serie</h4>
                 <RadioGroup className='row' value={serieType} onChange={e => handleChangeSerieType(e)}>
