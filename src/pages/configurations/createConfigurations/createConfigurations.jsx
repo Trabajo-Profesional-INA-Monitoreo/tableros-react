@@ -1,27 +1,14 @@
-import { useState, useEffect } from "react";
-import { Box, Button, TextField } from '@mui/material';
-import FormGroup from '@mui/material/FormGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import React from 'react';
+import { React, useState, useEffect } from "react";
+import { Box, Button, TextField, FormGroup, FormControlLabel, Checkbox, Radio, RadioGroup, InputLabel, MenuItem, FormControl, Select, Popover, Typography, IconButton } from '@mui/material';
 import Line from '../../../components/line/line';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import Popover from '@mui/material/Popover';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { CONFIGURATION_VIEWS } from "../configuraciones";
 import { CreateConfigurationPresenter } from "../../../presenters/createConfigurationPresenter";
-import { METRICS, SERIES_TYPES, STREAM_TYPE_CODE_INVERSE } from "../../../utils/constants";
-import './createConfigurations.css';
+import { METRICS, SERIES_TYPES, STREAM_TYPE_CODE_INVERSE, INITIAL_METRICS_STATE } from "../../../utils/constants";
 import { notifySuccess } from "../../../utils/notification";
 import { formatMinutes } from "../../../utils/dates";
+import './createConfigurations.css';
 
 export const CreateConfigurations = ({setCurrentView, configurationID, editable}) => {
 
@@ -37,6 +24,9 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const [idSerie, setIdSerie] = useState('');
     const [checkErrors, setCheckErrors] = useState(false);
     const [actualizationFrequency, setActualizationFrequency] = useState('');
+    const [days, setDays] = useState('0');
+    const [hours, setHours] = useState('0');
+    const [minutes, setMinutes] = useState('0');
     const [redundantSerieID, setRedundantSerieID] = useState('');
     const [redundantSeriesIDs, setRedundantSeriesIDs] = useState([]);
     const [calibrationID, setCalibrationID] = useState('');
@@ -44,11 +34,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const [serieType, setSerieType] = useState(SERIES_TYPES.OBSERVADA);
     const [lowerThreshold, setLowerThreshold] = useState('');
     const [upperThreshold, setUpperThreshold] = useState('');
-    const [metrics, setMetrics] = useState(() => {
-        var metrics = {};
-        METRICS.forEach((metric) => metrics[metric] = false);
-        return metrics;
-    }) 
+    const [metrics, setMetrics] = useState(INITIAL_METRICS_STATE());
 
     const serie = {
         idSerie: idSerie,
@@ -98,6 +84,9 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         setCalibrationID('');
         setRelatedObservedStreamID('');
         setSerieType(e.target.value);
+        if (e.target.value === SERIES_TYPES.SIMULADA) {
+            setCheckErrors(false);
+        }
     }
 
     const getConfiguration = async () => {
@@ -127,12 +116,20 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         setRelatedObservedStreamID('');
         setSerieType(SERIES_TYPES.OBSERVADA);
         setCheckErrors(false);
-        var metrics = {};
-        METRICS.forEach((metric) => metrics[metric] = false);
-        setMetrics(metrics);
+        setMetrics(INITIAL_METRICS_STATE());
         setLowerThreshold('');
         setUpperThreshold('');
       }, [series]);
+
+    const _setHours = (hours) => {
+        if (0 <= Number(hours) && Number(hours) <= 24) {
+            setHours(hours);
+        } else if (Number(hours) > 24) {
+            setHours(24);
+        } else {
+            setHours(0);
+        }
+    }
 
     return (
         <>
@@ -166,8 +163,9 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                             {nodes.map((node, index) => <MenuItem key={node._id} value={node._id}>{`${index+1} - ${node.name}`}</MenuItem>)}
                         </Select>
                     </FormControl>
-                    <Box sx={{minWidth: 100}}><TextField fullWidth type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)} helperText="En minutos"/></Box>               
                 </Box>
+                <h4>Frecuencia de actualización</h4>
+                <Box sx={{minWidth: 100}}><TextField fullWidth type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)} helperText="En minutos"/></Box>
                 <h4>Tipo de serie</h4>
                 <RadioGroup className='row' value={serieType} onChange={e => handleChangeSerieType(e)}>
                     {Object.keys(SERIES_TYPES).map(key =>
@@ -192,14 +190,14 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                 </Box>
                 <h4>¿Incluir validación de errores?</h4>
                 <RadioGroup className='row' value={checkErrors} onChange={e => setCheckErrors(e.target.value)}>
-                    <FormControlLabel label={'No'} value={false} control={<Radio/>}/>
-                    <FormControlLabel label={'Sí'} value={true} control={<Radio/>}/>
+                    <FormControlLabel label={'No'} value={false} control={<Radio/>} disabled={serieType === SERIES_TYPES.SIMULADA}/>
+                    <FormControlLabel label={'Sí'} value={true} control={<Radio/>} disabled={serieType === SERIES_TYPES.SIMULADA}/>
                 </RadioGroup>
                 <h4>Métricas</h4>
                 <FormGroup className='row'>
-                {METRICS.map(metrica => 
-                    <FormControlLabel label={metrica} key={metrica} 
-                        control={<Checkbox checked={metrics[metrica]} onChange={e => setMetrics((metrics) => ({...metrics, [metrica]: e.target.checked}))}/>}/>)}
+                {METRICS.map(metric => 
+                    <FormControlLabel label={metric} key={metric} 
+                        control={<Checkbox checked={metrics[metric]} onClick={e => setMetrics({...metrics, [metric]: e.target.checked})}/>}/>)}
                 </FormGroup>
                 <h4>Umbrales</h4>
                 <Box className='row'>

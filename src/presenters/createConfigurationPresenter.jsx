@@ -119,7 +119,6 @@ export class CreateConfigurationPresenter {
     buildNodesFromConfiguration = (configuration) => {
         let nodes = [];
         configuration.Nodes.forEach((node, index) => nodes.push({"name": node.Name, "id": node.Id, "_id": index+1}))
-        console.log('nodesFromConfig: ', nodes)
         return nodes;
     }
 
@@ -127,7 +126,7 @@ export class CreateConfigurationPresenter {
         let series = [];
 
         const buildMetricsFromConfiguration = (metricIDs) => {
-            let metrics = INITIAL_METRICS_STATE;
+            let metrics = INITIAL_METRICS_STATE();
             metricIDs.forEach(metricID => metrics[METRICS_CODE_INVERSE[metricID]] = true);
             return metrics;
         }
@@ -143,7 +142,7 @@ export class CreateConfigurationPresenter {
                     serieType: String(serie.StreamType),
                     calibrationID: serie.CalibrationId !== 0 ? String(serie.CalibrationId) : '',
                     redundantSeriesIDs: serie.RedundanciesIds ? serie.RedundanciesIds : [],
-                    metrics: serie.Metrics ? buildMetricsFromConfiguration(serie.Metrics) : INITIAL_METRICS_STATE,
+                    metrics: serie.Metrics ? buildMetricsFromConfiguration(serie.Metrics) : INITIAL_METRICS_STATE(),
                     checkErrors: serie.CheckErrors,
                     lowerThreshold: serie.LowerThreshold ? String(serie.LowerThreshold) : '',
                     upperThreshold: serie.upperThreshold ? String(serie.UpperThreshold) : ''
@@ -152,7 +151,6 @@ export class CreateConfigurationPresenter {
             ));
 
         })
-        console.log(series);
         return series;
     }
 }

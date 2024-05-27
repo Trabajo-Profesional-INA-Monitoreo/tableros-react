@@ -4,7 +4,7 @@ export const STREAM_TYPE_CODE = {'Observada': 0, 'Pronosticada': 1, 'Simulada': 
 export const STREAM_TYPE_CODE_INVERSE = {0: 'Observada', 1: 'Pronosticada', 2: 'Simulada'};
 export const METRICS_CODE = {'Mediana': 0, 'Media': 1, 'Máximo': 2, 'Mínimo': 3, '% Nulos': 4};
 export const METRICS_CODE_INVERSE = {0: 'Mediana', 1: 'Media', 2: 'Máximo', 3: 'Mínimo', 4: '% Nulos'};
-export const INITIAL_METRICS_STATE = {'Mediana': false, 'Media': false, 'Máximo': false, 'Mínimo': false, '% Nulos': false};
+export const INITIAL_METRICS_STATE = () => ({'Mediana': false, 'Media': false, 'Máximo': false, 'Mínimo': false, '% Nulos': false});
 export const ERROR_TYPE_CODE = {
     'NullValue': 'Valores nulos',
     'Missing4DaysHorizon': 'Falta de horizonte a 4 dias',
