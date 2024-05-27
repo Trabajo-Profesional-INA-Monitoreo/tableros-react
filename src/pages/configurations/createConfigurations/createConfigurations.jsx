@@ -121,6 +121,16 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         setUpperThreshold('');
       }, [series]);
 
+    const _setHours = (hours) => {
+        if (0 <= Number(hours) && Number(hours) <= 24) {
+            setHours(hours);
+        } else if (Number(hours) > 24) {
+            setHours(24);
+        } else {
+            setHours(0);
+        }
+    }
+
     return (
         <>
         <Box className='row'>
@@ -155,11 +165,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                     </FormControl>
                 </Box>
                 <h4>Frecuencia de actualización</h4>
-                <Box className='row-textfields'>
-                    <TextField inputProps={{max:10, min: 0, step: 1}} onKeyDown={(e) => false} type='number' label='Días' value={days} onChange={e => setDays(e.target.value)} style={{width: '30%'}}/>
-                    <TextField type='number' label='Horas' value={hours} onChange={e => setHours(e.target.value)} style={{width: '30%'}}/>
-                    <TextField type='number' label='Minutos' value={minutes} onChange={e => setMinutes(e.target.value)} style={{width: '30%'}}/>
-                </Box>
+                <Box sx={{minWidth: 100}}><TextField fullWidth type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)} helperText="En minutos"/></Box>
                 <h4>Tipo de serie</h4>
                 <RadioGroup className='row' value={serieType} onChange={e => handleChangeSerieType(e)}>
                     {Object.keys(SERIES_TYPES).map(key =>
