@@ -98,8 +98,8 @@ export class CreateConfigurationPresenter {
                         updateFrequency: Number(serie.actualizationFrequency),
                         forecastedRangeHours: Number(serie.forecastedRangeHours) === 0 ? null : Number(serie.forecastedRangeHours),
                         checkErrors: Boolean(serie.checkErrors),
-                        upperThreshold: Number(serie.upperThreshold) ? Number(serie.calibrationID) : null,
-                        lowerThreshold: Number(serie.lowerThreshold) ? Number(serie.calibrationID) : null,
+                        upperThreshold: Number(serie.upperThreshold) ? Number(serie.upperThreshold) : null,
+                        lowerThreshold: Number(serie.lowerThreshold) ? Number(serie.lowerThreshold) : null,
                         calibrationId: Number(serie.calibrationID) ? Number(serie.calibrationID) : null,
                         relatedObservedStreamId: Number(serie.relatedObservedStreamID) ? Number(serie.relatedObservedStreamID) : null,
                         redundanciesIds: serie.redundantSeriesIDs,
@@ -113,7 +113,7 @@ export class CreateConfigurationPresenter {
             })
         })
         console.log(configuration)
-        //return configuration;
+        return configuration;
     }
 
     getConfiguration = async(id) => {
@@ -150,7 +150,7 @@ export class CreateConfigurationPresenter {
                     metrics: serie.Metrics ? buildMetricsFromConfiguration(serie.Metrics) : INITIAL_METRICS_STATE(),
                     checkErrors: serie.CheckErrors,
                     lowerThreshold: serie.LowerThreshold ? String(serie.LowerThreshold) : '',
-                    upperThreshold: serie.upperThreshold ? String(serie.UpperThreshold) : ''
+                    upperThreshold: serie.UpperThreshold ? String(serie.UpperThreshold) : ''
                 }
             )
             ));

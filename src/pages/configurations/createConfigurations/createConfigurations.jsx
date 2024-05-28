@@ -313,7 +313,7 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
                     >
                         {popOverRow('Frecuencia de actualización: ' + formatMinutes(Number(serie.actualizationFrequency)) )}
                         {popOverRow('Tipo de serie: ' + serie.serieType)}
-                        {popOverRow('Incluir validacion de errores: ' + (serie.checkErrors ? 'Sí' : 'No'))}
+                        {popOverRow('Incluir validación de errores: ' + (serie.checkErrors ? 'Sí' : 'No'))}
                         {serie.forecastedRangeHours ? popOverRow('Rango de pronóstico: ' + formatMinutes(Number(serie.forecastedRangeHours * 60)) ) : null}
                         {metrics(serie).length > 0 ? popOverRow('Métricas: ' +  metrics(serie)) : null}
                         {serie.redundantSeriesIDs.length > 0? popOverRow('ID Series Redundantes: ' + serie.redundantSeriesIDs) : null}
