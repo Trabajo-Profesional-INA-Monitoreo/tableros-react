@@ -1,5 +1,5 @@
 import configurationService from "../services/configurationService";
-import { STREAM_TYPE_CODE, SERIES_TYPES, METRICS_CODE, INITIAL_METRICS_STATE, METRICS_CODE_INVERSE } from "../utils/constants"
+import { STREAM_TYPE_CODE, STREAM_TYPE_CODE_INVERSE, SERIES_TYPES, METRICS_CODE, INITIAL_METRICS_STATE, METRICS_CODE_INVERSE } from "../utils/constants"
 import { notifyError } from "../utils/notification";
 
 export class CreateConfigurationPresenter {
@@ -22,11 +22,14 @@ export class CreateConfigurationPresenter {
         } else if (!stream._idNode) {
             notifyError("Indiqué a que nodo debe pertenecer la serie");
             isValidStream = false;
-        } else if (stream.actualizationFrequency === '') {
+        } else if (stream.actualizationFrequency === 0) {
             notifyError("La frecuencia de actualización de la serie es necesaria");
             isValidStream = false;
         } else if (stream.serieType === SERIES_TYPES.PRONOSTICADA && stream.calibrationID === '') {
             notifyError("El ID de calibracion es necesario en las series pronosticadas");
+            isValidStream = false;
+        } else if (stream.serieType === SERIES_TYPES.PRONOSTICADA && stream.forecastedRangeHours === 0) {
+            notifyError("El ID rango de pronóstico es necesario en las series pronosticadas");
             isValidStream = false;
         } else if (stream.lowerThreshold !== '' && stream.upperThreshold !== '' && Number(stream.lowerThreshold) >= Number(stream.upperThreshold)) {
             notifyError("El umbral inferior debe ser menor al umbral superior");
@@ -76,7 +79,6 @@ export class CreateConfigurationPresenter {
     }
     
     buildConfigurationBody = (configurationName, nodes, series, notificaciones, configurationId, isPut) => {
-        console.log(nodes);
         var configuration = {};
         configuration['name'] = configurationName;
         if (isPut && configurationId) {
@@ -94,6 +96,7 @@ export class CreateConfigurationPresenter {
                         streamId: Number(serie.idSerie),
                         streamType: STREAM_TYPE_CODE[serie.serieType],
                         updateFrequency: Number(serie.actualizationFrequency),
+                        forecastedRangeHours: Number(serie.forecastedRangeHours) === 0 ? null : Number(serie.forecastedRangeHours),
                         checkErrors: Boolean(serie.checkErrors),
                         upperThreshold: Number(serie.upperThreshold) ? Number(serie.calibrationID) : null,
                         lowerThreshold: Number(serie.lowerThreshold) ? Number(serie.calibrationID) : null,
@@ -109,7 +112,8 @@ export class CreateConfigurationPresenter {
                 }
             })
         })
-        return configuration;
+        console.log(configuration)
+        //return configuration;
     }
 
     getConfiguration = async(id) => {
@@ -139,7 +143,8 @@ export class CreateConfigurationPresenter {
                     idNode: Number(node.Id),
                     _idNode: index + 1,
                     actualizationFrequency: String(serie.UpdateFrequency),
-                    serieType: String(serie.StreamType),
+                    forecastedRangeHours: serie.ForecastedRangeHours ? Number(serie.ForecastedRangeHours) : null,
+                    serieType: STREAM_TYPE_CODE_INVERSE[serie.StreamType],
                     calibrationID: serie.CalibrationId !== 0 ? String(serie.CalibrationId) : '',
                     redundantSeriesIDs: serie.RedundanciesIds ? serie.RedundanciesIds : [],
                     metrics: serie.Metrics ? buildMetricsFromConfiguration(serie.Metrics) : INITIAL_METRICS_STATE(),
@@ -151,6 +156,7 @@ export class CreateConfigurationPresenter {
             ));
 
         })
+        console.log(series);
         return series;
     }
 }

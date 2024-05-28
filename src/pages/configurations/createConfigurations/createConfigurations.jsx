@@ -7,7 +7,7 @@ import { CONFIGURATION_VIEWS } from "../configuraciones";
 import { CreateConfigurationPresenter } from "../../../presenters/createConfigurationPresenter";
 import { METRICS, SERIES_TYPES, STREAM_TYPE_CODE_INVERSE, INITIAL_METRICS_STATE } from "../../../utils/constants";
 import { notifySuccess } from "../../../utils/notification";
-import { formatMinutes, convertToMinutes } from "../../../utils/dates";
+import { formatMinutes, convertToMinutes, convertToHours } from "../../../utils/dates";
 import './createConfigurations.css';
 
 export const CreateConfigurations = ({setCurrentView, configurationID, editable}) => {
@@ -23,13 +23,15 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const [_idNode, _setIdNode] = useState('');
     const [idSerie, setIdSerie] = useState('');
     const [checkErrors, setCheckErrors] = useState(false);
-    const [days, setDays] = useState('0');
-    const [hours, setHours] = useState('0');
-    const [minutes, setMinutes] = useState('0');
+    const [days, setDays] = useState(0);
+    const [hours, setHours] = useState(0);
+    const [minutes, setMinutes] = useState(0);
     const [redundantSerieID, setRedundantSerieID] = useState('');
     const [redundantSeriesIDs, setRedundantSeriesIDs] = useState([]);
     const [calibrationID, setCalibrationID] = useState('');
     const [relatedObservedStreamID, setRelatedObservedStreamID] = useState('');
+    const [forecastDays, setForecastDays] = useState(0);
+    const [forecastHours, setForecastHours] = useState(0);
     const [serieType, setSerieType] = useState(SERIES_TYPES.OBSERVADA);
     const [lowerThreshold, setLowerThreshold] = useState('');
     const [upperThreshold, setUpperThreshold] = useState('');
@@ -43,6 +45,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         calibrationID: calibrationID,
         relatedObservedStreamID: relatedObservedStreamID,
         redundantSeriesIDs: redundantSeriesIDs,
+        forecastedRangeHours: convertToHours(forecastDays, forecastHours),
         metrics: metrics,
         checkErrors: checkErrors,
         lowerThreshold: lowerThreshold,
@@ -83,6 +86,8 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         setCalibrationID('');
         setRelatedObservedStreamID('');
         setSerieType(e.target.value);
+        setForecastDays(0);
+        setForecastHours(0);
         if (e.target.value === SERIES_TYPES.SIMULADA) {
             setCheckErrors(false);
         }
@@ -108,11 +113,13 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     useEffect(() => {
         setIdSerie('');
         _setIdNode('');
-        setDays('0');
-        setHours('0');
-        setMinutes('0');
+        setDays(0);
+        setHours(0);
+        setMinutes(0);
         setRedundantSerieID('');
         setRedundantSeriesIDs([]);
+        setForecastDays(0);
+        setForecastHours(0);
         setCalibrationID('');
         setRelatedObservedStreamID('');
         setSerieType(SERIES_TYPES.OBSERVADA);
@@ -176,20 +183,20 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                         onBlur={e => setIfValueInRange(e.target.value, 0, 365, setDays)}
                     />
                     <TextField style={{minWidth: '100px', width: '30%'}}
-                        inputProps={{min: 0, max: 24}}
+                        inputProps={{min: 0, max: 23}}
                         type='number'
                         label='Horas'
                         value={hours}
-                        onChange={e => setHours(e.target.value)} 
-                        onBlur={e => setIfValueInRange(e.target.value, 0, 24, (hours) => setHours(hours))}
+                        onChange={e => setHours(e.target.value >= 0 ? e.target.value : 0)} 
+                        onBlur={e => setIfValueInRange(e.target.value, 0, 23, setHours)}
                     />
                     <TextField style={{minWidth: '100px', width: '30%'}}
-                        inputProps={{min: 0, max: 60}}
+                        inputProps={{min: 0, max: 59}}
                         type='number'
                         label='Minutos'
                         value={minutes}
                         onChange={e => setMinutes(e.target.value >= 0 ? e.target.value : 0)} 
-                        onBlur={e => setIfValueInRange(e.target.value, 0, 60, setMinutes)}
+                        onBlur={e => setIfValueInRange(e.target.value, 0, 59, setMinutes)}
                     />
                 </Box>
                 <h4>Tipo de serie</h4>
@@ -219,6 +226,27 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                     <FormControlLabel label={'No'} value={false} control={<Radio/>} disabled={serieType === SERIES_TYPES.SIMULADA}/>
                     <FormControlLabel label={'Sí'} value={true} control={<Radio/>} disabled={serieType === SERIES_TYPES.SIMULADA}/>
                 </RadioGroup>
+                <h4>Rango de pronóstico</h4>
+                <Box className='row-textfields'>
+                    <TextField style={{minWidth: '100px', width: '48%'}}
+                        inputProps={{min: 0, max: 365}} 
+                        type='number'
+                        label='Días'
+                        value={forecastDays}
+                        disabled={serieType !== SERIES_TYPES.PRONOSTICADA}
+                        onChange={e => setForecastDays(e.target.value >= 0 ? e.target.value : 0)} 
+                        onBlur={e => setIfValueInRange(e.target.value, 0, 365, setForecastDays)}
+                    />
+                    <TextField style={{minWidth: '100px', width: '48%'}}
+                        inputProps={{min: 0, max: 23}}
+                        type='number'
+                        label='Horas'
+                        value={forecastHours}
+                        disabled={serieType !== SERIES_TYPES.PRONOSTICADA}
+                        onChange={e => setForecastHours(e.target.value >= 0 ? e.target.value : 0)} 
+                        onBlur={e => setIfValueInRange(e.target.value, 0, 23, setForecastHours)}
+                    />
+                </Box>
                 <h4>Métricas</h4>
                 <FormGroup className='row'>
                 {METRICS.map(metric => 
@@ -284,8 +312,9 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
                         disableRestoreFocus
                     >
                         {popOverRow('Frecuencia de actualización: ' + formatMinutes(Number(serie.actualizationFrequency)) )}
-                        {popOverRow('Tipo de serie: ' + STREAM_TYPE_CODE_INVERSE[serie.serieType])}
+                        {popOverRow('Tipo de serie: ' + serie.serieType)}
                         {popOverRow('Incluir validacion de errores: ' + (serie.checkErrors ? 'Sí' : 'No'))}
+                        {serie.forecastedRangeHours ? popOverRow('Rango de pronóstico: ' + formatMinutes(Number(serie.forecastedRangeHours * 60)) ) : null}
                         {metrics(serie).length > 0 ? popOverRow('Métricas: ' +  metrics(serie)) : null}
                         {serie.redundantSeriesIDs.length > 0? popOverRow('ID Series Redundantes: ' + serie.redundantSeriesIDs) : null}
                         {serie.calibrationID !== '' ? popOverRow('ID Calibrado: ' + serie.calibrationID) : null}

@@ -38,3 +38,11 @@ export function convertToMinutes(days, hours, minutes) {
   
     return totalMinutes;
 }
+
+export function convertToHours(days, hours) {
+    const hoursInDay = 24;
+  
+    const totalHours = (Number(days) * hoursInDay) + Number(hours);
+  
+    return totalHours;
+}
