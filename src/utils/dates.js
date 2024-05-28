@@ -29,3 +29,12 @@ export const formatMinutes = (minutes) => {
     
     return formatedMinutes;
 }
+
+export function convertToMinutes(days, hours, minutes) {
+    const minutesInDay = 1440;
+    const minutesInHour = 60;
+  
+    const totalMinutes = (Number(days) * minutesInDay) + (Number(hours) * minutesInHour) + Number(minutes);
+  
+    return totalMinutes;
+}

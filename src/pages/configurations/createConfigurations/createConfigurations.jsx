@@ -7,7 +7,7 @@ import { CONFIGURATION_VIEWS } from "../configuraciones";
 import { CreateConfigurationPresenter } from "../../../presenters/createConfigurationPresenter";
 import { METRICS, SERIES_TYPES, STREAM_TYPE_CODE_INVERSE, INITIAL_METRICS_STATE } from "../../../utils/constants";
 import { notifySuccess } from "../../../utils/notification";
-import { formatMinutes } from "../../../utils/dates";
+import { formatMinutes, convertToMinutes } from "../../../utils/dates";
 import './createConfigurations.css';
 
 export const CreateConfigurations = ({setCurrentView, configurationID, editable}) => {
@@ -23,7 +23,6 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const [_idNode, _setIdNode] = useState('');
     const [idSerie, setIdSerie] = useState('');
     const [checkErrors, setCheckErrors] = useState(false);
-    const [actualizationFrequency, setActualizationFrequency] = useState('');
     const [days, setDays] = useState('0');
     const [hours, setHours] = useState('0');
     const [minutes, setMinutes] = useState('0');
@@ -39,7 +38,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const serie = {
         idSerie: idSerie,
         _idNode: _idNode, 
-        actualizationFrequency: actualizationFrequency,
+        actualizationFrequency: convertToMinutes(days, hours, minutes),
         serieType: serieType,
         calibrationID: calibrationID,
         relatedObservedStreamID: relatedObservedStreamID,
@@ -109,7 +108,9 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     useEffect(() => {
         setIdSerie('');
         _setIdNode('');
-        setActualizationFrequency('');
+        setDays('0');
+        setHours('0');
+        setMinutes('0');
         setRedundantSerieID('');
         setRedundantSeriesIDs([]);
         setCalibrationID('');
@@ -121,13 +122,13 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         setUpperThreshold('');
       }, [series]);
 
-    const _setHours = (hours) => {
-        if (0 <= Number(hours) && Number(hours) <= 24) {
-            setHours(hours);
-        } else if (Number(hours) > 24) {
-            setHours(24);
+    const setIfValueInRange = (value, min, max, set) => {
+        if (min <= Number(value) && Number(value) <= max) {
+            set(String(Number(value)));
+        } else if (Number(value) > max) {
+            set(max);
         } else {
-            setHours(0);
+            set(min);
         }
     }
 
@@ -165,7 +166,32 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                     </FormControl>
                 </Box>
                 <h4>Frecuencia de actualización</h4>
-                <Box sx={{minWidth: 100}}><TextField fullWidth type='number' label='Frecuencia de actualización' value={actualizationFrequency} onChange={e => setActualizationFrequency(e.target.value)} helperText="En minutos"/></Box>
+                <Box className='row-textfields'>
+                    <TextField style={{minWidth: '100px', width: '30%'}}
+                        inputProps={{min: 0, max: 365}} 
+                        type='number'
+                        label='Días'
+                        value={days}
+                        onChange={e => setDays(e.target.value >= 0 ? e.target.value : 0)} 
+                        onBlur={e => setIfValueInRange(e.target.value, 0, 365, setDays)}
+                    />
+                    <TextField style={{minWidth: '100px', width: '30%'}}
+                        inputProps={{min: 0, max: 24}}
+                        type='number'
+                        label='Horas'
+                        value={hours}
+                        onChange={e => setHours(e.target.value)} 
+                        onBlur={e => setIfValueInRange(e.target.value, 0, 24, (hours) => setHours(hours))}
+                    />
+                    <TextField style={{minWidth: '100px', width: '30%'}}
+                        inputProps={{min: 0, max: 60}}
+                        type='number'
+                        label='Minutos'
+                        value={minutes}
+                        onChange={e => setMinutes(e.target.value >= 0 ? e.target.value : 0)} 
+                        onBlur={e => setIfValueInRange(e.target.value, 0, 60, setMinutes)}
+                    />
+                </Box>
                 <h4>Tipo de serie</h4>
                 <RadioGroup className='row' value={serieType} onChange={e => handleChangeSerieType(e)}>
                     {Object.keys(SERIES_TYPES).map(key =>
@@ -215,8 +241,6 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         </>
     );
 }
-
-
 
 const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) => {
     const [openedPopOverIndex, setOpenedPopOverIndex] = useState(null);
