@@ -101,7 +101,7 @@ export class CreateConfigurationPresenter {
                         upperThreshold: Number(serie.upperThreshold) ? Number(serie.upperThreshold) : null,
                         lowerThreshold: Number(serie.lowerThreshold) ? Number(serie.lowerThreshold) : null,
                         calibrationId: Number(serie.calibrationID) ? Number(serie.calibrationID) : null,
-                        relatedObservedStreamId: Number(serie.relatedObservedStreamID) ? Number(serie.relatedObservedStreamID) : null,
+                        ObservedRelatedStreamId: Number(serie.relatedObservedStreamID) ? Number(serie.relatedObservedStreamID) : null,
                         redundanciesIds: serie.redundantSeriesIDs,
                         metrics: Object.keys(serie.metrics).filter(key => serie.metrics[key]).map(key => METRICS_CODE[key])
                     }
@@ -147,6 +147,7 @@ export class CreateConfigurationPresenter {
                     serieType: STREAM_TYPE_CODE_INVERSE[serie.StreamType],
                     calibrationID: serie.CalibrationId !== 0 ? String(serie.CalibrationId) : '',
                     redundantSeriesIDs: serie.RedundanciesIds ? serie.RedundanciesIds : [],
+                    relatedObservedStreamID: serie.ObservedRelatedStreamId ? String(serie.ObservedRelatedStreamId) : null,
                     metrics: serie.Metrics ? buildMetricsFromConfiguration(serie.Metrics) : INITIAL_METRICS_STATE(),
                     checkErrors: serie.CheckErrors,
                     lowerThreshold: serie.LowerThreshold ? String(serie.LowerThreshold) : '',

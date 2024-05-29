@@ -46,3 +46,16 @@ export function convertToHours(days, hours) {
   
     return totalHours;
 }
+
+export function convertMinutes(minutes) {
+    const days = Math.floor(minutes / 1440);
+    let remainingMinutes = minutes % 1440;
+    const hours = Math.floor(remainingMinutes / 60);
+    remainingMinutes = remainingMinutes % 60;
+
+    return {
+        days: days,
+        hours: hours,
+        minutes: remainingMinutes
+    };
+}

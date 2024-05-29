@@ -3,11 +3,13 @@ import { Box, Button, TextField, FormGroup, FormControlLabel, Checkbox, Radio, R
 import Line from '../../../components/line/line';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import EditIcon from '@mui/icons-material/Edit';
 import { CONFIGURATION_VIEWS } from "../configuraciones";
 import { CreateConfigurationPresenter } from "../../../presenters/createConfigurationPresenter";
-import { METRICS, SERIES_TYPES, STREAM_TYPE_CODE_INVERSE, INITIAL_METRICS_STATE } from "../../../utils/constants";
+import { METRICS, SERIES_TYPES, INITIAL_METRICS_STATE } from "../../../utils/constants";
 import { notifySuccess } from "../../../utils/notification";
-import { formatMinutes, convertToMinutes, convertToHours } from "../../../utils/dates";
+import { formatMinutes, convertToMinutes, convertToHours, convertMinutes } from "../../../utils/dates";
 import './createConfigurations.css';
 
 export const CreateConfigurations = ({setCurrentView, configurationID, editable}) => {
@@ -36,6 +38,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const [lowerThreshold, setLowerThreshold] = useState('');
     const [upperThreshold, setUpperThreshold] = useState('');
     const [metrics, setMetrics] = useState(INITIAL_METRICS_STATE());
+    const [indexSerieOnFocus, setIndexSerieOnFocus] = useState(null);
 
     const serie = {
         idSerie: idSerie,
@@ -56,6 +59,16 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         if (presenter.isValidStream(serie)) {
             notifySuccess('Serie agregada exitosamente');
             setSeries([...series, serie]);
+        }
+    }
+
+    const handleModifySerie = () => {
+        if (presenter.isValidStream(serie)) {
+            notifySuccess('Serie modificada exitosamente');
+            const modifiedSeries = series.slice();
+            modifiedSeries[indexSerieOnFocus] = serie;
+            setSeries(modifiedSeries);
+            setIndexSerieOnFocus(null);
         }
     }
 
@@ -111,6 +124,10 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
       }, [configurationID]);
 
     useEffect(() => {
+        clearFields();
+      }, [series]);
+
+    const clearFields = () => {
         setIdSerie('');
         _setIdNode('');
         setDays(0);
@@ -127,7 +144,25 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         setMetrics(INITIAL_METRICS_STATE());
         setLowerThreshold('');
         setUpperThreshold('');
-      }, [series]);
+    }
+
+    const setFocusOnSerie = (serie) => {
+        setIdSerie(serie.idSerie);
+        _setIdNode(serie._idNode);
+        setDays(convertMinutes(serie.actualizationFrequency).days);
+        setHours(convertMinutes(serie.actualizationFrequency).hours);
+        setMinutes(convertMinutes(serie.actualizationFrequency).minutes);
+        setRedundantSeriesIDs(serie.redundantSeriesIDs);
+        setForecastDays(serie.forecastedRangeHours ? convertMinutes(serie.forecastedRangeHours * 60).days : 0);
+        setForecastHours(serie.forecastedRangeHours ? convertMinutes(serie.forecastedRangeHours * 60).hours : 0);
+        setCalibrationID(serie.calibrationID);
+        setRelatedObservedStreamID(serie.relatedObservedStreamID);
+        setSerieType(serie.serieType);
+        setCheckErrors(serie.checkErrors);
+        setMetrics(serie.metrics);
+        setLowerThreshold(serie.lowerThreshold);
+        setUpperThreshold(serie.upperThreshold);
+    }
 
     const setIfValueInRange = (value, min, max, set) => {
         if (min <= Number(value) && Number(value) <= max) {
@@ -258,19 +293,35 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                     <TextField label='Límite inferior' type="number" value={lowerThreshold} onChange={e => setLowerThreshold(e.target.value)}/>
                     <TextField label='Límite superior' type="number" value={upperThreshold} onChange={e => setUpperThreshold(e.target.value)}/>
                 </Box>
-                <Button variant='outlined' color='success' onClick={() => {handleAddSerie(serie)}}>Agregar serie</Button>
+                {indexSerieOnFocus === null ?
+                    <Button variant='outlined' color='success' onClick={() => {handleAddSerie(serie)}}>Agregar serie</Button> :
+                    <Box className='row'>
+                        <Button variant='outlined' color='success' onClick={() => {handleModifySerie(serie)}}>Confirmar cambios</Button>
+                        <Button variant='outlined' color='error' onClick={() => {clearFields(); setIndexSerieOnFocus(null);}}>Cancelar modificación</Button>
+                    </Box>
+                }
             </Box>
             <Box className='nodes'>
                 <h3>Nodos y series en esta configuración</h3>
                 <Line/>        
-                <CreatedNodesAndSeries nodes={nodes} series={series} setSeries={setSeries} setNodes={setNodes} editable={editable}/>
+                <CreatedNodesAndSeries 
+                    nodes={nodes} 
+                    series={series} 
+                    setSeries={setSeries} 
+                    setNodes={setNodes} 
+                    editable={editable} 
+                    setFocusOnSerie={setFocusOnSerie}
+                    setIndexSerieOnFocus={setIndexSerieOnFocus}
+                    indexSerieOnFocus={indexSerieOnFocus}
+                    clearFields={clearFields}
+                    />
             </Box>
         </Box>
         </>
     );
 }
 
-const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) => {
+const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable, setFocusOnSerie, setIndexSerieOnFocus, clearFields, indexSerieOnFocus}) => {
     const [openedPopOverIndex, setOpenedPopOverIndex] = useState(null);
     const [anchorEl, setAnchorEl] = useState(null);
 
@@ -297,10 +348,17 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
                 {series.filter(serie => serie._idNode === node._id).length !== 0 ? null : 'Aún no ha agregado series a este nodo. Cuando agregue series aparecerán aquí.'}
                 {series.map((serie, serieIndex) => serie._idNode !== node._id ? null : 
                 <Box>
-                    <Box key={serie.idSerie} className='serie' onMouseEnter={e => handlePopoverOpen(e, serie.idSerie)} onMouseLeave={() => handlePopoverClose()}>
+                    <Box key={serie.idSerie} className={'serie '+ (indexSerieOnFocus===serieIndex ? 'blue-border':'')} onMouseEnter={e => handlePopoverOpen(e, serie.idSerie)} onMouseLeave={() => handlePopoverClose()}>
                         <Typography  sx={{marginTop:1}} >Serie</Typography>
                         <Typography >{serie.idSerie}</Typography>
-                        <Button style={{display: editable ? 'block' : 'none'}} onClick={() => setSeries(series.filter((_, index) => serieIndex !== index))}>Eliminar</Button>
+                        <Box className='row'>
+                        <IconButton style={{display: editable ? 'block' : 'none'}} onClick={() => {setSeries(series.filter((_, index) => serieIndex !== index)); setIndexSerieOnFocus(null); clearFields()}}>
+                            <DeleteOutlineIcon color='primary'/>
+                        </IconButton>
+                        <IconButton style={{display: editable ? 'block' : 'none'}} onClick={() => {setFocusOnSerie(serie); setIndexSerieOnFocus(serieIndex)}}>
+                            <EditIcon color='primary'/>
+                        </IconButton>
+                        </Box>
                     </Box>
                     <Popover
                         sx={{pointerEvents: 'none'}}
@@ -321,7 +379,6 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
                         {!!serie.relatedObservedStreamID ? popOverRow('ID Serie Observada asociada: ' + serie.relatedObservedStreamID) : null}
                         {serie.lowerThreshold !== '' && serie.upperThreshold !== '' ? popOverRow('Umbrales: ' + serie.lowerThreshold + ', ' + serie.upperThreshold): null}
                         {serie.RedundanciesIds && serie.popOverRow(`Series redundantes: ' + ${serie.RedundanciesIds}`)}
-
                     </Popover>
                 </Box>)}
             </Box>
@@ -329,6 +386,7 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable}) =
                 onClick={() => {
                     setSeries(series.filter(serie => serie._idNode !== node._id));
                     setNodes(nodes.filter(_node => _node._id !== node._id));
+                    setIndexSerieOnFocus(null);
                 }}>Eliminar nodo
             </Button>
         </Box>)}
