@@ -1,10 +1,28 @@
-.form {
-    width: 45%;
+@media screen and (max-width: 800px) {
+    .form {
+        width: 100%;
+    }
 }
 
-.nodes {
-    min-width: 50%;
+@media screen and (min-width: 800px) {
+    .form {
+        width: 48%;
+    }
 }
+
+@media screen and (max-width: 800px) {
+    .nodes {
+        width: 100%;
+    }
+}
+
+@media screen and (min-width: 800px) {
+    .nodes {
+        width: 48%;
+    }
+}
+
+
 
 .node { 
     border: 2px solid rgb(224, 230, 237);
