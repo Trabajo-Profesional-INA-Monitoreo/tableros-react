@@ -105,12 +105,12 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
                                             >
                                                 usar
                                             </Button>
-                                            <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.VIEW); setSelectedConfigurationID(configuration.Id); }}>
+                                            <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.VIEW); setSelectedConfigurationID(configuration.Id); window.scrollTo(0, 0)}}>
                                                 <VisibilityOutlinedIcon color='primary'/>
                                             </IconButton>
                                             {isAdmin ?
                                                 <>
-                                                    <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.EDIT); setSelectedConfigurationID(configuration.Id); }}>
+                                                    <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.EDIT); setSelectedConfigurationID(configuration.Id); window.scrollTo(0, 0)}}>
                                                         <EditIcon color='primary'/>
                                                     </IconButton>
                                                     <IconButton aria-label="trash" onClick={() =>{setModalId(configuration.Id)}}>
@@ -144,7 +144,7 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
                             bottom: "30px",
                             right: "20px",
                         }}
-                        onClick={() => setCurrentView(CONFIGURATION_VIEWS.CREATE)}
+                        onClick={() => {setCurrentView(CONFIGURATION_VIEWS.CREATE); window.scrollTo(0, 0)}}
                     >
                         Agregar configuración
                     </Button> :<></>}
