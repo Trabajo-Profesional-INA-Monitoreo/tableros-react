@@ -21,15 +21,7 @@
         width: 48%;
     }
 }
-
-
-
-.node { 
-    border: 2px solid rgb(224, 230, 237);
-    margin: 15px;
-    padding: 15px;
-    border-radius: 20px;
-}
+    
 
 .serie {
     display: flex;

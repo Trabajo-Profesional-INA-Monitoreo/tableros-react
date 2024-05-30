@@ -83,10 +83,10 @@ export class CreateConfigurationPresenter {
         configuration['name'] = configurationName;
         if (isPut && configurationId) {
             configuration['Id'] = configurationId;
-            configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node._id, id: node.id}))
+            configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node._id, id: node.id, mainStreamId: Number(node.mainStreamId)}))
         }
         else
-            configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node._id}));
+            configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node._id, mainStreamId: Number(node.mainStreamId)}));
         configuration['sendNotifications'] = notificaciones
         configuration['nodes'].forEach(node => {
             node['configuredStreams'] = [];
@@ -112,7 +112,6 @@ export class CreateConfigurationPresenter {
                 }
             })
         })
-        console.log(configuration)
         return configuration;
     }
 
@@ -122,7 +121,7 @@ export class CreateConfigurationPresenter {
 
     buildNodesFromConfiguration = (configuration) => {
         let nodes = [];
-        configuration.Nodes.forEach((node, index) => nodes.push({"name": node.Name, "id": node.Id, "_id": index+1}))
+        configuration.Nodes.forEach((node, index) => nodes.push({"name": node.Name, "id": node.Id, "_id": index+1, "mainStreamId": String(node.MainStreamId)}))
         return nodes;
     }
 
@@ -157,7 +156,6 @@ export class CreateConfigurationPresenter {
             ));
 
         })
-        console.log(series);
         return series;
     }
 }

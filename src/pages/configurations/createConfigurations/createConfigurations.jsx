@@ -4,6 +4,8 @@ import Line from '../../../components/line/line';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import StarOutlineIcon from '@mui/icons-material/StarOutline';
+import StarIcon from '@mui/icons-material/Star';
 import EditIcon from '@mui/icons-material/Edit';
 import { CONFIGURATION_VIEWS } from "../configuraciones";
 import { CreateConfigurationPresenter } from "../../../presenters/createConfigurationPresenter";
@@ -11,6 +13,7 @@ import { METRICS, SERIES_TYPES, INITIAL_METRICS_STATE } from "../../../utils/con
 import { notifySuccess } from "../../../utils/notification";
 import { formatMinutes, convertToMinutes, convertToHours, convertMinutes } from "../../../utils/dates";
 import './createConfigurations.css';
+import CircularProgressLoading from "../../../components/circularProgressLoading/circularProgressLoading";
 
 export const CreateConfigurations = ({setCurrentView, configurationID, editable}) => {
 
@@ -39,6 +42,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const [upperThreshold, setUpperThreshold] = useState('');
     const [metrics, setMetrics] = useState(INITIAL_METRICS_STATE());
     const [indexSerieOnFocus, setIndexSerieOnFocus] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const serie = {
         idSerie: idSerie,
@@ -75,16 +79,26 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const handleAddNodo = () => {
         if (presenter.isValidNode(nodeName)) {
             notifySuccess('Nodo agregado exitosamente');
-            setNodes([...nodes, {_id: _idNodeCounter, name: nodeName}]);
+            setNodes([...nodes, {_id: _idNodeCounter, name: nodeName, mainStreamId: null}]);
             _setIdNodeCounter(_idNodeCounter + 1);
         }
+    }
+
+    const handleSetMainStream = (_idNode, serieId) => {
+        const modifiedNodes = nodes.map(a => ({...a}));
+        const modifiedNode = modifiedNodes.filter(node => node._id === _idNode)[0];
+        if (modifiedNode['mainStreamId'] !== serieId){
+            modifiedNode['mainStreamId'] = serieId;
+        } else {
+            modifiedNode['mainStreamId'] = null;
+        }
+        setNodes(modifiedNodes);
     }
 
     const handleAddConfiguracion = () => {
         if (presenter.isValidConfiguration(configurationName, nodes, series)) {
             const isPut = configurationID && editable;
             const body = presenter.buildConfigurationBody(configurationName, nodes, series, shouldNotify, configurationID, isPut);
-            console.log(body);
             if (isPut) {
                 presenter.putConfiguration(body).then(_ => notifySuccess("Configuración modificada exitosamente"));
             } else {
@@ -108,9 +122,11 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
 
     const getConfiguration = async () => {
         if (configurationID) {
+            setLoading(true);
             const response = await presenter.getConfiguration(configurationID);
             const nodes = await presenter.buildNodesFromConfiguration(response);
             const series = await presenter.buildSeriesFromConfiguration(response);
+            setLoading(false);
             setShouldNotify(response.SendNotifications);
             setNodes(nodes);
             _setIdNodeCounter(nodes.length + 1);
@@ -301,10 +317,10 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                     </Box>
                 }
             </Box>
-            <Box className='nodes'>
+            <Box className='nodes' sx={editable ? null : {width: '100% !important'}}   >
                 <h3>Nodos y series en esta configuración</h3>
                 <Line/>        
-                <CreatedNodesAndSeries 
+                <CreatedNodesAndSeries
                     nodes={nodes} 
                     series={series} 
                     setSeries={setSeries} 
@@ -314,6 +330,8 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                     setIndexSerieOnFocus={setIndexSerieOnFocus}
                     indexSerieOnFocus={indexSerieOnFocus}
                     clearFields={clearFields}
+                    handleSetMainStream={handleSetMainStream}
+                    loading={loading}
                     />
             </Box>
         </Box>
@@ -321,7 +339,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     );
 }
 
-const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable, setFocusOnSerie, setIndexSerieOnFocus, clearFields, indexSerieOnFocus}) => {
+const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable, setFocusOnSerie, setIndexSerieOnFocus, clearFields, indexSerieOnFocus, handleSetMainStream, loading}) => {
     const [openedPopOverIndex, setOpenedPopOverIndex] = useState(null);
     const [anchorEl, setAnchorEl] = useState(null);
 
@@ -340,24 +358,27 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable, se
 
     return (
         <>
-        {nodes.length === 0 ? 'Aún no ha agregado nodos. Cuando agregue nodos aparecerán aquí.': null}
+        {loading ? <CircularProgressLoading /> : null}
+        {(nodes.length === 0 && !loading) ? 'Aún no ha agregado nodos. Cuando agregue nodos aparecerán aquí.': null}
         {nodes.map((node, index) => 
-        <Box className='node' key={node._id}>
+        <Box key={node._id}>
             <h4 style={{margin: 0}}>{`Nodo ${index + 1} - ${node.name}`}</h4>
             <Box className='row wrap'>
                 {series.filter(serie => serie._idNode === node._id).length !== 0 ? null : 'Aún no ha agregado series a este nodo. Cuando agregue series aparecerán aquí.'}
                 {series.map((serie, serieIndex) => serie._idNode !== node._id ? null : 
                 <Box>
-                    <Box key={serie.idSerie} className={'serie '+ (indexSerieOnFocus===serieIndex ? 'blue-border':'')} onMouseEnter={e => handlePopoverOpen(e, serie.idSerie)} onMouseLeave={() => handlePopoverClose()}>
-                        <Typography  sx={{marginTop:1}} >Serie</Typography>
-                        <Typography >{serie.idSerie}</Typography>
+                    <Box key={serie.idSerie} className={'serie '+ (indexSerieOnFocus===serieIndex ? 'blue-border':'')}>
+                        <Typography sx={{marginTop:1}} onMouseEnter={e => handlePopoverOpen(e, serie.idSerie)} onMouseLeave={() => handlePopoverClose()}><b>{serie.idSerie}</b></Typography>
                         <Box className='row'>
-                        <IconButton style={{display: editable ? 'block' : 'none'}} onClick={() => {setSeries(series.filter((_, index) => serieIndex !== index)); setIndexSerieOnFocus(null); clearFields()}}>
-                            <DeleteOutlineIcon color='primary'/>
-                        </IconButton>
-                        <IconButton style={{display: editable ? 'block' : 'none'}} onClick={() => {setFocusOnSerie(serie); setIndexSerieOnFocus(serieIndex)}}>
-                            <EditIcon color='primary'/>
-                        </IconButton>
+                            <IconButton style={{display: editable ? 'block' : 'none'}} onClick={() => {setSeries(series.filter((_, index) => serieIndex !== index)); setIndexSerieOnFocus(null); clearFields()}}>
+                                <DeleteOutlineIcon color='primary'/>
+                            </IconButton>
+                            <IconButton style={{display: editable ? 'block' : 'none'}} onClick={() => {setFocusOnSerie(serie); setIndexSerieOnFocus(serieIndex)}}>
+                                <EditIcon color='primary'/>
+                            </IconButton>
+                            <IconButton disabled={!editable} onClick={() => {if (editable) { handleSetMainStream(serie._idNode, serie.idSerie) }}}>
+                                {node.mainStreamId === serie.idSerie ? <StarIcon color={editable ? 'primary' : 'disabled'}/> : <StarOutlineIcon color={editable ? 'primary' : 'disabled'}/>}
+                            </IconButton>
                         </Box>
                     </Box>
                     <Popover
@@ -389,6 +410,7 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable, se
                     setIndexSerieOnFocus(null);
                 }}>Eliminar nodo
             </Button>
+            <Line />    
         </Box>)}
         </>
     );
