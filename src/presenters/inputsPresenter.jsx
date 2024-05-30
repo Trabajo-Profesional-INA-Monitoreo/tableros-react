@@ -1,7 +1,6 @@
 import InputsService from "../services/inputsService"
 
 export class InputsPresenter {
-    
     service = new InputsService()
     
     getRetardados= async(params) => {
@@ -18,5 +17,11 @@ export class InputsPresenter {
 
     getOutliers = async(params) => {
         return this.service.getOutliers(params)
+    }
+    onClickStreams(navigate) {
+        navigate('/monitoreo/series')
+    }
+    onClickStations(navigate) {
+        navigate('/monitoreo/estaciones')
     }
 }

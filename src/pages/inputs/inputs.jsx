@@ -8,6 +8,7 @@ import CircularProgressWithLabel from '../../components/circularProgressWithLabe
 import { getConfigurationID } from '../../utils/storage';
 import dayjs from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers';
+import { useNavigate } from "react-router-dom";
 
 function dateParser(date){
     const year = date.getFullYear();
@@ -17,9 +18,8 @@ function dateParser(date){
 }
 
 export const Inputs = () => {
-
     const presenter = new InputsPresenter();
-    
+    const navigate = useNavigate()
     const [isLoading, setIsLoading] = useState(true);
     const [retardos, setRetardos] = useState({})
     const [nulos, setNulos] = useState({});
@@ -119,8 +119,20 @@ export const Inputs = () => {
             
             <h2> Informacion General </h2>
             <box style={{display:"flex", justifyContent: "space-around", margin: "5%" }}>
-                <Button variant="contained" size="large">{metrics["TotalStreams"] + " Series"}</Button>
-                <Button variant="contained" size="large" >{metrics["TotalStations"] + " Estaciones"}</Button>
+                <Button
+                    variant="contained"
+                    size="large"
+                    onClick={()=>presenter.onClickStreams(navigate)}
+                >
+                    {metrics["TotalStreams"] + " Series"}
+                </Button>
+                <Button
+                    variant="contained"
+                    size="large"
+                    onClick={()=>presenter.onClickStations(navigate)}
+                >
+                    {metrics["TotalStations"] + " Estaciones"}
+                </Button>
             </box>
         </>
         }
