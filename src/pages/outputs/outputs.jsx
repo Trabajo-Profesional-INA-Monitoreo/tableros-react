@@ -21,9 +21,9 @@ function dateParser(date){
 
 const metricsBox = (title, subtitle) => {
     return (
-        <Box sx={{height: 100, width: 200, border: '1.5px solid #E0E6ED', padding:1, alignContent:"center"}}>
+        <Box sx={{height: 110, width: 200, border: '1.5px solid #E0E6ED', padding:1, justifyContent:"center",alignContent:"center"}}>
             <Typography align='center' sx={{fontWeight:"bold"}}> {title} </Typography>
-            <Typography align='center' variant='h5' sx={{mt: 2, fontWeight:"bold", color: (subtitle > 0? "#E53E3E" : "#38A169")}}> {subtitle} </Typography>
+            <Typography align='center' variant='h5' sx={{mt:1, fontWeight:"bold", color: (subtitle > 0? "#E53E3E" : "#38A169")}}> {subtitle} </Typography>
         </Box>
     )
 }
