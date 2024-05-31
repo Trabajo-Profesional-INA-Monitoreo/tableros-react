@@ -21,6 +21,7 @@ export class InputsPresenter {
     onClickStreams(navigate) {
         navigate('/monitoreo/series')
     }
+
     onClickStations(navigate) {
         navigate('/monitoreo/estaciones')
     }

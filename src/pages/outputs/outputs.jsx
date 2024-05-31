@@ -2,19 +2,15 @@ import React, {useEffect, useState, useCallback} from 'react';
 import { Box } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import Line from '../../components/line/line';
-
 import { DatePicker } from '@mui/x-date-pickers';
-
 import { TextField, Button, Typography} from '@mui/material';
 import { CircularProgress } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
-import OutputService from '../../services/outputsService';
 import CircularProgressWithLabel from '../../components/circularProgressWithLabel/circularProgressWithLabel';
 import dayjs from 'dayjs';
-import { getConfigurationID } from '../../utils/storage';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 import { ErrorModal, NoErrorModal } from './errorModal';
-import { OutputsPresenter } from '../../presenters/outputsService';
+import { OutputsPresenter } from '../../presenters/outputsPresenter';
 
 function dateParser(date){
     const year = date.getFullYear();
@@ -32,85 +28,8 @@ const metricsBox = (title, subtitle) => {
     )
 }
 
-function calcularDias(desde, hasta){
-    const days = [];
-    for (let day = desde; day <= hasta; day.setDate(day.getDate() + 1)) {
-        days.push(new Date(day).toISOString().split('T')[0]);
-    }
-    return days
-}
-
-function formatDates(arr) {
-    arr.forEach(obj => {
-        obj.Date = obj.Date.substring(0, 10);
-    });
-    return arr;
-}
-
-function groupErrors(dates, desde, hasta) {
-    dates = formatDates(dates)
-    const grouped = Object.groupBy(dates, ({ ErrorType }) => ErrorType);
-    const errorsGrouped = {}
-    for (const [ErrorType, errors] of Object.entries(grouped)) {
-        errorsGrouped[ErrorType] = []
-        const byDate = new Map(errors.map((obj) => [obj.Date, obj]));
-        for (let day = new Date(desde); day <= hasta; day.setDate(day.getDate() + 1)) {
-            const parsedDate = day.toISOString().split('T')[0];
-            const dateErrors = byDate.get(parsedDate);
-            if (dateErrors) {
-                errorsGrouped[ErrorType].push(dateErrors.Total);
-            } else {
-                errorsGrouped[ErrorType].push(0);
-            }
-        }
-    }
-    return errorsGrouped;
-}
-
-const map_metrics = (metrics, errores) => {
-    if(errores?.length === 0){
-        updateObjectInArray(metrics, "Valores nulos", { value: 0 }  )
-        updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { value: 0}  )
-        updateObjectInArray(metrics, "Valores fuera de banda de errores", { value: 0 }  )
-        updateObjectInArray(metrics, "Errores de falta de pronostico", { value: 0 }  )
-        updateObjectInArray(metrics, "Outliers observados", { value: 0 }  )
-        updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { value: 0 }  )
-    }
-    for (const errorobj of errores) {
-        if(errorobj.ErrorType === 'NullValue'){
-            updateObjectInArray(metrics, "Valores nulos", { value: errorobj.Count })
-            updateObjectInArray(metrics, "Valores nulos", { id: errorobj.ErrorId })
-        }else if(errorobj.ErrorType === 'Missing4DaysHorizon'){
-            updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { value: errorobj.Count })
-            updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { id: errorobj.ErrorId })
-        }else if(errorobj.ErrorType === 'OutsideOfErrorBands'){
-            updateObjectInArray(metrics, "Valores fuera de banda de errores", { value: errorobj.Count })
-            updateObjectInArray(metrics, "Valores fuera de banda de errores", { id: errorobj.ErrorId })
-        }else if(errorobj.ErrorType === "ForecastMissing"){
-            updateObjectInArray(metrics, "Errores de falta de pronostico", { value: errorobj.Count })
-            updateObjectInArray(metrics, "Errores de falta de pronostico", { id: errorobj.ErrorId })
-        }else if(errorobj.ErrorType === "ObservedOutlier"){
-            updateObjectInArray(metrics, "Outliers observados", { value: errorobj.Count })
-            updateObjectInArray(metrics, "Outliers observados", { id: errorobj.ErrorId })
-        }else if(errorobj.ErrorType === "ForecastOutOfBounds"){
-            updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { value: errorobj.Count })
-            updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { id: errorobj.ErrorId })
-        }
-    }
-}
-
-const updateObjectInArray = (arr, nameValue, updatedValue) => {
-    const index = arr.findIndex(obj => obj.name === nameValue);
-    if (index !== -1) {
-        arr[index] = { ...arr[index], ...updatedValue };
-    }
-    return arr;
-};
-
 export const Outputs = () => {
-    const service = new OutputService()
     const presenter = new OutputsPresenter()
-    const [currentConfigId, setCurrentConfigId] = useState('');
     const [loading, setLoading] = useState(true);
 
     const currentDate = dayjs()
@@ -122,18 +41,9 @@ export const Outputs = () => {
     const [graficoDesde, setGraficoDesde] = useState(defaultDesdeDate);
     const [graficohasta, setGraficoHasta] = useState(currentDate);
 
-    const [indicadores, setIndicadores] =  useState([]);
-
     const [openMetric, setOpenMetric] = useState(null);
 
-    const [metrics, setMetrics] = useState([
-        {name: "Valores nulos", value: 0, id: -1},
-        {name: "Errores de falta de horizonte a 4 dias", value: 0, id: -1},
-        {name: "Valores fuera de banda de errores", value: 0, id: -1},
-        {name: "Errores de falta de pronostico", value: 0, id: -1},
-        {name: "Outliers observados", value: 0, id: -1},
-        {name: "Pronosticos fuera de umbrales", value: 0, id: -1},
-    ]);
+    const [metrics, setMetrics] = useState(presenter.getInitialMetrics());
     const [erroresPorDias, setErroresPorDias] = useState({})
 
     const [nivelAlertaPorcentaje, setNivelAlertaPorcentaje] = useState(0)
@@ -162,42 +72,32 @@ export const Outputs = () => {
     }
 
     const loadIndicators = useCallback (async() =>{
-        const configId = getConfigurationID();
-        setCurrentConfigId(configId)
-        let indicadoresResponse = await service.getIndicatorsbyConfigID(configId)
-        setIndicadores(indicadoresResponse)
-        map_metrics(metrics, indicadoresResponse)
+        await presenter.getIndicators(metrics)
         setMetrics(metrics)
     },[])
 
-    const loadBehavior = useCallback (async()=>{
-        const configId = getConfigurationID();
-        const behaviorResponse = await service.getBehaviorByConfigId(configId)
-        setNivelAlertaPorcentaje(behaviorResponse.TotalValuesCount? (behaviorResponse.CountAlertLevel*100)/behaviorResponse.TotalValuesCount:0)
-        setevacuacionPorcentaje(behaviorResponse.TotalValuesCount? (behaviorResponse.CountEvacuationLevel*100)/behaviorResponse.TotalValuesCount:0)
-        setAguasBajasPorcentaje(behaviorResponse.TotalValuesCount? (behaviorResponse.CountLowWaterLevel*100)/behaviorResponse.TotalValuesCount:0)
+    const loadBehavior = useCallback ( async ( params )=>{
+        const behaviors = await presenter.getBehaviors(params)
+        setNivelAlertaPorcentaje(behaviors["alertLevel"])
+        setevacuacionPorcentaje(behaviors["evacuationLevel"])
+        setAguasBajasPorcentaje(behaviors["lowWaterLevel"])
     },[])
 
+    const fetchDataPorDia = async ( params ) => {
+        let dataPorDia = await presenter.getErroresPorDia(params)
+        const erroresAgrupados = presenter.groupErrors(dataPorDia, desde.toDate(), hasta.toDate());
+        setErroresPorDias(erroresAgrupados);
+    };
     async function aplicarFiltros(){
         const params = {
-            configurationId: currentConfigId,
             ...(desde) && {timeStart: dateParser(desde.toDate())},
             ...(hasta) && {timeEnd: dateParser(hasta.toDate())},
         }
         const fetchDataFiltered = async () => {
             setLoading(true);
-            const filteredIndicators = await service.getFilteredIndicators(params)
-            map_metrics(metrics, filteredIndicators)
-            setMetrics(metrics)
-
-            const filteredErrorsPerDayResponse = await service.getErroresPorDia(params)
-            const erroresAgrupados = groupErrors(filteredErrorsPerDayResponse, desde.toDate(), hasta.toDate());
-            setErroresPorDias(erroresAgrupados);
-
-            const filteredBehavior = await service.getBehaviorFilterd(params)
-            setNivelAlertaPorcentaje(filteredBehavior.TotalValuesCount? (filteredBehavior.CountAlertLevel *100)/ filteredBehavior.TotalValuesCount :0)
-            setevacuacionPorcentaje(filteredBehavior.TotalValuesCount? (filteredBehavior.CountEvacuationLevel *100)/ filteredBehavior.TotalValuesCount:0)
-            setAguasBajasPorcentaje(filteredBehavior.TotalValuesCount? (filteredBehavior.CountLowWaterLevel*100)/ filteredBehavior.TotalValuesCount:0)
+            await presenter.getFilteredIndicators(params, metrics)
+            loadBehavior(params)
+            fetchDataPorDia(params)
             setGraficoDesde(desde)
             setGraficoHasta(hasta)
             setLoading(false);
@@ -207,18 +107,9 @@ export const Outputs = () => {
 
     useEffect(() => {
         loadIndicators()
-        map_metrics(metrics, indicadores)
-        setMetrics(metrics)
-        const configId = getConfigurationID();
-        setCurrentConfigId(configId)
-        const fetchDataPorDia = async () => {
-            let dataPorDia = await presenter.getErroresPorDia(configId)
-            const erroresAgrupados = groupErrors(dataPorDia, desde.toDate(), hasta.toDate());
-            setErroresPorDias(erroresAgrupados);
-            setLoading(false);
-        };
         fetchDataPorDia();
         loadBehavior()
+        setLoading(false);
     }, [loadIndicators, loadBehavior]);
 
 
@@ -298,7 +189,7 @@ export const Outputs = () => {
                         <BarChart
                         width={800}
                         height={400}
-                        xAxis={[{ scaleType: 'band', data: calcularDias(graficoDesde.toDate(),graficohasta.toDate()) }]}
+                        xAxis={[{ scaleType: 'band', data: presenter.calcularDias(graficoDesde.toDate(),graficohasta.toDate()) }]}
                         series={cargarDataGrafico()}
                         />
                     </div>
