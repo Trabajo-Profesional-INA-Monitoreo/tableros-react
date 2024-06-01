@@ -14,10 +14,10 @@ import { ConfigurationContext } from '../../../providers/configProvider';
 import useUser from '../../../stores/useUser';
 import { CONFIGURATION_VIEWS } from '../configuraciones';
 import { getConfigurationID, setConfigurationID, setConfigurationName } from '../../../utils/storage';
-import { NoResultStyles } from './Style';
-import ManageSearchIcon from '@mui/icons-material/ManageSearch';
+import { NoResultStyles } from '../../../components/noResults/Style';
 import { CurrentConfiguration } from '../../../components/currentConfiguration/currentConfiguration';
 import { DeleteModal } from '../deleteModal/deleteModal';
+import NoResults from '../../../components/noResults/noResults';
 
 const saveSelectedId = (id, name) => {
     setConfigurationID(id);
@@ -58,7 +58,6 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
         fetchConfigData(presenter.getConfigurations)
     }, [fetchConfigData]);
 
-    const styles= NoResultStyles()
 
     return (
         <>
@@ -151,12 +150,7 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
 
                 </Box>
                 :
-                    <>
-                        <div style={styles.mainContainer}>
-                            <ManageSearchIcon sx={styles.icon}/>
-                            <h1 style={styles.text}>No se encontraron configuraciones</h1>
-                        </div>
-                    </>
+                    <NoResults textNoResults="configuraciones"/>
                 )
             }
         </>
