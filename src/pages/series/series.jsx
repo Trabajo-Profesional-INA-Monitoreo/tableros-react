@@ -12,6 +12,7 @@ import { StationPresenter } from '../../presenters/stationPresenter';
 import { UtilsPresenter } from '../../presenters/utilsPresenter';
 import { getConfigurationID } from '../../utils/storage';
 import { useLocation } from "react-router-dom";
+import NoResults from '../../components/noResults/noResults';
 
 export const Series = () => {
 
@@ -110,9 +111,7 @@ export const Series = () => {
 		<h1> Series </h1>
         <CurrentConfiguration/>
         <Line/>
-            {isLoading ? <CircularProgressLoading /> : 
-                <>
-                    <Container sx={{display:"flex", flexFlow:"wrap", alignItems:"center", justifyContent: 'center', m: 2}}>
+            <Container sx={{display:"flex", flexFlow:"wrap", alignItems:"center", justifyContent: 'center', m: 2}}>
                             <TextField 
                                 label='Serie ID'
                                 value={_streamId}
@@ -148,6 +147,11 @@ export const Series = () => {
                                 Borrar filtros
                             </Button>
                     </Container>
+            {isLoading ?
+                <CircularProgressLoading />
+            :(series.length>0? 
+                <>
+                    
                     <Container>
                         <Grid
                             container
@@ -172,7 +176,9 @@ export const Series = () => {
                             />
                     ))}
                 <PaginationComponent totalPages={totalPages} func={seriesPresenter.getSeriePage} params={buildParams()} setterData={setSeries} isStation={false}/>
-            </>
+            </>:
+                    <NoResults textNoResults="series"/>
+                )
             }
         </>
     );
