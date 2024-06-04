@@ -18,6 +18,10 @@ const appRoutes = [
 			element: <Navigate to="/monitoreo/configuraciones"/>,
 		},
 		{
+			path: "/monitoreo/",
+			element: <Navigate to="/monitoreo/configuraciones"/>,
+		},
+		{
 			path: "/monitoreo",
 			element: <Navigate to="/monitoreo/configuraciones"/>,
 		},
