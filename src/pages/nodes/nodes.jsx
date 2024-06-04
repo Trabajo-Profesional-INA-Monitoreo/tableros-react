@@ -5,6 +5,8 @@ import { InformativeCard, InformativeCardContainer } from '../../components/info
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 import { NodePresenter } from '../../presenters/nodePresenter';
 import Line from '../../components/line/line';
+import { notifyError } from '../../utils/notification';
+import NoConectionSplash from '../../components/noConection/noConection';
 
 
 function formatDate(isoDate) {
@@ -21,16 +23,22 @@ function formatDate(isoDate) {
 }
 
 export const Nodes = () => {
-    
     const presenter = new NodePresenter();
-    
+    const [error, setError] = useState(false)
+
     const [nodes, setNodes] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     
     const getNodes = async() => {
-        const response = await presenter.getNodes();
-        setNodes(response.Nodes);
+        try{
+            const response = await presenter.getNodes();
+            setNodes(response.Nodes);
+        } catch(error) {
+            notifyError(error)
+            setError(true)
+        }
         setIsLoading(false);
+        
     }
 
     useEffect(() => {
@@ -54,7 +62,7 @@ export const Nodes = () => {
                             width: '10vw'
                         }}
                         />
-                        :
+                        : (error? <NoConectionSplash/> : 
                         nodes.map(node => 
                             <InformativeCard 
                                 title={node.NodeName+' | '+node.NodeId}
@@ -68,7 +76,7 @@ export const Nodes = () => {
                                 id={node.NodeId}
                                 node={true}
                             />
-                    )}            
+                    ))}            
             </InformativeCardContainer>
         </Box>
     );

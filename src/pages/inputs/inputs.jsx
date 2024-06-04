@@ -9,6 +9,8 @@ import { getConfigurationID } from '../../utils/storage';
 import dayjs from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useNavigate } from "react-router-dom";
+import { notifyError } from '../../utils/notification';
+import NoConectionSplash from '../../components/noConection/noConection';
 
 function dateParser(date){
     const year = date.getFullYear();
@@ -19,6 +21,8 @@ function dateParser(date){
 
 export const Inputs = () => {
     const presenter = new InputsPresenter();
+    const [error, setError] = useState(false)
+
     const navigate = useNavigate()
     const [isLoading, setIsLoading] = useState(true);
     const [retardos, setRetardos] = useState({})
@@ -39,19 +43,25 @@ export const Inputs = () => {
             ...(desde) && {timeStart: dateParser(desde.toDate())},
             ...(hasta) && {timeEnd: dateParser(hasta.toDate())},
         }
-        let retardados = await presenter.getRetardados(params);
-        retardados.percentage= (retardados.TotalStreamsWithDelay*100)/retardados.TotalStreams 
-        setRetardos(retardados)
+        try{
+            let retardados = await presenter.getRetardados(params);
+            let nulls = await presenter.getNulosEnSeries(params);
+            const outliersData = await presenter.getOutliers(params)
+            const metricsRes = await presenter.getMetricas(confID)
+            retardados.percentage= (retardados.TotalStreamsWithDelay*100)/retardados.TotalStreams 
+            setRetardos(retardados)
+            nulls.percentage= (nulls.TotalStreamsWithNull*100)/nulls.TotalStreams 
+            setNulos(nulls);
+            outliersData.percentage = (outliersData.TotalStreamsWithObservedOutlier *100)/outliersData.TotalStreams
+            setOutliers(outliersData)
+            setMetrics(metricsRes)
+        } catch(error){
+            notifyError(error)
+            setError(true)
+        } finally{
+            setIsLoading(false);
 
-        let nulls = await presenter.getNulosEnSeries(params);
-        nulls.percentage= (nulls.TotalStreamsWithNull*100)/nulls.TotalStreams 
-        setNulos(nulls);
-        const outliersData = await presenter.getOutliers(params)
-        outliersData.percentage = (outliersData.TotalStreamsWithObservedOutlier *100)/outliersData.TotalStreams
-        setOutliers(outliersData)
-        const metricsRes = await presenter.getMetricas(confID)
-        setMetrics(metricsRes)
-        setIsLoading(false);
+        }        
     }
     useEffect( () => {
         getSerieMetadataAndValues()
@@ -100,19 +110,19 @@ export const Inputs = () => {
                     width: '10vw'
                 }}
                 />
-                : <>
+                : (error? <NoConectionSplash/> : <>
                     <Box sx={{ display:"flex", flexDirection: 'row', justifyContent:"space-around", alignContent:"center", alignItems:"center", marginBottom:"5%"}}>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
                             <h3>Actualizaciones</h3>
-                            <CircularProgressWithLabel text="series tuvieron retrasos" percentage={retardos.percentage.toFixed(1)} color={retardos.percentage<30? "success": (retardos.percentage<60?"warning":"error")}/>
+                            <CircularProgressWithLabel text="series tuvieron retrasos" percentage={retardos?.percentage?.toFixed(1)} color={retardos.percentage<30? "success": (retardos.percentage<60?"warning":"error")}/>
                         </Box>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
                             <h3>Datos Nulos</h3>
-                            <CircularProgressWithLabel text="series no tuvieron datos nulos" percentage={nulos.percentage.toFixed(1)} color={nulos.percentage<30? "success": (nulos.percentage<60?"warning":"error")}/>
+                            <CircularProgressWithLabel text="series no tuvieron datos nulos" percentage={nulos?.percentage?.toFixed(1)} color={nulos.percentage<30? "success": (nulos.percentage<60?"warning":"error")}/>
                         </Box>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
                             <h3>Datos fuera de umbrales</h3>
-                            <CircularProgressWithLabel text="series fuera de umbrales" percentage={outliers.percentage.toFixed(1)} color={outliers.percentage<30? "success": (outliers.percentage<60?"warning":"error")}/>
+                            <CircularProgressWithLabel text="series fuera de umbrales" percentage={outliers?.percentage?.toFixed(1)} color={outliers.percentage<30? "success": (outliers.percentage<60?"warning":"error")}/>
                         </Box>
                     </Box>
             <Line/>
@@ -134,7 +144,7 @@ export const Inputs = () => {
                     {metrics["TotalStations"] + " Estaciones"}
                 </Button>
             </box>
-        </>
+        </>)
         }
         </div>
         )

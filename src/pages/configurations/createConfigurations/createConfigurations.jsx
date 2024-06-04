@@ -10,7 +10,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { CONFIGURATION_VIEWS } from "../configuraciones";
 import { CreateConfigurationPresenter } from "../../../presenters/createConfigurationPresenter";
 import { METRICS, SERIES_TYPES, INITIAL_METRICS_STATE } from "../../../utils/constants";
-import { notifySuccess } from "../../../utils/notification";
+import { notifyError, notifySuccess } from "../../../utils/notification";
 import { formatMinutes, convertToMinutes, convertToHours, convertMinutes } from "../../../utils/dates";
 import './createConfigurations.css';
 import CircularProgressLoading from "../../../components/circularProgressLoading/circularProgressLoading";
@@ -123,15 +123,20 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const getConfiguration = async () => {
         if (configurationID) {
             setLoading(true);
-            const response = await presenter.getConfiguration(configurationID);
-            const nodes = await presenter.buildNodesFromConfiguration(response);
-            const series = await presenter.buildSeriesFromConfiguration(response);
-            setLoading(false);
-            setShouldNotify(response.SendNotifications);
-            setNodes(nodes);
-            _setIdNodeCounter(nodes.length + 1);
-            setSeries(series);
-            setConfigurationName(response.Name);
+            try{
+                const response = await presenter.getConfiguration(configurationID);
+                const nodes = await presenter.buildNodesFromConfiguration(response);
+                const series = await presenter.buildSeriesFromConfiguration(response);
+                setLoading(false);
+                setShouldNotify(response.SendNotifications);
+                setNodes(nodes);
+                _setIdNodeCounter(nodes.length + 1);
+                setSeries(series);
+                setConfigurationName(response.Name);
+            } catch(error){
+                notifyError(error)
+            }
+            
         }    
     }
 

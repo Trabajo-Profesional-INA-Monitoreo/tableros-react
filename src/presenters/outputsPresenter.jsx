@@ -50,7 +50,7 @@ export class OutputsPresenter {
     map_metrics(metrics, errores){
         if(errores?.length === 0){
             this.updateObjectInArray(metrics, "Valores nulos", { value: 0 }  )
-            this.updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { value: 0}  )
+            this.updateObjectInArray(metrics, "Errores de falta de horizonte", { value: 0}  )
             this.updateObjectInArray(metrics, "Valores fuera de banda de errores", { value: 0 }  )
             this.updateObjectInArray(metrics, "Errores de falta de pronostico", { value: 0 }  )
             this.updateObjectInArray(metrics, "Outliers observados", { value: 0 }  )
@@ -61,8 +61,8 @@ export class OutputsPresenter {
                 this.updateObjectInArray(metrics, "Valores nulos", { value: errorobj.Count })
                 this.updateObjectInArray(metrics, "Valores nulos", { id: errorobj.ErrorId })
             }else if(errorobj.ErrorType === 'Missing4DaysHorizon'){
-                this.updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { value: errorobj.Count })
-                this.updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { id: errorobj.ErrorId })
+                this.updateObjectInArray(metrics, "Errores de falta de horizonte", { value: errorobj.Count })
+                this.updateObjectInArray(metrics, "Errores de falta de horizonte", { id: errorobj.ErrorId })
             }else if(errorobj.ErrorType === 'OutsideOfErrorBands'){
                 this.updateObjectInArray(metrics, "Valores fuera de banda de errores", { value: errorobj.Count })
                 this.updateObjectInArray(metrics, "Valores fuera de banda de errores", { id: errorobj.ErrorId })
@@ -88,8 +88,12 @@ export class OutputsPresenter {
 
     calcularDias(desde, hasta){
         const days = [];
+        const offset = -3 * 60 * 60 * 1000; // GMT-3 offset in milliseconds
+
         for (let day = desde; day <= hasta; day.setDate(day.getDate() + 1)) {
-            days.push(new Date(day).toISOString().split('T')[0]);
+            const gmt3Date = new Date(day.getTime() + offset);
+            const dayDate = gmt3Date.toISOString().split('T')[0]
+            days.push(dayDate);
         }
         return days
     }
@@ -124,7 +128,7 @@ export class OutputsPresenter {
     getInitialMetrics(){
         const metrics=  [
             {name: "Valores nulos", value: 0, id: -1},
-            {name: "Errores de falta de horizonte a 4 dias", value: 0, id: -1},
+            {name: "Errores de falta de horizonte", value: 0, id: -1},
             {name: "Valores fuera de banda de errores", value: 0, id: -1},
             {name: "Errores de falta de pronostico", value: 0, id: -1},
             {name: "Outliers observados", value: 0, id: -1},

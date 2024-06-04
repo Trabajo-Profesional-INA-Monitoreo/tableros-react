@@ -11,6 +11,8 @@ import dayjs from 'dayjs';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 import { ErrorModal, NoErrorModal } from './errorModal';
 import { OutputsPresenter } from '../../presenters/outputsPresenter';
+import NoConectionSplash from '../../components/noConection/noConection';
+import { notifyError } from '../../utils/notification';
 
 function dateParser(date){
     const year = date.getFullYear();
@@ -31,6 +33,7 @@ const metricsBox = (title, subtitle) => {
 export const Outputs = () => {
     const presenter = new OutputsPresenter()
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false)
 
     const currentDate = dayjs()
     const defaultDesdeDate = dayjs().subtract(7, 'day')
@@ -60,7 +63,7 @@ export const Outputs = () => {
             dataGraficos.push({data:erroresPorDias['ForecastMissing'], label:'Falta de pronostico', stack: 'total'})
         }
         if(erroresPorDias["Missing4DaysHorizon"]){
-            dataGraficos.push({data:erroresPorDias['Missing4DaysHorizon'], label:'Falta de horizonte a 4 dias', stack: 'total'})
+            dataGraficos.push({data:erroresPorDias['Missing4DaysHorizon'], label:'Falta de horizonte', stack: 'total'})
         }
         if(erroresPorDias["ForecastOutOfBounds"]){
             dataGraficos.push({data:erroresPorDias['ForecastOutOfBounds'], label:'Fuera de rango', stack: 'total'})
@@ -72,21 +75,36 @@ export const Outputs = () => {
     }
 
     const loadIndicators = useCallback (async() =>{
-        await presenter.getIndicators(metrics)
-        setMetrics(metrics)
+        try{
+            await presenter.getIndicators(metrics)
+            setMetrics(metrics)
+        } catch(error) {
+            notifyError(error)
+            setError(true)
+        }
     },[])
 
     const loadBehavior = useCallback ( async ( params )=>{
-        const behaviors = await presenter.getBehaviors(params)
-        setNivelAlertaPorcentaje(behaviors["alertLevel"])
-        setevacuacionPorcentaje(behaviors["evacuationLevel"])
-        setAguasBajasPorcentaje(behaviors["lowWaterLevel"])
+        try{
+            const behaviors = await presenter.getBehaviors(params)
+            setNivelAlertaPorcentaje(behaviors["alertLevel"])
+            setevacuacionPorcentaje(behaviors["evacuationLevel"])
+            setAguasBajasPorcentaje(behaviors["lowWaterLevel"])
+        } catch(error) {
+            notifyError(error)
+            setError(true)
+        }
     },[])
 
     const fetchDataPorDia = async ( params ) => {
-        let dataPorDia = await presenter.getErroresPorDia(params)
-        const erroresAgrupados = presenter.groupErrors(dataPorDia, desde.toDate(), hasta.toDate());
-        setErroresPorDias(erroresAgrupados);
+        try{
+            let dataPorDia = await presenter.getErroresPorDia(params)
+            const erroresAgrupados = presenter.groupErrors(dataPorDia, desde.toDate(), hasta.toDate());
+            setErroresPorDias(erroresAgrupados);
+        } catch(error) {
+            notifyError(error)
+            setError(true)
+        }
     };
     async function aplicarFiltros(){
         const params = {
@@ -95,11 +113,16 @@ export const Outputs = () => {
         }
         const fetchDataFiltered = async () => {
             setLoading(true);
-            await presenter.getFilteredIndicators(params, metrics)
-            loadBehavior(params)
-            fetchDataPorDia(params)
-            setGraficoDesde(desde)
-            setGraficoHasta(hasta)
+            try{
+                await presenter.getFilteredIndicators(params, metrics)
+                loadBehavior(params)
+                fetchDataPorDia(params)
+                setGraficoDesde(desde)
+                setGraficoHasta(hasta)
+            } catch(error) {
+                notifyError(error)
+                setError(true)
+            }
             setLoading(false);
         }
         fetchDataFiltered();
@@ -163,8 +186,8 @@ export const Outputs = () => {
                 width: '10vw'
             }}
             />
-            : <>
-
+            :(error? <NoConectionSplash/> : 
+            <>
                 <div style={{padding: 10, marginTop:5}}>
                     <Box className='row space-around wrap'>
                         {metrics.map(metric => 
@@ -215,7 +238,7 @@ export const Outputs = () => {
                         </Box>
                     </Box>
             <Line/>
-            </>}
+            </>)}
         </>
     );
 }
