@@ -2,19 +2,17 @@ import React, {useEffect, useState, useCallback} from 'react';
 import { Box } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import Line from '../../components/line/line';
-
 import { DatePicker } from '@mui/x-date-pickers';
-
 import { TextField, Button, Typography} from '@mui/material';
 import { CircularProgress } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
-import OutputService from '../../services/outputsService';
 import CircularProgressWithLabel from '../../components/circularProgressWithLabel/circularProgressWithLabel';
 import dayjs from 'dayjs';
-import { getConfigurationID } from '../../utils/storage';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 import { ErrorModal, NoErrorModal } from './errorModal';
-import { OutputsPresenter } from '../../presenters/outputsService';
+import { OutputsPresenter } from '../../presenters/outputsPresenter';
+import NoConectionSplash from '../../components/noConection/noConection';
+import { notifyError } from '../../utils/notification';
 
 function dateParser(date){
     const year = date.getFullYear();
@@ -25,93 +23,17 @@ function dateParser(date){
 
 const metricsBox = (title, subtitle) => {
     return (
-        <Box sx={{height: 100, width: 200, border: '1.5px solid #E0E6ED', padding:1, alignContent:"center"}}>
+        <Box sx={{height: 110, width: 200, border: '1.5px solid #E0E6ED', padding:1, justifyContent:"center",alignContent:"center"}}>
             <Typography align='center' sx={{fontWeight:"bold"}}> {title} </Typography>
-            <Typography align='center' variant='h5' sx={{mt: 2, fontWeight:"bold", color: (subtitle > 0? "#E53E3E" : "#38A169")}}> {subtitle} </Typography>
+            <Typography align='center' variant='h5' sx={{mt:1, fontWeight:"bold", color: (subtitle > 0? "#E53E3E" : "#38A169")}}> {subtitle} </Typography>
         </Box>
     )
 }
 
-function calcularDias(desde, hasta){
-    const days = [];
-    for (let day = desde; day <= hasta; day.setDate(day.getDate() + 1)) {
-        days.push(new Date(day).toISOString().split('T')[0]);
-    }
-    return days
-}
-
-function formatDates(arr) {
-    arr.forEach(obj => {
-        obj.Date = obj.Date.substring(0, 10);
-    });
-    return arr;
-}
-
-function groupErrors(dates, desde, hasta) {
-    dates = formatDates(dates)
-    const grouped = Object.groupBy(dates, ({ ErrorType }) => ErrorType);
-    const errorsGrouped = {}
-    for (const [ErrorType, errors] of Object.entries(grouped)) {
-        errorsGrouped[ErrorType] = []
-        const byDate = new Map(errors.map((obj) => [obj.Date, obj]));
-        for (let day = new Date(desde); day <= hasta; day.setDate(day.getDate() + 1)) {
-            const parsedDate = day.toISOString().split('T')[0];
-            const dateErrors = byDate.get(parsedDate);
-            if (dateErrors) {
-                errorsGrouped[ErrorType].push(dateErrors.Total);
-            } else {
-                errorsGrouped[ErrorType].push(0);
-            }
-        }
-    }
-    return errorsGrouped;
-}
-
-const map_metrics = (metrics, errores) => {
-    if(errores?.length === 0){
-        updateObjectInArray(metrics, "Valores nulos", { value: 0 }  )
-        updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { value: 0}  )
-        updateObjectInArray(metrics, "Valores fuera de banda de errores", { value: 0 }  )
-        updateObjectInArray(metrics, "Errores de falta de pronostico", { value: 0 }  )
-        updateObjectInArray(metrics, "Outliers observados", { value: 0 }  )
-        updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { value: 0 }  )
-    }
-    for (const errorobj of errores) {
-        if(errorobj.ErrorType === 'NullValue'){
-            updateObjectInArray(metrics, "Valores nulos", { value: errorobj.Count })
-            updateObjectInArray(metrics, "Valores nulos", { id: errorobj.ErrorId })
-        }else if(errorobj.ErrorType === 'Missing4DaysHorizon'){
-            updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { value: errorobj.Count })
-            updateObjectInArray(metrics, "Errores de falta de horizonte a 4 dias", { id: errorobj.ErrorId })
-        }else if(errorobj.ErrorType === 'OutsideOfErrorBands'){
-            updateObjectInArray(metrics, "Valores fuera de banda de errores", { value: errorobj.Count })
-            updateObjectInArray(metrics, "Valores fuera de banda de errores", { id: errorobj.ErrorId })
-        }else if(errorobj.ErrorType === "ForecastMissing"){
-            updateObjectInArray(metrics, "Errores de falta de pronostico", { value: errorobj.Count })
-            updateObjectInArray(metrics, "Errores de falta de pronostico", { id: errorobj.ErrorId })
-        }else if(errorobj.ErrorType === "ObservedOutlier"){
-            updateObjectInArray(metrics, "Outliers observados", { value: errorobj.Count })
-            updateObjectInArray(metrics, "Outliers observados", { id: errorobj.ErrorId })
-        }else if(errorobj.ErrorType === "ForecastOutOfBounds"){
-            updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { value: errorobj.Count })
-            updateObjectInArray(metrics, "Pronosticos fuera de umbrales", { id: errorobj.ErrorId })
-        }
-    }
-}
-
-const updateObjectInArray = (arr, nameValue, updatedValue) => {
-    const index = arr.findIndex(obj => obj.name === nameValue);
-    if (index !== -1) {
-        arr[index] = { ...arr[index], ...updatedValue };
-    }
-    return arr;
-};
-
 export const Outputs = () => {
-    const service = new OutputService()
     const presenter = new OutputsPresenter()
-    const [currentConfigId, setCurrentConfigId] = useState('');
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false)
 
     const currentDate = dayjs()
     const defaultDesdeDate = dayjs().subtract(7, 'day')
@@ -122,18 +44,9 @@ export const Outputs = () => {
     const [graficoDesde, setGraficoDesde] = useState(defaultDesdeDate);
     const [graficohasta, setGraficoHasta] = useState(currentDate);
 
-    const [indicadores, setIndicadores] =  useState([]);
-
     const [openMetric, setOpenMetric] = useState(null);
 
-    const [metrics, setMetrics] = useState([
-        {name: "Valores nulos", value: 0, id: -1},
-        {name: "Errores de falta de horizonte a 4 dias", value: 0, id: -1},
-        {name: "Valores fuera de banda de errores", value: 0, id: -1},
-        {name: "Errores de falta de pronostico", value: 0, id: -1},
-        {name: "Outliers observados", value: 0, id: -1},
-        {name: "Pronosticos fuera de umbrales", value: 0, id: -1},
-    ]);
+    const [metrics, setMetrics] = useState(presenter.getInitialMetrics());
     const [erroresPorDias, setErroresPorDias] = useState({})
 
     const [nivelAlertaPorcentaje, setNivelAlertaPorcentaje] = useState(0)
@@ -150,7 +63,7 @@ export const Outputs = () => {
             dataGraficos.push({data:erroresPorDias['ForecastMissing'], label:'Falta de pronostico', stack: 'total'})
         }
         if(erroresPorDias["Missing4DaysHorizon"]){
-            dataGraficos.push({data:erroresPorDias['Missing4DaysHorizon'], label:'Falta de horizonte a 4 dias', stack: 'total'})
+            dataGraficos.push({data:erroresPorDias['Missing4DaysHorizon'], label:'Falta de horizonte', stack: 'total'})
         }
         if(erroresPorDias["ForecastOutOfBounds"]){
             dataGraficos.push({data:erroresPorDias['ForecastOutOfBounds'], label:'Fuera de rango', stack: 'total'})
@@ -162,44 +75,54 @@ export const Outputs = () => {
     }
 
     const loadIndicators = useCallback (async() =>{
-        const configId = getConfigurationID();
-        setCurrentConfigId(configId)
-        let indicadoresResponse = await service.getIndicatorsbyConfigID(configId)
-        setIndicadores(indicadoresResponse)
-        map_metrics(metrics, indicadoresResponse)
-        setMetrics(metrics)
+        try{
+            await presenter.getIndicators(metrics)
+            setMetrics(metrics)
+        } catch(error) {
+            notifyError(error)
+            setError(true)
+        }
     },[])
 
-    const loadBehavior = useCallback (async()=>{
-        const configId = getConfigurationID();
-        const behaviorResponse = await service.getBehaviorByConfigId(configId)
-        setNivelAlertaPorcentaje(behaviorResponse.TotalValuesCount? (behaviorResponse.CountAlertLevel*100)/behaviorResponse.TotalValuesCount:0)
-        setevacuacionPorcentaje(behaviorResponse.TotalValuesCount? (behaviorResponse.CountEvacuationLevel*100)/behaviorResponse.TotalValuesCount:0)
-        setAguasBajasPorcentaje(behaviorResponse.TotalValuesCount? (behaviorResponse.CountLowWaterLevel*100)/behaviorResponse.TotalValuesCount:0)
+    const loadBehavior = useCallback ( async ( params )=>{
+        try{
+            const behaviors = await presenter.getBehaviors(params)
+            setNivelAlertaPorcentaje(behaviors["alertLevel"])
+            setevacuacionPorcentaje(behaviors["evacuationLevel"])
+            setAguasBajasPorcentaje(behaviors["lowWaterLevel"])
+        } catch(error) {
+            notifyError(error)
+            setError(true)
+        }
     },[])
 
+    const fetchDataPorDia = async ( params ) => {
+        try{
+            let dataPorDia = await presenter.getErroresPorDia(params)
+            const erroresAgrupados = presenter.groupErrors(dataPorDia, desde.toDate(), hasta.toDate());
+            setErroresPorDias(erroresAgrupados);
+        } catch(error) {
+            notifyError(error)
+            setError(true)
+        }
+    };
     async function aplicarFiltros(){
         const params = {
-            configurationId: currentConfigId,
             ...(desde) && {timeStart: dateParser(desde.toDate())},
             ...(hasta) && {timeEnd: dateParser(hasta.toDate())},
         }
         const fetchDataFiltered = async () => {
             setLoading(true);
-            const filteredIndicators = await service.getFilteredIndicators(params)
-            map_metrics(metrics, filteredIndicators)
-            setMetrics(metrics)
-
-            const filteredErrorsPerDayResponse = await service.getErroresPorDia(params)
-            const erroresAgrupados = groupErrors(filteredErrorsPerDayResponse, desde.toDate(), hasta.toDate());
-            setErroresPorDias(erroresAgrupados);
-
-            const filteredBehavior = await service.getBehaviorFilterd(params)
-            setNivelAlertaPorcentaje(filteredBehavior.TotalValuesCount? (filteredBehavior.CountAlertLevel *100)/ filteredBehavior.TotalValuesCount :0)
-            setevacuacionPorcentaje(filteredBehavior.TotalValuesCount? (filteredBehavior.CountEvacuationLevel *100)/ filteredBehavior.TotalValuesCount:0)
-            setAguasBajasPorcentaje(filteredBehavior.TotalValuesCount? (filteredBehavior.CountLowWaterLevel*100)/ filteredBehavior.TotalValuesCount:0)
-            setGraficoDesde(desde)
-            setGraficoHasta(hasta)
+            try{
+                await presenter.getFilteredIndicators(params, metrics)
+                loadBehavior(params)
+                fetchDataPorDia(params)
+                setGraficoDesde(desde)
+                setGraficoHasta(hasta)
+            } catch(error) {
+                notifyError(error)
+                setError(true)
+            }
             setLoading(false);
         }
         fetchDataFiltered();
@@ -207,18 +130,9 @@ export const Outputs = () => {
 
     useEffect(() => {
         loadIndicators()
-        map_metrics(metrics, indicadores)
-        setMetrics(metrics)
-        const configId = getConfigurationID();
-        setCurrentConfigId(configId)
-        const fetchDataPorDia = async () => {
-            let dataPorDia = await presenter.getErroresPorDia(configId)
-            const erroresAgrupados = groupErrors(dataPorDia, desde.toDate(), hasta.toDate());
-            setErroresPorDias(erroresAgrupados);
-            setLoading(false);
-        };
         fetchDataPorDia();
         loadBehavior()
+        setLoading(false);
     }, [loadIndicators, loadBehavior]);
 
 
@@ -272,8 +186,8 @@ export const Outputs = () => {
                 width: '10vw'
             }}
             />
-            : <>
-
+            :(error? <NoConectionSplash/> : 
+            <>
                 <div style={{padding: 10, marginTop:5}}>
                     <Box className='row space-around wrap'>
                         {metrics.map(metric => 
@@ -298,7 +212,7 @@ export const Outputs = () => {
                         <BarChart
                         width={800}
                         height={400}
-                        xAxis={[{ scaleType: 'band', data: calcularDias(graficoDesde.toDate(),graficohasta.toDate()) }]}
+                        xAxis={[{ scaleType: 'band', data: presenter.calcularDias(graficoDesde.toDate(),graficohasta.toDate()) }]}
                         series={cargarDataGrafico()}
                         />
                     </div>
@@ -310,21 +224,21 @@ export const Outputs = () => {
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
 
                         <h3>Nivel de alerta</h3>
-                        <CircularProgressWithLabel text="observaciones por debajo del nivel de alerta " percentage={nivelAlertaPorcentaje.toFixed(1)} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
+                        <CircularProgressWithLabel text="observaciones superan el nivel de alerta " percentage={nivelAlertaPorcentaje.toFixed(1)} color={nivelAlertaPorcentaje<30? "success": (nivelAlertaPorcentaje<60?"warning":"error")}/>
                         </Box>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
 
                         <h3>Nivel de evacuación</h3>
-                        <CircularProgressWithLabel text="observaciones debajo del nivel de evacuacion" percentage={evacuacionPorcentaje.toFixed(1)} color={evacuacionPorcentaje<30? "success": (evacuacionPorcentaje<60?"warning":"error")}/>
+                        <CircularProgressWithLabel text="observaciones superan el nivel de evacuacion" percentage={evacuacionPorcentaje.toFixed(1)} color={evacuacionPorcentaje<30? "success": (evacuacionPorcentaje<60?"warning":"error")}/>
                         </Box>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
 
                         <h3>Nivel de aguas bajas</h3>
-                        <CircularProgressWithLabel text="observaciones supera el nivel de aguas bajas" percentage={aguasBajasPorcentaje.toFixed(1)} color={aguasBajasPorcentaje<30? "success": (aguasBajasPorcentaje<60?"warning":"error")}/>
+                        <CircularProgressWithLabel text="observaciones por debajo del nivel de aguas bajas" percentage={aguasBajasPorcentaje.toFixed(1)} color={aguasBajasPorcentaje<30? "success": (aguasBajasPorcentaje<60?"warning":"error")}/>
                         </Box>
                     </Box>
             <Line/>
-            </>}
+            </>)}
         </>
     );
 }

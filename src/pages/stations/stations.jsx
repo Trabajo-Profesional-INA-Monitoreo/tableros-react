@@ -7,6 +7,8 @@ import { StationPresenter } from '../../presenters/stationPresenter';
 import { getConfigurationID } from '../../utils/storage';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 import PaginationComponent from '../../components/pagination/paginationComponent';
+import { notifyError } from '../../utils/notification';
+import NoConectionSplash from '../../components/noConection/noConection';
 
 function formatDate(isoDate) {
     const date = new Date(isoDate);
@@ -23,16 +25,22 @@ function formatDate(isoDate) {
 
 export const Stations = () => {
     const presenter = new StationPresenter();
-    
+    const [error, setError] = useState(false)
+
     const [stations, setStations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
 
     const getStations = async() => {
-        const response = await presenter.getStations(page);
-        setStations(response.Stations);
-        setTotalPages(response.Pageable.Pages);
+        try{
+            const response = await presenter.getStations(page);
+            setStations(response.Stations);
+            setTotalPages(response.Pageable.Pages);
+        } catch(error) {
+            notifyError(error)
+            setError(true)
+        }
         setIsLoading(false);
     }
 
@@ -46,7 +54,8 @@ export const Stations = () => {
             <CurrentConfiguration/>
             <Line/>
             <InformativeCardContainer>
-            {isLoading ? <CircularProgressLoading/> :
+            {isLoading ? <CircularProgressLoading/>
+            :(error? <NoConectionSplash/> : 
                 stations.map(station => 
                 <InformativeCard 
                     title={station.StationName+' | '+station.StationId}
@@ -60,7 +69,7 @@ export const Stations = () => {
                     id={station.StationId}
                 />
                 
-            )}    
+            ))}    
             </InformativeCardContainer>
             <PaginationComponent totalPages={totalPages} func={ presenter.getStations} params={null} setterData={setStations} isStation={true} setLoading={setIsLoading}/>
         </Box>

@@ -14,10 +14,11 @@ import { ConfigurationContext } from '../../../providers/configProvider';
 import useUser from '../../../stores/useUser';
 import { CONFIGURATION_VIEWS } from '../configuraciones';
 import { getConfigurationID, setConfigurationID, setConfigurationName } from '../../../utils/storage';
-import { NoResultStyles } from './Style';
-import ManageSearchIcon from '@mui/icons-material/ManageSearch';
+import { notifyError } from "../../../utils/notification";
 import { CurrentConfiguration } from '../../../components/currentConfiguration/currentConfiguration';
 import { DeleteModal } from '../deleteModal/deleteModal';
+import NoResults from '../../../components/noResults/noResults';
+import NoConectionSplash from '../../../components/noConection/noConection';
 
 const saveSelectedId = (id, name) => {
     setConfigurationID(id);
@@ -36,6 +37,7 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
     const [isLoading, setLoading] = useState(true)
     const isAdmin = userInfo.roles?.includes("admin")
     const [modalId, setModalId] = useState(null);
+    const [error, setError] = useState(false)
 
     const handleDelete = (id) => {
         const updatedData = configurations.filter((item) => item.Id !== id);
@@ -43,22 +45,30 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
     };
 
     const fetchConfigData = useCallback(async( func)=> {
-        const data = await func();
-        if (data){
-            setConfigurations(data)
-            if(!currentConfigID && data.length>0) { //setteo por default la primera
-                selectConfig(data[0].Id, data[0].Name);
-                saveSelectedId(data[0].Id, data[0].Name)
+        try{
+            const data = await func();
+            if (data){
+                setConfigurations(data)
+                if(!currentConfigID && data.length>0) { //setteo por default la primera
+                    selectConfig(data[0].Id, data[0].Name);
+                    saveSelectedId(data[0].Id, data[0].Name)
+                }
             }
+        } catch(error){
+            notifyError(`${error} configurations`)
+            setError(true)
+        } finally {
+            setLoading(false)
         }
-        setLoading(false)
     }, [])
     
     useEffect(() => {
+        
         fetchConfigData(presenter.getConfigurations)
+        
+        
     }, [fetchConfigData]);
 
-    const styles= NoResultStyles()
 
     return (
         <>
@@ -75,7 +85,8 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
                         width: '10vw'
                     }}
                 />
-                :(configurations.length>0? 
+                :(error? <NoConectionSplash/> : 
+                (configurations.length>0? 
                     <Box sx={{width: '90%', bgcolor: 'background.paper', margin:"5%"}}>
 
                     <Box sx={{
@@ -105,12 +116,12 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
                                             >
                                                 usar
                                             </Button>
-                                            <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.VIEW); setSelectedConfigurationID(configuration.Id); }}>
+                                            <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.VIEW); setSelectedConfigurationID(configuration.Id); window.scrollTo(0, 0)}}>
                                                 <VisibilityOutlinedIcon color='primary'/>
                                             </IconButton>
                                             {isAdmin ?
                                                 <>
-                                                    <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.EDIT); setSelectedConfigurationID(configuration.Id); }}>
+                                                    <IconButton aria-label="trash" onClick={() => { setCurrentView(CONFIGURATION_VIEWS.EDIT); setSelectedConfigurationID(configuration.Id); window.scrollTo(0, 0)}}>
                                                         <EditIcon color='primary'/>
                                                     </IconButton>
                                                     <IconButton aria-label="trash" onClick={() =>{setModalId(configuration.Id)}}>
@@ -144,20 +155,15 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
                             bottom: "30px",
                             right: "20px",
                         }}
-                        onClick={() => setCurrentView(CONFIGURATION_VIEWS.CREATE)}
+                        onClick={() => {setCurrentView(CONFIGURATION_VIEWS.CREATE); window.scrollTo(0, 0)}}
                     >
                         Agregar configuración
                     </Button> :<></>}
 
                 </Box>
                 :
-                    <>
-                        <div style={styles.mainContainer}>
-                            <ManageSearchIcon sx={styles.icon}/>
-                            <h1 style={styles.text}>No se encontraron configuraciones</h1>
-                        </div>
-                    </>
-                )
+                    <NoResults textNoResults="configuraciones"/>
+                ))
             }
         </>
     );

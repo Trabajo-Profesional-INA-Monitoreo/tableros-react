@@ -5,6 +5,8 @@ import { SeriesPresenter } from "../../presenters/seriesPresenter";
 import { useEffect, useState } from "react";
 import { DataGrid } from '@mui/x-data-grid';
 import { useNavigate } from "react-router-dom";
+import { notifyError } from "../../utils/notification";
+import NoConectionSplash from "../../components/noConection/noConection";
 
 const MODAL_STYLE = {
     position: 'absolute',
@@ -29,11 +31,18 @@ export const ErrorModal = ({open, onClose, errorType}) => {
     const [isLoading, setIsLoading] = useState(true);
     const [implicatedSeries, setImplicatedSeries] = useState([]);
     const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 2});
+    const [error, setError] = useState(false)
 
     const getImplicatedSeries = async() => {
-        const implicatedSeries = await presenter.getImplicatedSeries(errorType);
-        setImplicatedSeries(implicatedSeries);
-        setIsLoading(false);
+        try{
+            const implicatedSeries = await presenter.getImplicatedSeries(errorType);
+            setImplicatedSeries(implicatedSeries);
+        } catch(error) {
+            notifyError(error)
+            setError(true)
+        } finally{
+            setIsLoading(false);
+        }
     }
 
     useEffect(() => {
@@ -47,7 +56,8 @@ export const ErrorModal = ({open, onClose, errorType}) => {
             <Box sx = {MODAL_STYLE}>
                 <Typography  variant="h6" align='center'> Series implicadas </Typography>
                 <Line />
-                {isLoading ? <CircularProgressLoading/> : 
+                {isLoading ? <CircularProgressLoading/>
+                :(error? <NoConectionSplash/> : 
                      <DataGrid
                         rows={implicatedSeries.map((serie, index) => ({...serie, id: index}))}
                         columns={
@@ -69,7 +79,7 @@ export const ErrorModal = ({open, onClose, errorType}) => {
                         onPaginationModelChange={setPaginationModel}
                         disableRowSelectionOnClick
                    />
-                }
+                )}
                 
             </Box>
         </Modal>

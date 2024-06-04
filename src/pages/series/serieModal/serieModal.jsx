@@ -11,6 +11,8 @@ import './serieModal.css'
 import { union } from '../../../utils/functions';
 import { formatMinutes } from '../../../utils/dates';
 import { ERROR_TYPE_CODE } from '../../../utils/constants'
+import { notifyError } from '../../../utils/notification';
+import NoConectionSplash from '../../../components/noConection/noConection';
 
 const loadingStyle = {
   display: 'flex',
@@ -92,33 +94,40 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
   const [endDate, setEndDate] = useState(dayjs());
   const [redundancies, setRedundancies] = useState([]);
   const [serieErrors, setSerieErrors] = useState({});
+  const [error, setError] = useState(false)
 
   const getSerieMetadataAndValues = async () => {
     if (open) {
-      let serieMetadata = await presenter.getSerieMetadata(serieId, configuredSerieId, startDate, endDate);
-      let serieValues = await presenter.getSerieValues(serieId, serieType, calibrationId, startDate, endDate);
-      let serieErrors = await presenter.getSerieErrors(configuredSerieId, startDate, endDate, 1, 15);
-      let redundancies = await presenter.getSerieRedundancies(configuredSerieId);
-      switch (serieType) {
-        case 0:
-        case 2:
-          setSerieValues(serieValues.Streams);
-          break;
-        case 1:
-          setSerieValues(serieValues.MainStreams);
-          setSerieP05Values(serieValues.P05Streams);
-          setSerieP95Values(serieValues.P95Streams);
-          if (serieMetadata.ObservedRelatedStreamId) {
-            let observedRelatedValues = await presenter.getSerieValues(serieMetadata.ObservedRelatedStreamId, 0, null, startDate, endDate);
-            setObservedRelatedValues(observedRelatedValues.Streams);
-          }
-          break;
-        default:
-      }  
-      setSerieMetadata(serieMetadata);
-      setSerieErrors(serieErrors);
-      setRedundancies(redundancies.Redundancies ? redundancies.Redundancies : []);
+      try{
+        let serieMetadata = await presenter.getSerieMetadata(serieId, configuredSerieId, startDate, endDate);
+        let serieValues = await presenter.getSerieValues(serieId, serieType, calibrationId, startDate, endDate);
+        let serieErrors = await presenter.getSerieErrors(configuredSerieId, startDate, endDate, 1, 15);
+        let redundancies = await presenter.getSerieRedundancies(configuredSerieId);
+        switch (serieType) {
+          case 0:
+          case 2:
+            setSerieValues(serieValues.Streams);
+            break;
+          case 1:
+            setSerieValues(serieValues.MainStreams);
+            setSerieP05Values(serieValues.P05Streams);
+            setSerieP95Values(serieValues.P95Streams);
+            if (serieMetadata.ObservedRelatedStreamId) {
+              let observedRelatedValues = await presenter.getSerieValues(serieMetadata.ObservedRelatedStreamId, 0, null, startDate, endDate);
+              setObservedRelatedValues(observedRelatedValues.Streams);
+            }
+            break;
+          default:
+        }  
+        setSerieMetadata(serieMetadata);
+        setSerieErrors(serieErrors);
+        setRedundancies(redundancies.Redundancies ? redundancies.Redundancies : []);
+    } catch(error) {
+      notifyError(error)
+      setError(true)
+  } finally{
       setIsLoading(false);
+  }
     }
   }
 
@@ -128,7 +137,8 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
 
   return (
       <Modal open={open} onClose={handleClose}>
-      {isLoading ? <Box sx={style}><CircularProgress style={loadingStyle}></CircularProgress></Box>:
+      {isLoading ? <Box sx={style}><CircularProgress style={loadingStyle}></CircularProgress></Box>
+      :(error? <Box sx={style}> <NoConectionSplash/> </Box>: 
       <Box sx={style}>
       <Box className='row'>
         <Typography variant="h6" align='center'sx={{marginLeft: 'auto', marginRight: 'auto'}}><b>{serieMetadata.Station} | {serieId}</b></Typography>
@@ -213,7 +223,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
           checkErrors={checkErrors}/>
         </div>
       </Box>
-      }
+      )}
     </Modal>
   );
 }
@@ -314,12 +324,12 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
     
     if (serieMetadata.EvacuationLevel && serieMetadata.AlertLevel && serieMetadata.LowWaterLevel && showLevels) {
       _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.EvacuationLevel), label: 'Evacuación', showMark: false, color: '#e15759', valueFormatter: _valueFormatter});
-      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.AlertLevel), label: 'Alerta', showMark: false, color:'#e15759', valueFormatter: _valueFormatter});
-      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.LowWaterLevel), label: 'Aguas bajas', showMark: false, color: '#e15759', valueFormatter: _valueFormatter});
+      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.AlertLevel), label: 'Alerta', showMark: false, color:'#E6B855', valueFormatter: _valueFormatter});
+      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.LowWaterLevel), label: 'Aguas bajas', showMark: false, color: '#45E0CC', valueFormatter: _valueFormatter});
     }
 
     if (showThresholds) {
-      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.NormalLowerThreshold), label: 'Umbral inferior', showMark: false, color: '#A020F0', valueFormatter: _valueFormatter});
+      _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.NormalLowerThreshold), label: 'Umbral inferior', showMark: false, color: '#8386FA', valueFormatter: _valueFormatter});
       _plotSeries.push({curve: "linear", data: Array(xAxisLength).fill(serieMetadata.NormalUpperThreshold), label: 'Umbral superior', showMark: false, color:'#A020F0', valueFormatter: _valueFormatter});
     }
 

@@ -12,14 +12,17 @@ import { StationPresenter } from '../../presenters/stationPresenter';
 import { UtilsPresenter } from '../../presenters/utilsPresenter';
 import { getConfigurationID } from '../../utils/storage';
 import { useLocation } from "react-router-dom";
+import NoResults from '../../components/noResults/noResults';
+import NoConectionSplash from '../../components/noConection/noConection';
+import { notifyError } from '../../utils/notification';
 
 export const Series = () => {
-
     const seriesPresenter = new SeriesPresenter();
     const stationsPresenter = new StationPresenter();
     const utilsPresenter = new UtilsPresenter();
     const location = useLocation();
-    
+    const [error, setError] = useState(false)
+
     const [isLoading, setIsLoading] = useState(true);
 
     const [_streamId, _setStreamId] = useState(location?.state?.streamId ? location?.state?.streamId : '');
@@ -41,30 +44,56 @@ export const Series = () => {
     const [modalId, setModalId] = useState(null);
 
     const getAllStationNames = async() => {
-        const stationNames = await stationsPresenter.getAllStationsNames();
-        setStations(stationNames);
+        try{
+            const stationNames = await stationsPresenter.getAllStationsNames();
+            setStations(stationNames);
+        } catch(error) {
+            notifyError(error)
+            setError(true)
+        }
     }
 
     const getAllVariables = async() => {
-        const variables = await utilsPresenter.getAllVariables();
-        setVariables(variables);
+        try{
+            const variables = await utilsPresenter.getAllVariables();
+            setVariables(variables);
+        } catch(error) {
+            notifyError(error)
+            setError(true)
+        }
     }
 
     const getAllProcedures = async() => {
-        const procedures = await utilsPresenter.getAllProcedures();
-        setProcedures(procedures);
+        try{
+            const procedures = await utilsPresenter.getAllProcedures();
+            setProcedures(procedures);
+        } catch(error) {
+            notifyError(error)
+            setError(true)
+        }
     }
 
     const getAllNodes = async() => {
-        const nodes = await utilsPresenter.getAllNodes();
-        setNodes(nodes);
+        try{
+            const nodes = await utilsPresenter.getAllNodes();
+            setNodes(nodes);
+        } catch(error) {
+            notifyError(error)
+            setError(true)
+        }
     }
 
 	const getSeriePage = async(params) => {
-		const data = await seriesPresenter.getSeriePage(page, params)
-		setSeries(data.Content);
-		setTotalPages(data.Pageable.Pages);
-		setIsLoading(false);
+		try{
+            const data = await seriesPresenter.getSeriePage(page, params)
+            setSeries(data.Content);
+            setTotalPages(data.Pageable.Pages);
+        } catch(error) {
+            notifyError(error)
+            setError(true)
+        } finally{
+            setIsLoading(false);
+        }
 	}
 
     const buildParams = () => {
@@ -110,9 +139,7 @@ export const Series = () => {
 		<h1> Series </h1>
         <CurrentConfiguration/>
         <Line/>
-            {isLoading ? <CircularProgressLoading /> : 
-                <>
-                    <Container sx={{display:"flex", flexFlow:"wrap", alignItems:"center", justifyContent: 'center', m: 2}}>
+            <Container sx={{display:"flex", flexFlow:"wrap", alignItems:"center", justifyContent: 'center', m: 2}}>
                             <TextField 
                                 label='Serie ID'
                                 value={_streamId}
@@ -148,6 +175,12 @@ export const Series = () => {
                                 Borrar filtros
                             </Button>
                     </Container>
+            {isLoading ?
+                <CircularProgressLoading />
+            :(error? <NoConectionSplash/> : 
+            (series.length>0? 
+                <>
+                    
                     <Container>
                         <Grid
                             container
@@ -172,8 +205,10 @@ export const Series = () => {
                             />
                     ))}
                 <PaginationComponent totalPages={totalPages} func={seriesPresenter.getSeriePage} params={buildParams()} setterData={setSeries} isStation={false}/>
-            </>
-            }
+            </>:
+                    <NoResults textNoResults="series"/>
+                )
+            )}
         </>
     );
 }
