@@ -4,7 +4,6 @@ import Line from '../../components/line/line';
 import { Box } from '@mui/material';
 import CircularProgressLoading from '../../components/circularProgressLoading/circularProgressLoading'
 import { StationPresenter } from '../../presenters/stationPresenter';
-import { getConfigurationID } from '../../utils/storage';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 import PaginationComponent from '../../components/pagination/paginationComponent';
 import { notifyError } from '../../utils/notification';
@@ -29,12 +28,11 @@ export const Stations = () => {
 
     const [stations, setStations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
 
     const getStations = async() => {
         try{
-            const response = await presenter.getStations(page);
+            const response = await presenter.getStations(1);
             setStations(response.Stations);
             setTotalPages(response.Pageable.Pages);
         } catch(error) {

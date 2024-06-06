@@ -30,37 +30,6 @@ const style = {
     flexDirection: 'column',
     justifyContent: 'center'
   };
-
-  const dataset = [
-    {
-      retardo: 21,
-      month: '2024-04-01',
-    },
-    {
-      retardo: 28,
-      month: '2024-04-02',
-    },
-    {
-      retardo: 41,
-      month: '2024-04-03',
-    },
-    {
-      retardo: 73,
-      month: '2024-04-04',
-    },
-    {
-      retardo: 99,
-      month: '2024-04-05',
-    },
-    {
-      retardo: 144,
-      month: '2024-04-06',
-    },
-    {
-      retardo: 319,
-      month: '2024-04-07',
-    }
-  ];
   
   const valueFormatter = (value) => `${value}h`;
 
@@ -78,6 +47,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
   const [endDate, setEndDate] = useState(dayjs());
   const [redundancies, setRedundancies] = useState([]);
   const [serieErrors, setSerieErrors] = useState({});
+  const [serieDelays, setSeriesDelays] = useState([]);
   const [error, setError] = useState(false)
 
   const getSerieMetadataAndValues = async () => {

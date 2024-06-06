@@ -38,7 +38,6 @@ export const Series = () => {
     const [nodes, setNodes] = useState([]);
 
     const [series, setSeries] = useState([]);
-    const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
 
     const [modalId, setModalId] = useState(null);
@@ -85,7 +84,7 @@ export const Series = () => {
 
 	const getSeriePage = async(params) => {
 		try{
-            const data = await seriesPresenter.getSeriePage(page, params)
+            const data = await seriesPresenter.getSeriePage(1, params)
             setSeries(data.Content);
             setTotalPages(data.Pageable.Pages);
         } catch(error) {
