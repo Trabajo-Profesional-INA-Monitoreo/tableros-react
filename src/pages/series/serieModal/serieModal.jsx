@@ -108,13 +108,13 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
         setSerieErrors(serieErrors);
         setSeriesDelays(serieDelays.sort((a, b) => new Date(a.Date) - new Date(b.Date)));
         setRedundancies(redundancies.Redundancies ? redundancies.Redundancies : []);
-    } catch(error) {
-      notifyError(error)
-      setError(true)
-  } finally{
-      setIsLoading(false);
+      } catch(error) {
+        notifyError(error)
+        setError(true)
+      } finally{
+        setIsLoading(false);
+      }
   }
-    }
   }
 
   useEffect(() => {
