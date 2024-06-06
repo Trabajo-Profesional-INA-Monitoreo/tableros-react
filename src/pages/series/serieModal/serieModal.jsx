@@ -85,7 +85,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
       try{
         let serieMetadata = await presenter.getSerieMetadata(serieId, configuredSerieId, startDate, endDate);
         let serieValues = await presenter.getSerieValues(serieId, serieType, calibrationId, startDate, endDate);
-        let serieErrors = await presenter.getSerieErrors(configuredSerieId, startDate, endDate, 1, 15);
+        let serieErrors = checkErrors ? await presenter.getSerieErrors(configuredSerieId, startDate, endDate, 1, 15) : {};
         let serieDelays = checkErrors ? await presenter.getSerieDelays(configuredSerieId, startDate, endDate) : [];
         let redundancies = await presenter.getSerieRedundancies(configuredSerieId);
         switch (serieType) {
