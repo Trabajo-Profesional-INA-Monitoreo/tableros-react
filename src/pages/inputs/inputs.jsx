@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback, useMemo} from 'react';
 import { Box, CircularProgress, Button, Grid, TextField} from '@mui/material';
 import { useEffect } from 'react';
 import { InputsPresenter } from '../../presenters/inputsPresenter';
@@ -20,7 +20,7 @@ function dateParser(date){
 }
 
 export const Inputs = () => {
-    const presenter = new InputsPresenter();
+    const presenter = useMemo(() => new InputsPresenter(), []);
     const [error, setError] = useState(false)
 
     const navigate = useNavigate()
@@ -36,7 +36,7 @@ export const Inputs = () => {
     const [hasta, setHasta] = useState(currentDate);
     const [metrics, setMetrics] = useState({})
 
-    const getSerieMetadataAndValues = async () => {
+    const getSerieMetadataAndValues = useCallback(async() => {
         const confID = getConfigurationID()
         const params = {
             configurationId: confID,
@@ -62,10 +62,11 @@ export const Inputs = () => {
             setIsLoading(false);
 
         }        
-    }
+    }, [desde, hasta, presenter]) 
+
     useEffect( () => {
         getSerieMetadataAndValues()
-    }, []);
+    }, [getSerieMetadataAndValues]);
 
     return (    
         
