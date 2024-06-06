@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import { Box } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import Line from '../../components/line/line';
@@ -31,7 +31,7 @@ const metricsBox = (title, subtitle) => {
 }
 
 export const Outputs = () => {
-    const presenter = new OutputsPresenter()
+    const presenter = useMemo(() => new OutputsPresenter(), [])
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false)
 
@@ -74,7 +74,7 @@ export const Outputs = () => {
         return dataGraficos
     }
 
-    const loadIndicators = useCallback (async() =>{
+    const loadIndicators = useCallback(async() => {
         try{
             await presenter.getIndicators(metrics)
             setMetrics(metrics)
@@ -82,9 +82,9 @@ export const Outputs = () => {
             notifyError(error)
             setError(true)
         }
-    },[])
+    },[metrics, presenter])
 
-    const loadBehavior = useCallback ( async ( params )=>{
+    const loadBehavior = useCallback(async(params) => {
         try{
             const behaviors = await presenter.getBehaviors(params)
             setNivelAlertaPorcentaje(behaviors["alertLevel"])
@@ -94,9 +94,9 @@ export const Outputs = () => {
             notifyError(error)
             setError(true)
         }
-    },[])
+    }, [presenter])
 
-    const fetchDataPorDia = async ( params ) => {
+    const fetchDataPorDia = useCallback(async(params) => {
         try{
             let dataPorDia = await presenter.getErroresPorDia(params)
             const erroresAgrupados = presenter.groupErrors(dataPorDia, desde.toDate(), hasta.toDate());
@@ -105,7 +105,8 @@ export const Outputs = () => {
             notifyError(error)
             setError(true)
         }
-    };
+    }, [presenter, desde, hasta]);
+
     async function aplicarFiltros(){
         const params = {
             ...(desde) && {timeStart: dateParser(desde.toDate())},
@@ -133,7 +134,7 @@ export const Outputs = () => {
         fetchDataPorDia();
         loadBehavior()
         setLoading(false);
-    }, [loadIndicators, loadBehavior]);
+    }, [loadIndicators, loadBehavior, fetchDataPorDia]);
 
 
     return (    
