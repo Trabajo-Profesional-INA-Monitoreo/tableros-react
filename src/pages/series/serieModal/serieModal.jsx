@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { SeriesPresenter } from '../../../presenters/seriesPresenter';
 import { Box, Modal, Typography, Tooltip, Button } from '@mui/material';
 import { BarChart, LineChart } from '@mui/x-charts';
@@ -35,7 +35,7 @@ const style = {
 
 export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId, configuredSerieId, checkErrors}) => {
 
-  const presenter = new SeriesPresenter();
+  const presenter = useMemo(() => new SeriesPresenter(), []);
 
   const [isLoading, setIsLoading] = useState(true);
   const [serieMetadata, setSerieMetadata] = useState({});
@@ -50,7 +50,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
   const [serieDelays, setSeriesDelays] = useState([]);
   const [error, setError] = useState(false)
 
-  const getSerieMetadataAndValues = async () => {
+  const getSerieMetadataAndValues = useCallback(async() => {
     if (open) {
       try{
         let serieMetadata = await presenter.getSerieMetadata(serieId, configuredSerieId, startDate, endDate);
@@ -84,12 +84,12 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
       } finally{
         setIsLoading(false);
       }
-  }
-  }
+    }
+  }, [presenter, calibrationId, checkErrors, configuredSerieId, endDate, open, serieId, serieType, startDate])
 
   useEffect(() => {
       getSerieMetadataAndValues();
-  }, [open, startDate, endDate]);
+  }, [open, startDate, endDate, getSerieMetadataAndValues]);
 
   return (
       <Modal open={open} onClose={handleClose}>
@@ -305,7 +305,7 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
     }
 
     setPlotSeries(_plotSeries);
-  }, [showThresholds, showLevels, showErrorBands, observedRelatedValues, serieValues, serieP95Values, serieP05Values]) 
+  }, [showThresholds, showLevels, showErrorBands, observedRelatedValues, serieValues, serieP95Values, serieP05Values, serieMetadata]) 
   
 
   return (
@@ -370,7 +370,7 @@ const ErrorTable = ({serieErrors, getErrors, checkErrors}) => {
 
   useEffect(() => {
     getErrors(paginationModel.page, paginationModel.pageSize);
-}, [paginationModel]);
+}, [paginationModel, getErrors]);
 
   return (
   <>
