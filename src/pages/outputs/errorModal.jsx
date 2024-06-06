@@ -2,7 +2,7 @@ import { Box, Button, Modal, Typography } from "@mui/material";
 import Line from "../../components/line/line";
 import CircularProgressLoading from "../../components/circularProgressLoading/circularProgressLoading";
 import { SeriesPresenter } from "../../presenters/seriesPresenter";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { DataGrid } from '@mui/x-data-grid';
 import { useNavigate } from "react-router-dom";
 import { notifyError } from "../../utils/notification";
@@ -26,14 +26,14 @@ const MODAL_STYLE = {
 
 export const ErrorModal = ({open, onClose, errorType}) => {
 
-    const presenter = new SeriesPresenter();
+    const presenter = useMemo(() => new SeriesPresenter(), []);
 
     const [isLoading, setIsLoading] = useState(true);
     const [implicatedSeries, setImplicatedSeries] = useState([]);
     const [paginationModel, setPaginationModel] = useState({page: 0, pageSize: 2});
     const [error, setError] = useState(false)
 
-    const getImplicatedSeries = async() => {
+    const getImplicatedSeries = useCallback(async() => {
         try{
             const implicatedSeries = await presenter.getImplicatedSeries(errorType);
             setImplicatedSeries(implicatedSeries);
@@ -43,11 +43,11 @@ export const ErrorModal = ({open, onClose, errorType}) => {
         } finally{
             setIsLoading(false);
         }
-    }
+    }, [errorType, presenter])
 
     useEffect(() => {
         if (open) getImplicatedSeries();
-    }, [open]);
+    }, [open, getImplicatedSeries]);
 
     const navigate = useNavigate();
 
