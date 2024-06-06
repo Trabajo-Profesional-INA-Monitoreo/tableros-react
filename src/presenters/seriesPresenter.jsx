@@ -30,6 +30,10 @@ export class SeriesPresenter {
         return this.serieService.getSerieErrors(configuredSerieId, dayjsToString(startDate), dayjsToString(endDate), page, pageSize);
     }
 
+    getSerieDelays = async(configuredSerieId, startDate, endDate) => {
+        return this.serieService.getSerieDelays(configuredSerieId, dayjsToString(startDate), dayjsToString(endDate));
+    }
+
     getImplicatedSeries = async(errorType) => {
         return this.serieService.getImplicatedSeries(errorType);
     }

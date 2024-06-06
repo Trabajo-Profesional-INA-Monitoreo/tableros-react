@@ -1,27 +1,19 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { SeriesPresenter } from '../../../presenters/seriesPresenter';
-import { Box, CircularProgress, Modal, Typography, Tooltip, Button } from '@mui/material';
+import { Box, Modal, Typography, Tooltip, Button } from '@mui/material';
 import { BarChart, LineChart } from '@mui/x-charts';
 import { DatePicker } from '@mui/x-date-pickers';
 import { DataGrid } from '@mui/x-data-grid';
-import Line from '../../../components/line/line';
-import dayjs from 'dayjs';
-import './serieModal.css'
 import { union } from '../../../utils/functions';
 import { formatMinutes } from '../../../utils/dates';
 import { ERROR_TYPE_CODE } from '../../../utils/constants'
 import { notifyError } from '../../../utils/notification';
 import NoConectionSplash from '../../../components/noConection/noConection';
-
-const loadingStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  height: '100vh',
-  margin: 'auto',
-  width: '10vw'
-}
+import CircularProgressLoading from '../../../components/circularProgressLoading/circularProgressLoading';
+import Line from '../../../components/line/line';
+import dayjs from 'dayjs';
+import './serieModal.css'
 
 const style = {
     position: 'absolute',
@@ -39,14 +31,6 @@ const style = {
     justifyContent: 'center'
   };
 
-  const chartSetting = {
-    yAxis: [
-      {
-        label: 'Horas',
-      },
-    ],
-    height: 300,
-  };
   const dataset = [
     {
       retardo: 21,
@@ -102,6 +86,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
         let serieMetadata = await presenter.getSerieMetadata(serieId, configuredSerieId, startDate, endDate);
         let serieValues = await presenter.getSerieValues(serieId, serieType, calibrationId, startDate, endDate);
         let serieErrors = await presenter.getSerieErrors(configuredSerieId, startDate, endDate, 1, 15);
+        let serieDelays = checkErrors ? await presenter.getSerieDelays(configuredSerieId, startDate, endDate) : [];
         let redundancies = await presenter.getSerieRedundancies(configuredSerieId);
         switch (serieType) {
           case 0:
@@ -121,6 +106,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
         }  
         setSerieMetadata(serieMetadata);
         setSerieErrors(serieErrors);
+        setSeriesDelays(serieDelays.sort((a, b) => new Date(a.Date) - new Date(b.Date)));
         setRedundancies(redundancies.Redundancies ? redundancies.Redundancies : []);
     } catch(error) {
       notifyError(error)
@@ -137,7 +123,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
 
   return (
       <Modal open={open} onClose={handleClose}>
-      {isLoading ? <Box sx={style}><CircularProgress style={loadingStyle}></CircularProgress></Box>
+      {isLoading ? <Box sx={style}><CircularProgressLoading /></Box>
       :(error? <Box sx={style}> <NoConectionSplash/> </Box>: 
       <Box sx={style}>
       <Box className='row'>
@@ -206,14 +192,20 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
         {presenter.buildNullsMetric(serieMetadata.Metrics).length > 0 ? 
           section("Calidad", presenter.buildNullsMetric(serieMetadata.Metrics)) : null
         }
-        <Line/>
-        <Typography variant="h6" align='center'><b>Retardo acumulado por dia</b></Typography>
-        <BarChart
-          dataset={dataset}
-          xAxis={[{ scaleType: 'band', dataKey: 'month'}]}
-          series={[{ dataKey: 'retardo', label: 'Horas acumuladas', valueFormatter }]}
-          {...chartSetting}
-        />
+        {checkErrors ?
+          <>
+            <Line/>
+            <Typography variant="h6" align='center'><b>Retardo acumulado por dia</b></Typography>
+            <BarChart
+              dataset={serieDelays}
+              xAxis={[{ scaleType: 'band', dataKey: 'Date'}]}
+              series={[{ dataKey: 'Average', label: 'Horas acumuladas', valueFormatter }]}
+              yAxis = {[{label: 'Horas'}]}
+              height = {300}
+            /> 
+          </> : null
+        }
+        
         <ErrorTable 
           serieErrors={serieErrors} 
           getErrors={async(page, pageSize) => {
