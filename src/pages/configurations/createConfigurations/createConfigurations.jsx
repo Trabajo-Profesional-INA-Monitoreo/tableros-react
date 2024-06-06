@@ -1,4 +1,4 @@
-import { React, useState, useEffect } from "react";
+import { React, useState, useEffect, useCallback, useMemo } from "react";
 import { Box, Button, TextField, FormGroup, FormControlLabel, Checkbox, Radio, RadioGroup, InputLabel, MenuItem, FormControl, Select, Popover, Typography, IconButton } from '@mui/material';
 import Line from '../../../components/line/line';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -12,12 +12,12 @@ import { CreateConfigurationPresenter } from "../../../presenters/createConfigur
 import { METRICS, SERIES_TYPES, INITIAL_METRICS_STATE } from "../../../utils/constants";
 import { notifyError, notifySuccess } from "../../../utils/notification";
 import { formatMinutes, convertToMinutes, convertToHours, convertMinutes } from "../../../utils/dates";
-import './createConfigurations.css';
 import CircularProgressLoading from "../../../components/circularProgressLoading/circularProgressLoading";
+import './createConfigurations.css';
 
 export const CreateConfigurations = ({setCurrentView, configurationID, editable}) => {
 
-    const presenter = new CreateConfigurationPresenter();
+    const presenter = useMemo(() => new CreateConfigurationPresenter(), []);
 
     const [configurationName, setConfigurationName] = useState('');
     const [shouldNotify, setShouldNotify] = useState(false)
@@ -120,7 +120,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         }
     }
 
-    const getConfiguration = async () => {
+    const getConfiguration = useCallback(async () => {
         if (configurationID) {
             setLoading(true);
             try{
@@ -138,11 +138,11 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
             }
             
         }    
-    }
+    }, [configurationID, presenter])
 
     useEffect(() => {
         getConfiguration();
-      }, [configurationID]);
+      }, [configurationID, getConfiguration]);
 
     useEffect(() => {
         clearFields();
