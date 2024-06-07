@@ -42,6 +42,10 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
   const [serieValues, setSerieValues] = useState([]);
   const [serieP05Values, setSerieP05Values] = useState([]);
   const [serieP95Values, setSerieP95Values] = useState([]);
+  const [serieP25Values, setSerieP25Values] = useState([]);
+  const [serieP75Values, setSerieP75Values] = useState([]);
+  const [serieP01Values, setSerieP01Values] = useState([]);
+  const [serieP99Values, setSerieP99Values] = useState([]);
   const [observedRelatedValues, setObservedRelatedValues] = useState([]);
   const [startDate, setStartDate] = useState(dayjs().subtract(7, 'day'));
   const [endDate, setEndDate] = useState(dayjs());
@@ -67,6 +71,10 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
             setSerieValues(serieValues.MainStreams);
             setSerieP05Values(serieValues.P05Streams);
             setSerieP95Values(serieValues.P95Streams);
+            setSerieP25Values(serieValues.P25Streams);
+            setSerieP75Values(serieValues.P75Streams);
+            setSerieP01Values(serieValues.P01Streams);
+            setSerieP99Values(serieValues.P99Streams);
             if (serieMetadata.ObservedRelatedStreamId) {
               let observedRelatedValues = await presenter.getSerieValues(serieMetadata.ObservedRelatedStreamId, 0, null, startDate, endDate);
               setObservedRelatedValues(observedRelatedValues.Streams);
@@ -162,12 +170,16 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
           serieValues={serieValues} 
           serieP05Values={serieP05Values} 
           serieP95Values={serieP95Values}
+          serieP25Values={serieP25Values} 
+          serieP75Values={serieP75Values}
+          serieP99Values={serieP99Values} 
+          serieP01Values={serieP01Values}
           observedRelatedValues={observedRelatedValues}
           />
         {presenter.buildNullsMetric(serieMetadata.Metrics).length > 0 ? 
           section("Calidad", presenter.buildNullsMetric(serieMetadata.Metrics)) : null
         }
-        {checkErrors ?
+        {checkErrors && serieDelays && serieDelays.length > 0 ?
           <>
             <Line/>
             <Typography variant="h6" align='center'><b>Retardo acumulado por dia</b></Typography>
@@ -178,13 +190,19 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
               yAxis = {[{label: 'Horas'}]}
               height = {300}
             /> 
-          </> : null
+          </> : checkErrors ? 
+            <>
+            <Line/>
+            <Typography variant="h6" align='center' sx={{mb: 2}}><b>Retardo acumulado por dia</b></Typography>
+            <Typography align='center'sx={{marginLeft: 'auto', marginRight: 'auto'}}> No se detectaron retardos para esta serie </Typography>
+            </> : null
         }
-        
-        <ErrorTable 
-          serieErrors={serieErrors} 
-          getErrors={getErrors}
-          checkErrors={checkErrors}/>
+        {checkErrors ?
+          <ErrorTable 
+            serieErrors={serieErrors} 
+            getErrors={getErrors}
+            checkErrors={checkErrors}/> : null
+        }  
         </div>
       </Box>
       )}
@@ -236,7 +254,8 @@ const section = (title, metrics, total) => {
   )
 }
 
-const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95Values, observedRelatedValues}) => {
+const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95Values, 
+  serieP25Values, serieP75Values, serieP99Values, serieP01Values, observedRelatedValues}) => {
 
   const [showThresholds, setShowTresholds] = useState(false);
   const [showErrorBands, setShowErrorBands] = useState(false);
@@ -283,6 +302,46 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
         _plotSeries.push({curve: "linear", dataKey: 'ValueP95', label: 'P95', valueFormatter: _valueFormatter, showMark: false, color: '#2E9BFF'})
       } else {
         _plotSeries.push({curve: "linear", data: serieP95Values.map(point => point.Value), label: 'P95', valueFormatter: _valueFormatter, showMark: false, color: '#2E9BFF'})
+      }
+    }
+
+    if (serieP01Values && (serieP01Values.length > 0) && showErrorBands) {
+      if (observedRelatedValues && observedRelatedValues.length > 0) {
+        unionSeries = union(unionSeries, serieP01Values, 'ValueP01');
+        xAxisLength = unionSeries.length;
+        _plotSeries.push({curve: "linear", dataKey: 'ValueP01', label: 'P01', valueFormatter: _valueFormatter, showMark: false, color: '#2E9BFF'})
+      } else {
+        _plotSeries.push({curve: "linear", data: serieP01Values.map(point => point.Value), label: 'P01', _valueFormatter, showMark: false, color: '#2E9BFF'})
+      }
+    }
+
+    if (serieP99Values && (serieP99Values.length > 0) && showErrorBands) {
+      if (observedRelatedValues && observedRelatedValues.length > 0) {
+        unionSeries = union(unionSeries, serieP99Values, 'ValueP99');
+        xAxisLength = unionSeries.length;
+        _plotSeries.push({curve: "linear", dataKey: 'ValueP99', label: 'P99', valueFormatter: _valueFormatter, showMark: false, color: '#2E9BFF'})
+      } else {
+        _plotSeries.push({curve: "linear", data: serieP99Values.map(point => point.Value), label: 'P99', _valueFormatter, showMark: false, color: '#2E9BFF'})
+      }
+    }
+
+    if (serieP25Values && (serieP25Values.length > 0) && showErrorBands) {
+      if (observedRelatedValues && observedRelatedValues.length > 0) {
+        unionSeries = union(unionSeries, serieP25Values, 'ValueP25');
+        xAxisLength = unionSeries.length;
+        _plotSeries.push({curve: "linear", dataKey: 'ValueP25', label: 'P25', valueFormatter: _valueFormatter, showMark: false, color: '#2E9BFF'})
+      } else {
+        _plotSeries.push({curve: "linear", data: serieP25Values.map(point => point.Value), label: 'P25', _valueFormatter, showMark: false, color: '#2E9BFF'})
+      }
+    }
+
+    if (serieP75Values && (serieP75Values.length > 0) && showErrorBands) {
+      if (observedRelatedValues && observedRelatedValues.length > 0) {
+        unionSeries = union(unionSeries, serieP75Values, 'ValueP75');
+        xAxisLength = unionSeries.length;
+        _plotSeries.push({curve: "linear", dataKey: 'ValueP75', label: 'P75', valueFormatter: _valueFormatter, showMark: false, color: '#2E9BFF'})
+      } else {
+        _plotSeries.push({curve: "linear", data: serieP75Values.map(point => point.Value), label: 'P75', _valueFormatter, showMark: false, color: '#2E9BFF'})
       }
     }
     
