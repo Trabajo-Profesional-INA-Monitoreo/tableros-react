@@ -366,7 +366,7 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
     }
 
     setPlotSeries(_plotSeries);
-  }, [showThresholds, showLevels, showErrorBands, observedRelatedValues, serieValues, serieP95Values, serieP05Values, serieMetadata]) 
+  }, [showThresholds, showLevels, showErrorBands, observedRelatedValues, serieValues, serieP95Values, serieP05Values, serieP01Values, serieP25Values, serieP75Values, serieP99Values, serieMetadata]) 
   
 
   return (
