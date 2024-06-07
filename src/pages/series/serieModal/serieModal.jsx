@@ -91,6 +91,11 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
       getSerieMetadataAndValues();
   }, [open, startDate, endDate, getSerieMetadataAndValues]);
 
+  const getErrors = useCallback(async(page, pageSize) => {
+    const _serieErrors = await presenter.getSerieErrors(configuredSerieId, startDate, endDate, page + 1, pageSize);
+    setSerieErrors(_serieErrors);
+  }, [presenter, configuredSerieId, endDate, startDate])
+
   return (
       <Modal open={open} onClose={handleClose}>
       {isLoading ? <Box sx={style}><CircularProgressLoading /></Box>
@@ -178,10 +183,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
         
         <ErrorTable 
           serieErrors={serieErrors} 
-          getErrors={async(page, pageSize) => {
-            const _serieErrors = await presenter.getSerieErrors(configuredSerieId, startDate, endDate, page + 1, pageSize);
-            setSerieErrors(_serieErrors);
-          }}
+          getErrors={getErrors}
           checkErrors={checkErrors}/>
         </div>
       </Box>
