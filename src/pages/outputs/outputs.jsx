@@ -21,14 +21,7 @@ function dateParser(date){
     return`${year}-${month}-${day}`;
 }
 
-const metricsBox = (title, subtitle) => {
-    return (
-        <Box sx={{height: 110, width: 200, border: '1.5px solid #E0E6ED', padding:1, justifyContent:"center",alignContent:"center"}}>
-            <Typography align='center' sx={{fontWeight:"bold"}}> {title} </Typography>
-            <Typography align='center' variant='h5' sx={{mt:1, fontWeight:"bold", color: (subtitle > 0? "#E53E3E" : "#38A169")}}> {subtitle} </Typography>
-        </Box>
-    )
-}
+
 
 export const Outputs = () => {
     const presenter = useMemo(() => new OutputsPresenter(), [])
@@ -93,6 +86,8 @@ export const Outputs = () => {
         } catch(error) {
             notifyError(error)
             setError(true)
+        } finally {
+            setLoading(false);
         }
     }, [presenter])
 
@@ -133,7 +128,6 @@ export const Outputs = () => {
         loadIndicators()
         fetchDataPorDia();
         loadBehavior()
-        setLoading(false);
     }, [loadIndicators, loadBehavior, fetchDataPorDia]);
 
 
@@ -151,7 +145,7 @@ export const Outputs = () => {
                         value={desde}
                         onChange = {(event) => setDesde(event)}
                         renderInput={(params) => <TextField {...params} />}
-                        maxDate={dayjs()}
+                        maxDate={hasta}
                         sx={{ m: 1, maxWidth: 200, marginInline: 2, marginTop:2}}
                         />
                     <DatePicker 
@@ -178,14 +172,14 @@ export const Outputs = () => {
         </Box>
         {loading ? 
             <CircularProgress 
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100vh',
-                margin: 'auto',
-                width: '10vw'
-            }}
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100vh',
+                    margin: 'auto',
+                    width: '10vw'
+                }}
             />
             :(error? <NoConectionSplash/> : 
             <>
@@ -242,4 +236,13 @@ export const Outputs = () => {
             </>)}
         </>
     );
+}
+
+const metricsBox = (title, subtitle) => {
+    return (
+        <Box sx={{height: 110, width: 200, border: '1.5px solid #E0E6ED', padding:1, justifyContent:"center",alignContent:"center"}}>
+            <Typography align='center' sx={{fontWeight:"bold"}}> {title} </Typography>
+            <Typography align='center' variant='h5' sx={{mt:1, fontWeight:"bold", color: (subtitle > 0? "#E53E3E" : "#38A169")}}> {subtitle} </Typography>
+        </Box>
+    )
 }

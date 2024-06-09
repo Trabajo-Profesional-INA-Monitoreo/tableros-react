@@ -25,7 +25,7 @@ export class OutputsPresenter {
             params={params}
         }
         params = {"configurationId": this.configId}
-        return this.service.getErroresPorDia(params)
+        return await this.service.getErroresPorDia(params)
     }
 
     getIndicators = async(metrics)=>{
