@@ -8,9 +8,10 @@ export class OutputsPresenter {
 
     getBehaviors = async(params)=>{
         if(params){
-            params={params}
+            params={...params,"configurationId": this.configId}
+        } else {
+            params = {"configurationId": this.configId}
         }
-        params = {"configurationId": this.configId}
         const behaviorResponse = await this.service.getBehaviors(params)
 
         const behaviors={
@@ -20,21 +21,22 @@ export class OutputsPresenter {
         }
         return behaviors
     }
+
     getErroresPorDia = async(params) => {
         if(params){
-            params={params}
+            params={...params,"configurationId": this.configId}
+        } else {
+            params = {"configurationId": this.configId}
         }
-        params = {"configurationId": this.configId}
         return await this.service.getErroresPorDia(params)
     }
 
-    getIndicators = async(metrics)=>{
-        const response = await this.service.getIndicatorsbyConfigID(this.configId)
-        this.map_metrics(metrics, response)
-    }
-
-    getFilteredIndicators = async(params, metrics)=>{
-        params["configurationId"]= this.configId
+    getFilteredIndicators = async(metrics, params)=>{
+        if(params){
+            params={...params,"configurationId": this.configId}
+        } else {
+            params = {"configurationId": this.configId}
+        }
         const response = await this.service.getFilteredIndicators(params)
         this.map_metrics(metrics, response)
     }

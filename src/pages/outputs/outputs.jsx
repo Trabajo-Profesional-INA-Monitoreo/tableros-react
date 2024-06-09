@@ -33,6 +33,8 @@ export const Outputs = () => {
 
     const [desde, setDesde] = useState(defaultDesdeDate);
     const [hasta, setHasta] = useState(currentDate);
+    const [_desde, _setDesde] = useState(defaultDesdeDate);
+    const [_hasta, _setHasta] = useState(currentDate);
 
     const [graficoDesde, setGraficoDesde] = useState(defaultDesdeDate);
     const [graficohasta, setGraficoHasta] = useState(currentDate);
@@ -69,12 +71,12 @@ export const Outputs = () => {
 
     const loadIndicators = useCallback(async() => {
         try{
-            await presenter.getIndicators(metrics)
-            setMetrics(metrics)
+            await presenter.getFilteredIndicators(metrics)
         } catch(error) {
             notifyError(error)
             setError(true)
         }
+        setMetrics(metrics)
     },[metrics, presenter])
 
     const loadBehavior = useCallback(async(params) => {
@@ -91,34 +93,53 @@ export const Outputs = () => {
         }
     }, [presenter])
 
-    const fetchDataPorDia = useCallback(async(params) => {
+    const fetchDataPorDia = useCallback(async(params, fetchDesde, fetchHasta) => {
         try{
             let dataPorDia = await presenter.getErroresPorDia(params)
-            const erroresAgrupados = presenter.groupErrors(dataPorDia, desde.toDate(), hasta.toDate());
+            let erroresAgrupados;
+            if(fetchDesde && fetchHasta){   
+                erroresAgrupados = presenter.groupErrors(dataPorDia, fetchDesde.toDate(), fetchHasta.toDate());
+            } else {
+                erroresAgrupados = presenter.groupErrors(dataPorDia, desde.toDate(), hasta.toDate());
+            }
             setErroresPorDias(erroresAgrupados);
         } catch(error) {
             notifyError(error)
             setError(true)
         }
-    }, [presenter, desde, hasta]);
+    }, [presenter]);
+
+    async function borrarFiltros(){
+        setDesde(defaultDesdeDate)
+        setHasta(currentDate)
+        setGraficoDesde(defaultDesdeDate)
+        setGraficoHasta(currentDate)
+        loadIndicators()
+        fetchDataPorDia();
+        loadBehavior()
+        _setDesde(defaultDesdeDate)
+        _setHasta(currentDate)
+    }
 
     async function aplicarFiltros(){
         const params = {
-            ...(desde) && {timeStart: dateParser(desde.toDate())},
-            ...(hasta) && {timeEnd: dateParser(hasta.toDate())},
+            ...(_desde) && {timeStart: dateParser(_desde.toDate())},
+            ...(_hasta) && {timeEnd: dateParser(_hasta.toDate())},
         }
         const fetchDataFiltered = async () => {
             setLoading(true);
             try{
-                await presenter.getFilteredIndicators(params, metrics)
+                await presenter.getFilteredIndicators(metrics, params)
                 loadBehavior(params)
-                fetchDataPorDia(params)
-                setGraficoDesde(desde)
-                setGraficoHasta(hasta)
+                fetchDataPorDia(params, _desde, _hasta)
             } catch(error) {
                 notifyError(error)
                 setError(true)
             }
+                setDesde(_desde)
+                setHasta(_hasta)
+                setGraficoDesde(_desde)
+                setGraficoHasta(_hasta)
             setLoading(false);
         }
         fetchDataFiltered();
@@ -128,7 +149,7 @@ export const Outputs = () => {
         loadIndicators()
         fetchDataPorDia();
         loadBehavior()
-    }, [loadIndicators, loadBehavior, fetchDataPorDia]);
+    }, []);
 
 
     return (    
@@ -142,18 +163,18 @@ export const Outputs = () => {
                         id="Desde"
                         label="Desde"
                         inputFormat="YYYY/MM/DD"
-                        value={desde}
-                        onChange = {(event) => setDesde(event)}
+                        value={_desde}
+                        onChange = {(event) => _setDesde(event)}
                         renderInput={(params) => <TextField {...params} />}
-                        maxDate={hasta}
+                        maxDate={_hasta}
                         sx={{ m: 1, maxWidth: 200, marginInline: 2, marginTop:2}}
                         />
                     <DatePicker 
                         id="hasta"
                         label="Hasta"
                         inputFormat="YYYY/MM/DD"
-                        value={hasta}
-                        onChange = {(event) => setHasta(event)}
+                        value={_hasta}
+                        onChange = {(event) => _setHasta(event)}
                         renderInput={(params) => <TextField {...params} />}
                         maxDate={dayjs()}
                         sx={{ m: 1, maxWidth: 200, marginInline: 2, marginTop:2}}
@@ -161,11 +182,7 @@ export const Outputs = () => {
                 <Button variant="contained" onClick={aplicarFiltros} sx={{ marginInline:5}}>
                     Aplicar filtros
                 </Button>
-                <Button variant="contained" onClick={async ()=>{
-                    setDesde(defaultDesdeDate)
-                    setHasta(currentDate)
-                    aplicarFiltros()
-                }} sx={{marginInline:5}}>
+                <Button variant="contained" onClick={borrarFiltros} sx={{marginInline:5}}>
                     Borrar filtros
                 </Button>
             </Grid>
