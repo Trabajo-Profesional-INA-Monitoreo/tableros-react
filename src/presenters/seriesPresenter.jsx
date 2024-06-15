@@ -1,5 +1,6 @@
 import serieService from "../services/serieService";
 import { dayjsToString } from "../utils/dates";
+import dayjs from 'dayjs';
 
 export class SeriesPresenter {
 
@@ -70,5 +71,30 @@ export class SeriesPresenter {
 
     getTotalBehaviourMetrics = (metrics) => {
         return metrics.filter( metric => metric.Name === 'Observaciones')[0].Value
+    }
+
+    buildDelaysDataset = (data, startDate, endDate) => {
+
+        const dateExists = (date, array) => {
+            return array.some(item => item.Date.substring(0, 10) === dayjsToString(date));
+        }
+
+        data = data.map(item => ({
+            "Average": item.Average,
+            "Date": item.Date.substring(0, 10)
+        }))
+          
+        for (let date = startDate; date.isBefore(endDate) || date.isSame(endDate, 'day'); date = date.add(1, 'day')) {
+            if (!dateExists(date, data)) {
+                data.push({
+                    "Average": 0,
+                    "Date": date.toISOString().substring(0, 10)
+                });
+            }
+        }
+        
+        data.sort((a, b) => dayjs(a.Date).diff(dayjs(b.Date)));
+
+        return data;
     }
 }

@@ -41,8 +41,7 @@ export default class serieService {
     }
 
     async getSerieDelays(configuredSerieId, startDate, endDate) {
-        // TO-DO: change configurationId to configuredSerieId
-        const response = await fetch(`${BASE_URL}/errores/retardo-promedio/por-dia?configurationId=${getConfigurationID()}&timeStart=${startDate}&timeEnd=${endDate}`, getOptions())
+        const response = await fetch(`${BASE_URL}/errores/retardo-promedio/por-dia?configuredStreamId=${configuredSerieId}&timeStart=${startDate}&timeEnd=${endDate}`, getOptions())
         const res = await response.json()
         return res
     }

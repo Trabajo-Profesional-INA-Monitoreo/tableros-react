@@ -83,7 +83,7 @@ export class CreateConfigurationPresenter {
         configuration['name'] = configurationName;
         if (isPut && configurationId) {
             configuration['Id'] = configurationId;
-            configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node._id, id: node.id, mainStreamId: Number(node.mainStreamId)}))
+            configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node._id, id: node.id, mainStreamId: node.mainStreamId ? Number(node.mainStreamId) : null}))
         }
         else
             configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node._id, mainStreamId: Number(node.mainStreamId)}));

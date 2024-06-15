@@ -182,11 +182,11 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
         {checkErrors && serieDelays && serieDelays.length > 0 ?
           <>
             <Line/>
-            <Typography variant="h6" align='center'><b>Retardo acumulado por dia</b></Typography>
+            <Typography variant="h6" align='center'><b>Retardo promedio por dia</b></Typography>
             <BarChart
-              dataset={serieDelays}
-              xAxis={[{ scaleType: 'band', dataKey: 'Date'}]}
-              series={[{ dataKey: 'Average', label: 'Horas acumuladas', valueFormatter }]}
+              dataset={presenter.buildDelaysDataset(serieDelays.slice(), startDate, endDate)}
+              xAxis={[{scaleType: 'band', dataKey: 'Date'}]}
+              series={[{dataKey: 'Average', valueFormatter}]}
               yAxis = {[{label: 'Horas'}]}
               height = {300}
             /> 
@@ -194,7 +194,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
             <>
             <Line/>
             <Typography variant="h6" align='center' sx={{mb: 2}}><b>Retardo acumulado por dia</b></Typography>
-            <Typography align='center'sx={{marginLeft: 'auto', marginRight: 'auto'}}> No se detectaron retardos para esta serie </Typography>
+            <Typography align='center'sx={{marginLeft: 'auto', marginRight: 'auto'}}> No se detectaron retardos para esta serie en las fechas indicadas</Typography>
             </> : null
         }
         {checkErrors ?
@@ -413,7 +413,14 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
           onClick={() => setShowLevels(!showLevels)}> 
           {!showLevels ? 'Mostrar niveles' : 'Ocultar niveles'} 
         </Button>
-        <Button sx={{display: ((serieP05Values && serieP05Values.length > 0) || (serieP95Values && serieP95Values.length > 0)) ?  'inline' : 'none'}} 
+        <Button sx={{display: 
+          ((serieP05Values && serieP05Values.length > 0) || 
+          (serieP95Values && serieP95Values.length > 0) || 
+          (serieP99Values && serieP99Values.length > 0) || 
+          (serieP01Values && serieP01Values.length > 0) || 
+          (serieP75Values && serieP75Values.length > 0) || 
+          (serieP25Values && serieP25Values.length > 0)) 
+          ?  'inline' : 'none'}} 
           onClick={() => setShowErrorBands(!showErrorBands)}> 
           {!showErrorBands ? 'Mostrar bandas de error' : 'Ocultar bandas de error'} 
         </Button>
@@ -465,7 +472,7 @@ const ErrorTable = ({serieErrors, getErrors, checkErrors}) => {
       <>
         <Line/>
         <Typography variant="h6" align='center' sx={{mb: 2}}><b>Errores detectados</b></Typography>
-        <Typography align='center'sx={{marginLeft: 'auto', marginRight: 'auto'}}> No se detectaron errores para esta serie </Typography>
+        <Typography align='center'sx={{marginLeft: 'auto', marginRight: 'auto'}}> No se detectaron errores para esta serie en las fechas indicadas</Typography>
       </>
     : null
     }
