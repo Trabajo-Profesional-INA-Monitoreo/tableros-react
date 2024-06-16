@@ -373,7 +373,7 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable, se
                 {series.map((serie, serieIndex) => serie._idNode !== node._id ? null : 
                 <Box>
                     <Box key={serie.idSerie} className={'serie '+ (indexSerieOnFocus===serieIndex ? 'blue-border':'')}>
-                        <Typography sx={{marginTop:1}} onMouseEnter={e => handlePopoverOpen(e, serie.idSerie)} onMouseLeave={() => handlePopoverClose()}><b>{serie.idSerie}</b></Typography>
+                        <Typography sx={{marginTop:1}} onMouseEnter={e => handlePopoverOpen(e, serieIndex)} onMouseLeave={() => handlePopoverClose()}><b>{serie.idSerie}</b></Typography>
                         <Box className='row'>
                             <IconButton style={{display: editable ? 'block' : 'none'}} onClick={() => {setSeries(series.filter((_, index) => serieIndex !== index)); setIndexSerieOnFocus(null); clearFields()}}>
                                 <DeleteOutlineIcon color='primary'/>
@@ -388,7 +388,7 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable, se
                     </Box>
                     <Popover
                         sx={{pointerEvents: 'none'}}
-                        open={serie.idSerie === openedPopOverIndex}
+                        open={serieIndex === openedPopOverIndex}
                         anchorEl={anchorEl}
                         anchorOrigin={{vertical: 'bottom', horizontal: 'left'}}
                         transformOrigin={{vertical: 'top', horizontal: 'left'}}
