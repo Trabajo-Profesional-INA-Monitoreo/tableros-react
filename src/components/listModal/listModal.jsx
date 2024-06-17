@@ -30,14 +30,14 @@ export const ListModal = ({open, onClose, list, title}) => {
         <Modal open={open} onClose={onClose}>
             {list.length > 0 ?
                 <Box sx = {MODAL_STYLE}>
-                <Typography  variant="h6" align='center'>{title}</Typography>
+                <Typography variant="h6" align='center'>{title}</Typography>
                 <Line/>
                     <DataGrid
                     rows={list.map((streamId, index) => ({streamId: streamId, id: index}))}
                     columns={
                         [
-                            { field: 'streamId', headerName: 'ID Serie', flex: 1 },
-                            { field: 'Ver', width: 90, renderCell: (cellValues) => {
+                            { field: 'streamId', headerName: 'ID Serie', flex: 1, align: 'left', headerAlign: 'center', align: 'center'},
+                            { field: ' ', flex: 1, align: 'center', renderCell: (cellValues) => {
                                 return <Button onClick={() => navigate('/monitoreo/series', {
                                     state: {
                                         streamId: cellValues.row.streamId,
