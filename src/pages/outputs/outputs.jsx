@@ -263,7 +263,7 @@ export const Outputs = () => {
                             title={'Series con datos sobre el nivel de evacuación'}
                             open={openEvacuationModal} 
                             onClose={() => setOpenEvacuationModal(false)}
-                            list={streamLevels.filter(x => x.Level === "Evacuacion").map(x => x.StreamId)}>
+                            list={streamLevels.filter(x => x.Level === "Evacuación").map(x => x.StreamId)}>
                         </ListModal>
 
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
