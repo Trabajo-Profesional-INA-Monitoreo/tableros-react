@@ -3,14 +3,14 @@ import { Box, Button, Modal, Typography } from "@mui/material";
 import { useState } from "react";
 import { DataGrid } from '@mui/x-data-grid';
 import { useNavigate } from "react-router-dom";
-import Line from "../../../components/line/line";
+import Line from "../line/line";
 
 const MODAL_STYLE = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: '60%',
+    width: '30%',
     maxHeight: '90%',
     bgcolor: 'background.paper',
     border: '2px solid #000',

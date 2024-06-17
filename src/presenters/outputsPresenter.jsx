@@ -13,11 +13,11 @@ export class OutputsPresenter {
             params = {"configurationId": this.configId}
         }
         const behaviorResponse = await this.service.getBehaviors(params)
-
-        const behaviors={
-        "alertLevel": (behaviorResponse.TotalValuesCount? (behaviorResponse.CountAlertLevel*100)/behaviorResponse.TotalValuesCount:0),
-        "evacuationLevel": (behaviorResponse.TotalValuesCount? (behaviorResponse.CountEvacuationLevel*100)/behaviorResponse.TotalValuesCount:0),
-        "lowWaterLevel":(behaviorResponse.TotalValuesCount? (behaviorResponse.CountLowWaterLevel*100)/behaviorResponse.TotalValuesCount:0)
+        const behaviors = {
+            "alertLevel": (behaviorResponse.TotalValuesCount? (behaviorResponse.CountAlertLevel*100)/behaviorResponse.TotalValuesCount:0),
+            "evacuationLevel": (behaviorResponse.TotalValuesCount? (behaviorResponse.CountEvacuationLevel*100)/behaviorResponse.TotalValuesCount:0),
+            "lowWaterLevel":(behaviorResponse.TotalValuesCount? (behaviorResponse.CountLowWaterLevel*100)/behaviorResponse.TotalValuesCount:0),
+            "streamLevels": behaviorResponse.StreamLevels
         }
         return behaviors
     }

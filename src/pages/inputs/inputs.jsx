@@ -7,7 +7,7 @@ import { getConfigurationID } from '../../utils/storage';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useNavigate } from "react-router-dom";
 import { notifyError } from '../../utils/notification';
-import { ListModal } from './listModal/listModal';
+import { ListModal } from '../../components/listModal/listModal';
 import Line from '../../components/line/line';
 import NoConectionSplash from '../../components/noConection/noConection';
 import CircularProgressWithLabel from '../../components/circularProgressWithLabel/circularProgressWithLabel';
