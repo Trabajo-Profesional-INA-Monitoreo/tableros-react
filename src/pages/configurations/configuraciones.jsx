@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
-import { ConfigurationsList } from './ConfigurationsList/configurationList';
+import { ConfigurationsList } from './configurationsList/configurationList';
 import { CreateConfigurations } from './createConfigurations/createConfigurations';
 
 export const CONFIGURATION_VIEWS = {

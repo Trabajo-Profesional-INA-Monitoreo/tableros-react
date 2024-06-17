@@ -40,6 +40,12 @@ export default class serieService {
         return res
     }
 
+    async getSerieDelays(configuredSerieId, startDate, endDate) {
+        const response = await fetch(`${BASE_URL}/errores/retardo-promedio/por-dia?configuredStreamId=${configuredSerieId}&timeStart=${startDate}&timeEnd=${endDate}`, getOptions())
+        const res = await response.json()
+        return res
+    }
+
     async getImplicatedSeries(errorType) {
         const response = await fetch(`${BASE_URL}/errores/series-implicadas?configurationId=${getConfigurationID()}&errorType=${errorType}`, getOptions())
         const res = await response.json()

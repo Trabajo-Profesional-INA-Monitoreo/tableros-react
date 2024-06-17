@@ -1,12 +1,13 @@
 import React from 'react';
-import { useEffect, useState } from 'react';
-import { Box, CircularProgress } from '@mui/material';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import { Box } from '@mui/material';
 import { InformativeCard, InformativeCardContainer } from '../../components/informativeCard/informativeCard';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 import { NodePresenter } from '../../presenters/nodePresenter';
 import Line from '../../components/line/line';
 import { notifyError } from '../../utils/notification';
 import NoConectionSplash from '../../components/noConection/noConection';
+import CircularProgressLoading from '../../components/circularProgressLoading/circularProgressLoading';
 
 
 function formatDate(isoDate) {
@@ -23,13 +24,13 @@ function formatDate(isoDate) {
 }
 
 export const Nodes = () => {
-    const presenter = new NodePresenter();
+    const presenter = useMemo(() => new NodePresenter(), []);
     const [error, setError] = useState(false)
 
     const [nodes, setNodes] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     
-    const getNodes = async() => {
+    const getNodes = useCallback(async() => {
         try{
             const response = await presenter.getNodes();
             setNodes(response.Nodes);
@@ -38,12 +39,11 @@ export const Nodes = () => {
             setError(true)
         }
         setIsLoading(false);
-        
-    }
+    }, [presenter])
 
     useEffect(() => {
         getNodes();
-    }, []);
+    }, [getNodes]);
 
     return (    
         <Box>
@@ -51,17 +51,7 @@ export const Nodes = () => {
             <CurrentConfiguration/>
             <Line/>
             <InformativeCardContainer>
-                    {isLoading ?
-                        <CircularProgress 
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            height: '100vh',
-                            margin: 'auto',
-                            width: '10vw'
-                        }}
-                        />
+                    {isLoading ? <CircularProgressLoading />
                         : (error? <NoConectionSplash/> : 
                         nodes.map(node => 
                             <InformativeCard 

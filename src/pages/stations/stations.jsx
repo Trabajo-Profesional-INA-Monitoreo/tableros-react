@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { InformativeCard, InformativeCardContainer } from '../../components/informativeCard/informativeCard';
 import Line from '../../components/line/line';
 import { Box } from '@mui/material';
 import CircularProgressLoading from '../../components/circularProgressLoading/circularProgressLoading'
 import { StationPresenter } from '../../presenters/stationPresenter';
-import { getConfigurationID } from '../../utils/storage';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
 import PaginationComponent from '../../components/pagination/paginationComponent';
 import { notifyError } from '../../utils/notification';
@@ -24,17 +23,16 @@ function formatDate(isoDate) {
 }
 
 export const Stations = () => {
-    const presenter = new StationPresenter();
+    const presenter = useMemo(() => new StationPresenter(), []);
     const [error, setError] = useState(false)
 
     const [stations, setStations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
 
-    const getStations = async() => {
+    const getStations = useCallback(async() => {
         try{
-            const response = await presenter.getStations(page);
+            const response = await presenter.getStations(1);
             setStations(response.Stations);
             setTotalPages(response.Pageable.Pages);
         } catch(error) {
@@ -42,11 +40,11 @@ export const Stations = () => {
             setError(true)
         }
         setIsLoading(false);
-    }
+    }, [presenter]);
 
     useEffect(() => {
         getStations();
-    }, []);
+    }, [getStations]);
 
     return (    
         <Box>
@@ -71,7 +69,7 @@ export const Stations = () => {
                 
             ))}    
             </InformativeCardContainer>
-            <PaginationComponent totalPages={totalPages} func={ presenter.getStations} params={null} setterData={setStations} isStation={true} setLoading={setIsLoading}/>
+            <PaginationComponent totalPages={totalPages} func={presenter.getStations} params={null} setterData={setStations} isStation={true} setLoading={setIsLoading}/>
         </Box>
     );
 }

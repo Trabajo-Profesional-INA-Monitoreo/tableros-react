@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import {Container, Button, Select, FormControl, InputLabel, MenuItem, TextField} from '@mui/material';
 import Line from '../../components/line/line';
 import { SerieModal } from './serieModal/serieModal';
@@ -17,9 +17,9 @@ import NoConectionSplash from '../../components/noConection/noConection';
 import { notifyError } from '../../utils/notification';
 
 export const Series = () => {
-    const seriesPresenter = new SeriesPresenter();
-    const stationsPresenter = new StationPresenter();
-    const utilsPresenter = new UtilsPresenter();
+    const seriesPresenter = useMemo(() => new SeriesPresenter(), []);
+    const stationsPresenter = useMemo(() => new StationPresenter(), []);
+    const utilsPresenter = useMemo(() => new UtilsPresenter(), []);
     const location = useLocation();
     const [error, setError] = useState(false)
 
@@ -38,12 +38,11 @@ export const Series = () => {
     const [nodes, setNodes] = useState([]);
 
     const [series, setSeries] = useState([]);
-    const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
 
     const [modalId, setModalId] = useState(null);
 
-    const getAllStationNames = async() => {
+    const getAllStationNames = useCallback(async() => {
         try{
             const stationNames = await stationsPresenter.getAllStationsNames();
             setStations(stationNames);
@@ -51,9 +50,9 @@ export const Series = () => {
             notifyError(error)
             setError(true)
         }
-    }
+    }, [stationsPresenter])
 
-    const getAllVariables = async() => {
+    const getAllVariables = useCallback(async() => {
         try{
             const variables = await utilsPresenter.getAllVariables();
             setVariables(variables);
@@ -61,9 +60,9 @@ export const Series = () => {
             notifyError(error)
             setError(true)
         }
-    }
+    }, [utilsPresenter])
 
-    const getAllProcedures = async() => {
+    const getAllProcedures = useCallback(async() => {
         try{
             const procedures = await utilsPresenter.getAllProcedures();
             setProcedures(procedures);
@@ -71,9 +70,9 @@ export const Series = () => {
             notifyError(error)
             setError(true)
         }
-    }
+    }, [utilsPresenter])
 
-    const getAllNodes = async() => {
+    const getAllNodes = useCallback(async() => {
         try{
             const nodes = await utilsPresenter.getAllNodes();
             setNodes(nodes);
@@ -81,11 +80,11 @@ export const Series = () => {
             notifyError(error)
             setError(true)
         }
-    }
+    }, [utilsPresenter])
 
-	const getSeriePage = async(params) => {
+	const getSeriePage = useCallback(async(params) => {
 		try{
-            const data = await seriesPresenter.getSeriePage(page, params)
+            const data = await seriesPresenter.getSeriePage(1, params)
             setSeries(data.Content);
             setTotalPages(data.Pageable.Pages);
         } catch(error) {
@@ -94,9 +93,9 @@ export const Series = () => {
         } finally{
             setIsLoading(false);
         }
-	}
+	}, [seriesPresenter])
 
-    const buildParams = () => {
+    const buildParams = useCallback(() => {
         return {
 			configurationId: getConfigurationID(),
 			...(station) && {stationId:station},
@@ -105,7 +104,7 @@ export const Series = () => {
             ...(node) && {nodeId: node},
             ...(Number(streamId)) && {streamId: streamId},
 		}
-    }
+    }, [node, station, procedure, variable, streamId])
 
 	useEffect(() => {
 		getAllStationNames();
@@ -114,12 +113,12 @@ export const Series = () => {
 		getAllProcedures();
         const streamId = location?.state?.streamId;
         if (streamId) setStreamId(streamId); 
-	}, []);
+	}, [getAllStationNames, getAllVariables, getAllNodes, getAllProcedures, location?.state?.streamId]);
 
 	useEffect(() => {
 		setIsLoading(true);
 		getSeriePage(buildParams());
-	}, [variable, station, procedure, node, streamId]);
+	}, [variable, station, procedure, node, streamId, buildParams, getSeriePage]);
 
     const handleChangeStreamId = newStreamId => {
         _setStreamId(newStreamId);

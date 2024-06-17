@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useContext } from 'react';
+import React, { useCallback, useEffect, useState, useContext, useMemo } from 'react';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import EditIcon from '@mui/icons-material/Edit';
@@ -30,7 +30,8 @@ const getConfigId = () => {
 };
 
 export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID}) => {
-    const presenter = new ConfigurationListPresenter()
+    const presenter = useMemo(() => new ConfigurationListPresenter(), []);
+
     const {currentConfigID, selectConfig} = useContext(ConfigurationContext);
     const {userInfo} = useUser()
     const [configurations, setConfigurations] = useState([]);
@@ -60,14 +61,11 @@ export const ConfigurationsList = ({setCurrentView, setSelectedConfigurationID})
         } finally {
             setLoading(false)
         }
-    }, [])
+    }, [currentConfigID, selectConfig])
     
     useEffect(() => {
-        
         fetchConfigData(presenter.getConfigurations)
-        
-        
-    }, [fetchConfigData]);
+    }, [fetchConfigData, presenter]);
 
 
     return (

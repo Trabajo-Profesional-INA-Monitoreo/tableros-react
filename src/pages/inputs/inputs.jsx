@@ -1,16 +1,18 @@
-import React, {useState} from 'react';
-import { Box, CircularProgress, Button, Grid, TextField} from '@mui/material';
+import React, {useState, useCallback, useMemo} from 'react';
+import { Box, CircularProgress, Button, Grid, TextField } from '@mui/material';
 import { useEffect } from 'react';
 import { InputsPresenter } from '../../presenters/inputsPresenter';
 import { CurrentConfiguration } from '../../components/currentConfiguration/currentConfiguration';
-import Line from '../../components/line/line';
-import CircularProgressWithLabel from '../../components/circularProgressWithLabel/circularProgressWithLabel';
 import { getConfigurationID } from '../../utils/storage';
-import dayjs from 'dayjs';
 import { DatePicker } from '@mui/x-date-pickers';
 import { useNavigate } from "react-router-dom";
 import { notifyError } from '../../utils/notification';
+import { ListModal } from '../../components/listModal/listModal';
+import Line from '../../components/line/line';
 import NoConectionSplash from '../../components/noConection/noConection';
+import CircularProgressWithLabel from '../../components/circularProgressWithLabel/circularProgressWithLabel';
+import dayjs from 'dayjs';
+import './styles.css';
 
 function dateParser(date){
     const year = date.getFullYear();
@@ -20,7 +22,7 @@ function dateParser(date){
 }
 
 export const Inputs = () => {
-    const presenter = new InputsPresenter();
+    const presenter = useMemo(() => new InputsPresenter(), []);
     const [error, setError] = useState(false)
 
     const navigate = useNavigate()
@@ -34,9 +36,18 @@ export const Inputs = () => {
 
     const [desde, setDesde] = useState(defaultDesdeDate);
     const [hasta, setHasta] = useState(currentDate);
-    const [metrics, setMetrics] = useState({})
+    const [metrics, setMetrics] = useState({});
 
-    const getSerieMetadataAndValues = async () => {
+    const [openDelaysModal, setOpenDelaysModal] = useState(false);
+    const [seriesWithDelays, setSeriesWithDelays] = useState([]);
+
+    const [openNullsModal, setOpenNullsModal] = useState(false);
+    const [seriesWithNulls, setSeriesWithNulls] = useState([]);
+
+    const [openThresholdModal, setOpenThresholdModal] = useState(false);
+    const [seriesOutOfThresholds, setSeriesOutOfThresholds] = useState([]);
+
+    const getSerieMetadataAndValues = useCallback(async() => {
         const confID = getConfigurationID()
         const params = {
             configurationId: confID,
@@ -50,7 +61,10 @@ export const Inputs = () => {
             const metricsRes = await presenter.getMetricas(confID)
             retardados.percentage= (retardados.TotalStreamsWithDelay*100)/retardados.TotalStreams 
             setRetardos(retardados)
-            nulls.percentage= (nulls.TotalStreamsWithNull*100)/nulls.TotalStreams 
+            setSeriesWithDelays(retardados.Streams);
+            setSeriesWithNulls(nulls.Streams);
+            setSeriesOutOfThresholds(outliersData.Streams);
+            nulls.percentage = (nulls.TotalStreamsWithNull*100)/nulls.TotalStreams 
             setNulos(nulls);
             outliersData.percentage = (outliersData.TotalStreamsWithObservedOutlier *100)/outliersData.TotalStreams
             setOutliers(outliersData)
@@ -62,10 +76,11 @@ export const Inputs = () => {
             setIsLoading(false);
 
         }        
-    }
+    }, [desde, hasta, presenter]) 
+
     useEffect( () => {
         getSerieMetadataAndValues()
-    }, []);
+    }, [getSerieMetadataAndValues]);
 
     return (    
         
@@ -114,16 +129,40 @@ export const Inputs = () => {
                     <Box sx={{ display:"flex", flexDirection: 'row', justifyContent:"space-around", alignContent:"center", alignItems:"center", marginBottom:"5%"}}>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
                             <h3>Actualizaciones</h3>
-                            <CircularProgressWithLabel text="series tuvieron retrasos" percentage={retardos?.percentage?.toFixed(1)} color={retardos.percentage<30? "success": (retardos.percentage<60?"warning":"error")}/>
+                            <Box borderRadius={5} padding={5} onClick={() => setOpenDelaysModal(true)} className="clickable">
+                                <CircularProgressWithLabel text="series tuvieron retrasos" percentage={retardos?.percentage?.toFixed(1)} color={retardos.percentage<30? "success": (retardos.percentage<60?"warning":"error")}/>
+                            </Box>
                         </Box>
+                        <ListModal
+                            title={'Series con retrasos'}
+                            open={openDelaysModal} 
+                            onClose={() => setOpenDelaysModal(false)}
+                            list={seriesWithDelays}>
+                        </ListModal>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
                             <h3>Datos Nulos</h3>
-                            <CircularProgressWithLabel text="series no tuvieron datos nulos" percentage={nulos?.percentage?.toFixed(1)} color={nulos.percentage<30? "success": (nulos.percentage<60?"warning":"error")}/>
+                            <Box borderRadius={5} padding={5} onClick={() => setOpenNullsModal(true)} className="clickable">
+                                <CircularProgressWithLabel text="series no tuvieron datos nulos" percentage={nulos?.percentage?.toFixed(1)} color={nulos.percentage<30? "success": (nulos.percentage<60?"warning":"error")}/>
+                            </Box>
                         </Box>
+                        <ListModal
+                            title={'Series con datos nulos'}
+                            open={openNullsModal} 
+                            onClose={() => setOpenNullsModal(false)}
+                            list={seriesWithNulls}>
+                        </ListModal>
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
                             <h3>Datos fuera de umbrales</h3>
-                            <CircularProgressWithLabel text="series fuera de umbrales" percentage={outliers?.percentage?.toFixed(1)} color={outliers.percentage<30? "success": (outliers.percentage<60?"warning":"error")}/>
+                            <Box borderRadius={5} padding={5} onClick={() => setOpenThresholdModal(true)} className="clickable">
+                                <CircularProgressWithLabel text="series fuera de umbrales" percentage={outliers?.percentage?.toFixed(1)} color={outliers.percentage<30? "success": (outliers.percentage<60?"warning":"error")}/>
+                            </Box>
                         </Box>
+                        <ListModal
+                            title={'Series con datos fuera de umbrales'}
+                            open={openThresholdModal} 
+                            onClose={() => setOpenThresholdModal(false)}
+                            list={seriesOutOfThresholds}>
+                        </ListModal>
                     </Box>
             <Line/>
             
