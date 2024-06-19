@@ -17,7 +17,7 @@ export class OutputsPresenter {
             "alertLevel": (behaviorResponse.TotalValuesCount? (behaviorResponse.CountAlertLevel*100)/behaviorResponse.TotalValuesCount:0),
             "evacuationLevel": (behaviorResponse.TotalValuesCount? (behaviorResponse.CountEvacuationLevel*100)/behaviorResponse.TotalValuesCount:0),
             "lowWaterLevel":(behaviorResponse.TotalValuesCount? (behaviorResponse.CountLowWaterLevel*100)/behaviorResponse.TotalValuesCount:0),
-            "streamLevels": behaviorResponse.StreamLevels
+            "streamLevels": behaviorResponse.StreamLevels != null? behaviorResponse.StreamLevels: []
         }
         return behaviors
     }
