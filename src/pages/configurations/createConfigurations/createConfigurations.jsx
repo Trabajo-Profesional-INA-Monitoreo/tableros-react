@@ -381,8 +381,8 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable, se
                             <IconButton style={{display: editable ? 'block' : 'none'}} onClick={() => {setFocusOnSerie(serie); setIndexSerieOnFocus(serieIndex)}}>
                                 <EditIcon color='primary'/>
                             </IconButton>
-                            <IconButton disabled={!editable} onClick={() => {if (editable) { handleSetMainStream(serie._idNode, serie.idSerie) }}}>
-                                {node.mainStreamId === serie.idSerie ? <StarIcon color={editable ? 'primary' : 'disabled'}/> : <StarOutlineIcon color={editable ? 'primary' : 'disabled'}/>}
+                            <IconButton disabled={!editable || serie.serieType !== SERIES_TYPES.OBSERVADA} onClick={() => {if (editable) { handleSetMainStream(serie._idNode, serie.idSerie) }}}>
+                                {node.mainStreamId === serie.idSerie ? <StarIcon color={editable && serie.serieType === SERIES_TYPES.OBSERVADA ? 'primary' : 'disabled'}/> : <StarOutlineIcon color={editable && serie.serieType === SERIES_TYPES.OBSERVADA ? 'primary' : 'disabled'}/>}
                             </IconButton>
                         </Box>
                     </Box>
