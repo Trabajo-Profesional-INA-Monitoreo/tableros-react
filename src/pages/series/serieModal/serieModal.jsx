@@ -131,8 +131,8 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
         <Line/>
         <div style={{height: '100%', overflow: "hidden", overflowY: "scroll", padding: 10, paddingTop: 0}}>
         <Box className={"row space-around wrap"}>
-          <TitleAndValue title="Variable" value={serieMetadata.VarName}/>
-          <TitleAndValue title="Unidad" value={serieMetadata.Unit}/> 
+          <TitleAndValue title="Variable" value={serieMetadata.VarId + ' - ' + serieMetadata.VarName}/>
+          <TitleAndValue title="Unidad" value={serieMetadata.UnitId + ' - ' + serieMetadata.Unit}/> 
         </Box>
         <Box className={"row space-around wrap"}>
           <TitleAndValue title="Procedimiento" value={`${serieMetadata.ProcId} - ${serieMetadata.Procedure}`}/>
@@ -264,6 +264,8 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
   const [dataset, setDataset] = useState([]);
   const [xAxis, setXAxis] = useState([]);
 
+  const isLevelSeries = [2, 28, 33, 39, 49, 50, 67, 85].includes(serieMetadata.VarId);
+
   useEffect(() => {
     const _plotSeries = [];
     let unionSeries = [];
@@ -394,7 +396,7 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
           '.MuiMarkElement-root': { scale: '0.5'}
         }
         }
-        yAxis={[{min: -0.1}]}
+        yAxis={[{min: serieMetadata.NormalLowerThreshold <= 0 ? serieMetadata.NormalLowerThreshold - (serieMetadata.NormalUpperThreshold - serieMetadata.NormalLowerThreshold) * 0.05 : -1 }]}
         slotProps={{
           legend: {
             itemGap: 5,
@@ -409,7 +411,7 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
           onClick={() => setShowTresholds(!showThresholds)}> 
           {!showThresholds ? 'Mostrar umbrales' : 'Ocultar umbrales'}
         </Button>
-        <Button sx={{display: serieMetadata.EvacuationLevel && serieMetadata.AlertLevel && serieMetadata.LowWaterLevel ? 'inline' : 'none'}} 
+        <Button sx={{display: isLevelSeries && serieMetadata.EvacuationLevel && serieMetadata.AlertLevel && serieMetadata.LowWaterLevel ? 'inline' : 'none'}} 
           onClick={() => setShowLevels(!showLevels)}> 
           {!showLevels ? 'Mostrar niveles' : 'Ocultar niveles'} 
         </Button>
