@@ -25,11 +25,11 @@ export class CreateConfigurationPresenter {
         } else if (stream.actualizationFrequency === 0) {
             notifyError("La frecuencia de actualización de la serie es necesaria");
             isValidStream = false;
-        } else if (stream.serieType === SERIES_TYPES.PRONOSTICADA && stream.calibrationID === '') {
-            notifyError("El ID de calibracion es necesario en las series pronosticadas");
+        } else if (stream.serieType !== SERIES_TYPES.OBSERVADA && stream.calibrationID === '') {
+            notifyError("El ID de calibración es necesario en las series pronosticadas y curadas");
             isValidStream = false;
         } else if (stream.serieType === SERIES_TYPES.PRONOSTICADA && stream.forecastedRangeHours === 0) {
-            notifyError("El ID rango de pronóstico es necesario en las series pronosticadas");
+            notifyError("El rango de pronóstico es necesario en las series pronosticadas");
             isValidStream = false;
         } else if (stream.lowerThreshold !== '' && stream.upperThreshold !== '' && Number(stream.lowerThreshold) >= Number(stream.upperThreshold)) {
             notifyError("El umbral inferior debe ser menor al umbral superior");
@@ -86,7 +86,7 @@ export class CreateConfigurationPresenter {
             configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node._id, id: node.id, mainStreamId: node.mainStreamId ? Number(node.mainStreamId) : null}))
         }
         else
-            configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node._id, mainStreamId: Number(node.mainStreamId)}));
+            configuration['nodes'] = nodes.map(node => ({name: node.name, _id: node._id, mainStreamId: node.mainStreamId ? Number(node.mainStreamId) : null}));
         configuration['sendNotifications'] = notificaciones
         configuration['nodes'].forEach(node => {
             node['configuredStreams'] = [];

@@ -1,5 +1,6 @@
 import serieService from "../services/serieService";
 import { dayjsToString } from "../utils/dates";
+import { STREAM_TYPE_CODE } from "../utils/constants";
 import dayjs from 'dayjs';
 
 export class SeriesPresenter {
@@ -16,12 +17,11 @@ export class SeriesPresenter {
         const _startDate = dayjsToString(startDate);
         const _endDate = dayjsToString(endDate);
         switch(serieType){
-            case 0:
+            case STREAM_TYPE_CODE.Observada:
                 return this.serieService.getObservedSerieValues(serieID, _startDate, _endDate);
-            case 1:
+            case STREAM_TYPE_CODE.Pronosticada:
+            case STREAM_TYPE_CODE.Simulada:
                 return this.serieService.getForacastedSerieValues(calibrationID, serieID);
-            case 2:
-                return this.serieService.getCuratedSerieValues(serieID, _startDate, _endDate);
             default:
                 return this.serieService.getObservedSerieValues(serieID, _startDate, _endDate);
         }

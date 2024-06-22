@@ -9,6 +9,7 @@ import { union } from '../../../utils/functions';
 import { formatMinutes } from '../../../utils/dates';
 import { ERROR_TYPE_CODE } from '../../../utils/constants'
 import { notifyError } from '../../../utils/notification';
+import { STREAM_TYPE_CODE } from '../../../utils/constants';
 import NoConectionSplash from '../../../components/noConection/noConection';
 import CircularProgressLoading from '../../../components/circularProgressLoading/circularProgressLoading';
 import Line from '../../../components/line/line';
@@ -63,11 +64,11 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
         let serieDelays = checkErrors ? await presenter.getSerieDelays(configuredSerieId, startDate, endDate) : [];
         let redundancies = await presenter.getSerieRedundancies(configuredSerieId);
         switch (serieType) {
-          case 0:
-          case 2:
+          case STREAM_TYPE_CODE.Observada:
             setSerieValues(serieValues.Streams);
             break;
-          case 1:
+          case STREAM_TYPE_CODE.Pronosticada:
+          case STREAM_TYPE_CODE.Simulada:
             setSerieValues(serieValues.MainStreams);
             setSerieP05Values(serieValues.P05Streams);
             setSerieP95Values(serieValues.P95Streams);
@@ -275,7 +276,7 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
     if (observedRelatedValues && observedRelatedValues.length > 0) {
       unionSeries = union(serieValues, observedRelatedValues, 'ValueObs');
       xAxisLength = unionSeries.length;
-      _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Pronóstico', valueFormatter: _valueFormatter, showMark: false})
+      _plotSeries.push({curve: "linear", dataKey: 'Value', label: serieMetadata.StreamType === 2 ? 'Curado' : 'Pronóstico', valueFormatter: _valueFormatter, showMark: false})
       _plotSeries.push({curve: "linear", dataKey: 'ValueObs', label: `Observado (${serieMetadata.ObservedRelatedStreamId})`, valueFormatter: _valueFormatter, showMark: true, color: '#222222', id: 'related'})
     } else if (serieValues && serieValues.length > 0){
       if (serieMetadata.StreamType === 0){
