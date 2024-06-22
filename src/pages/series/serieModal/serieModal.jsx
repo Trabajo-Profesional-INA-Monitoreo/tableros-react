@@ -31,7 +31,7 @@ const style = {
     justifyContent: 'center'
   };
   
-  const valueFormatter = (value) => `${value}h`;
+  const valueFormatter = (value) => `${value}m`;
 
 export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId, configuredSerieId, checkErrors}) => {
 
@@ -187,7 +187,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
               dataset={presenter.buildDelaysDataset(serieDelays.slice(), startDate, endDate)}
               xAxis={[{scaleType: 'band', dataKey: 'Date'}]}
               series={[{dataKey: 'Average', valueFormatter}]}
-              yAxis = {[{label: 'Horas'}]}
+              yAxis = {[{label: 'Minutos'}]}
               height = {300}
             /> 
           </> : checkErrors ? 
