@@ -274,8 +274,8 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                     </IconButton>
                 </Box>}
                 <Box className='row-textfields'>
-                    <TextField label='ID Calibrado' placeholder='ID Calibrado' type='number' value={calibrationID} onChange={e => setCalibrationID(e.target.value)} disabled={serieType !== SERIES_TYPES.PRONOSTICADA}/>
-                    <TextField label='ID Serie Observada asociada' placeholder='ID Serie Observada asociada' type='number' value={relatedObservedStreamID} onChange={e => setRelatedObservedStreamID(e.target.value)} disabled={serieType !== SERIES_TYPES.PRONOSTICADA}/>
+                    <TextField label='ID Calibrado' placeholder='ID Calibrado' type='number' value={calibrationID} onChange={e => setCalibrationID(e.target.value)} disabled={serieType === SERIES_TYPES.OBSERVADA}/>
+                    <TextField label='ID Serie Observada asociada' placeholder='ID Serie Observada asociada' type='number' value={relatedObservedStreamID} onChange={e => setRelatedObservedStreamID(e.target.value)} disabled={serieType === SERIES_TYPES.OBSERVADA}/>
                 </Box>
                 <h4>¿Incluir validación de errores?</h4>
                 <RadioGroup className='row' value={checkErrors} onChange={e => setCheckErrors(e.target.value)}>
@@ -381,8 +381,8 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable, se
                             <IconButton style={{display: editable ? 'block' : 'none'}} onClick={() => {setFocusOnSerie(serie); setIndexSerieOnFocus(serieIndex)}}>
                                 <EditIcon color='primary'/>
                             </IconButton>
-                            <IconButton disabled={!editable} onClick={() => {if (editable) { handleSetMainStream(serie._idNode, serie.idSerie) }}}>
-                                {node.mainStreamId === serie.idSerie ? <StarIcon color={editable ? 'primary' : 'disabled'}/> : <StarOutlineIcon color={editable ? 'primary' : 'disabled'}/>}
+                            <IconButton disabled={!editable || serie.serieType !== SERIES_TYPES.OBSERVADA} onClick={() => {if (editable) { handleSetMainStream(serie._idNode, serie.idSerie) }}}>
+                                {node.mainStreamId === serie.idSerie ? <StarIcon color={editable && serie.serieType === SERIES_TYPES.OBSERVADA ? 'primary' : 'disabled'}/> : <StarOutlineIcon color={editable && serie.serieType === SERIES_TYPES.OBSERVADA ? 'primary' : 'disabled'}/>}
                             </IconButton>
                         </Box>
                     </Box>

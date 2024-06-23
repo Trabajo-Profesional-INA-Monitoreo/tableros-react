@@ -22,12 +22,6 @@ export default class serieService {
         return res
     }
 
-    async getCuratedSerieValues(serieID, startDate, endDate) {
-        const response = await fetch(`${BASE_URL}/series/curadas/${serieID}?timeStart=${startDate}&timeEnd=${endDate}`, getOptions())
-        const res = await response.json()
-        return res
-    }
-
     async getSeriePage(page, params) {
         const response = await fetch(`${BASE_URL}/series?page=${page}&` + new URLSearchParams(params), getOptions())
         const res = await response.json()

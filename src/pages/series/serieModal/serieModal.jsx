@@ -9,6 +9,7 @@ import { union } from '../../../utils/functions';
 import { formatMinutes } from '../../../utils/dates';
 import { ERROR_TYPE_CODE } from '../../../utils/constants'
 import { notifyError } from '../../../utils/notification';
+import { STREAM_TYPE_CODE } from '../../../utils/constants';
 import NoConectionSplash from '../../../components/noConection/noConection';
 import CircularProgressLoading from '../../../components/circularProgressLoading/circularProgressLoading';
 import Line from '../../../components/line/line';
@@ -31,7 +32,7 @@ const style = {
     justifyContent: 'center'
   };
   
-  const valueFormatter = (value) => `${value}h`;
+  const valueFormatter = (value) => `${value}m`;
 
 export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId, configuredSerieId, checkErrors}) => {
 
@@ -63,11 +64,11 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
         let serieDelays = checkErrors ? await presenter.getSerieDelays(configuredSerieId, startDate, endDate) : [];
         let redundancies = await presenter.getSerieRedundancies(configuredSerieId);
         switch (serieType) {
-          case 0:
-          case 2:
+          case STREAM_TYPE_CODE.Observada:
             setSerieValues(serieValues.Streams);
             break;
-          case 1:
+          case STREAM_TYPE_CODE.Pronosticada:
+          case STREAM_TYPE_CODE.Simulada:
             setSerieValues(serieValues.MainStreams);
             setSerieP05Values(serieValues.P05Streams);
             setSerieP95Values(serieValues.P95Streams);
@@ -131,8 +132,8 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
         <Line/>
         <div style={{height: '100%', overflow: "hidden", overflowY: "scroll", padding: 10, paddingTop: 0}}>
         <Box className={"row space-around wrap"}>
-          <TitleAndValue title="Variable" value={serieMetadata.VarName}/>
-          <TitleAndValue title="Unidad" value={serieMetadata.Unit}/> 
+          <TitleAndValue title="Variable" value={serieMetadata.VarId + ' - ' + serieMetadata.VarName}/>
+          <TitleAndValue title="Unidad" value={serieMetadata.UnitId + ' - ' + serieMetadata.Unit}/> 
         </Box>
         <Box className={"row space-around wrap"}>
           <TitleAndValue title="Procedimiento" value={`${serieMetadata.ProcId} - ${serieMetadata.Procedure}`}/>
@@ -187,7 +188,7 @@ export const SerieModal = ({open, handleClose, serieId, serieType, calibrationId
               dataset={presenter.buildDelaysDataset(serieDelays.slice(), startDate, endDate)}
               xAxis={[{scaleType: 'band', dataKey: 'Date'}]}
               series={[{dataKey: 'Average', valueFormatter}]}
-              yAxis = {[{label: 'Horas'}]}
+              yAxis = {[{label: 'Minutos'}]}
               height = {300}
             /> 
           </> : checkErrors ? 
@@ -264,6 +265,8 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
   const [dataset, setDataset] = useState([]);
   const [xAxis, setXAxis] = useState([]);
 
+  const isLevelSeries = [2, 28, 33, 39, 49, 50, 67, 85].includes(serieMetadata.VarId);
+
   useEffect(() => {
     const _plotSeries = [];
     let unionSeries = [];
@@ -273,7 +276,7 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
     if (observedRelatedValues && observedRelatedValues.length > 0) {
       unionSeries = union(serieValues, observedRelatedValues, 'ValueObs');
       xAxisLength = unionSeries.length;
-      _plotSeries.push({curve: "linear", dataKey: 'Value', label: 'Pronóstico', valueFormatter: _valueFormatter, showMark: false})
+      _plotSeries.push({curve: "linear", dataKey: 'Value', label: serieMetadata.StreamType === 2 ? 'Curado' : 'Pronóstico', valueFormatter: _valueFormatter, showMark: false})
       _plotSeries.push({curve: "linear", dataKey: 'ValueObs', label: `Observado (${serieMetadata.ObservedRelatedStreamId})`, valueFormatter: _valueFormatter, showMark: true, color: '#222222', id: 'related'})
     } else if (serieValues && serieValues.length > 0){
       if (serieMetadata.StreamType === 0){
@@ -394,7 +397,7 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
           '.MuiMarkElement-root': { scale: '0.5'}
         }
         }
-        yAxis={[{min: -0.1}]}
+        yAxis={[{min: serieMetadata.NormalLowerThreshold <= 0 ? serieMetadata.NormalLowerThreshold - (serieMetadata.NormalUpperThreshold - serieMetadata.NormalLowerThreshold) * 0.05 : -1 }]}
         slotProps={{
           legend: {
             itemGap: 5,
@@ -409,7 +412,7 @@ const SerieValuesChart = ({serieMetadata, serieValues, serieP05Values, serieP95V
           onClick={() => setShowTresholds(!showThresholds)}> 
           {!showThresholds ? 'Mostrar umbrales' : 'Ocultar umbrales'}
         </Button>
-        <Button sx={{display: serieMetadata.EvacuationLevel && serieMetadata.AlertLevel && serieMetadata.LowWaterLevel ? 'inline' : 'none'}} 
+        <Button sx={{display: isLevelSeries && serieMetadata.EvacuationLevel && serieMetadata.AlertLevel && serieMetadata.LowWaterLevel ? 'inline' : 'none'}} 
           onClick={() => setShowLevels(!showLevels)}> 
           {!showLevels ? 'Mostrar niveles' : 'Ocultar niveles'} 
         </Button>
