@@ -149,8 +149,8 @@ export class CreateConfigurationPresenter {
                     relatedObservedStreamID: serie.ObservedRelatedStreamId ? String(serie.ObservedRelatedStreamId) : null,
                     metrics: serie.Metrics ? buildMetricsFromConfiguration(serie.Metrics) : INITIAL_METRICS_STATE(),
                     checkErrors: serie.CheckErrors,
-                    lowerThreshold: serie.LowerThreshold ? String(serie.LowerThreshold) : '',
-                    upperThreshold: serie.UpperThreshold ? String(serie.UpperThreshold) : ''
+                    lowerThreshold: String(serie.LowerThreshold),
+                    upperThreshold: String(serie.UpperThreshold)
                 }
             )
             ));
