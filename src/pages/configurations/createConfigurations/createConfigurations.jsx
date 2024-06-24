@@ -220,7 +220,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                 <h3>Series</h3>
                 <Line/>
                 <Box className='row-textfields'>
-                    <Box sx={{minWidth: 220}}><TextField fullWidth type='number' label='Id Serie' value={idSerie} onChange={e => setIdSerie(e.target.value)}/></Box>
+                    <Box sx={{minWidth: 220}}><TextField fullWidth type='number' label='Id Serie' value={idSerie} onChange={e => setIdSerie(e.target.value)} disabled={indexSerieOnFocus !== null}/></Box>
                     <FormControl sx={{minWidth: 220}}>
                         <InputLabel id="nodo">Nodo</InputLabel>
                         <Select label="Nodo" id="nodo" labelId="nodo" value={_idNode} onChange={e => _setIdNode(e.target.value)} disabled={nodes.length === 0}>
@@ -258,7 +258,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                 <h4>Tipo de serie</h4>
                 <RadioGroup className='row' value={serieType} onChange={e => handleChangeSerieType(e)}>
                     {Object.keys(SERIES_TYPES).map(key =>
-                        <FormControlLabel key={SERIES_TYPES[key]} value={SERIES_TYPES[key]} control={<Radio/>} label={SERIES_TYPES[key]}/>)}
+                        <FormControlLabel key={SERIES_TYPES[key]} value={SERIES_TYPES[key]} control={<Radio disabled={indexSerieOnFocus !== null}/>} label={SERIES_TYPES[key]}/>)}
                 </RadioGroup>
                 <Box className='row'>
                     <TextField label='ID Serie Redundante' type='number' value={redundantSerieID} onChange={e => setRedundantSerieID(e.target.value)} disabled={serieType !== SERIES_TYPES.OBSERVADA}/>
