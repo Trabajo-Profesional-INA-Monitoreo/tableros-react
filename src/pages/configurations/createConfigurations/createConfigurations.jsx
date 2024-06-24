@@ -42,6 +42,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     const [upperThreshold, setUpperThreshold] = useState('');
     const [metrics, setMetrics] = useState(INITIAL_METRICS_STATE());
     const [indexSerieOnFocus, setIndexSerieOnFocus] = useState(null);
+    const [configuredStreamId, setConfiguredStreamId] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const serie = {
@@ -70,9 +71,14 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         if (presenter.isValidStream(serie)) {
             notifySuccess('Serie modificada exitosamente');
             const modifiedSeries = series.slice();
-            modifiedSeries[indexSerieOnFocus] = serie;
+            const _serie = { ...serie }
+            if (configuredStreamId) {
+                _serie['ConfiguredStreamId'] = configuredStreamId;
+            }
+            modifiedSeries[indexSerieOnFocus] = _serie;
             setSeries(modifiedSeries);
             setIndexSerieOnFocus(null);
+            setConfiguredStreamId(null);
         }
     }
 
@@ -183,6 +189,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
         setMetrics(serie.metrics);
         setLowerThreshold(serie.lowerThreshold);
         setUpperThreshold(serie.upperThreshold);
+        setConfiguredStreamId(serie.ConfiguredStreamId);
     }
 
     const setIfValueInRange = (value, min, max, set) => {
@@ -318,7 +325,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                     <Button variant='outlined' color='success' onClick={() => {handleAddSerie(serie)}}>Agregar serie</Button> :
                     <Box className='row'>
                         <Button variant='outlined' color='success' onClick={() => {handleModifySerie(serie)}}>Confirmar cambios</Button>
-                        <Button variant='outlined' color='error' onClick={() => {clearFields(); setIndexSerieOnFocus(null);}}>Cancelar modificación</Button>
+                        <Button variant='outlined' color='error' onClick={() => {clearFields(); setIndexSerieOnFocus(null); setConfiguredStreamId(null)}}>Cancelar modificación</Button>
                     </Box>
                 }
             </Box>
@@ -333,6 +340,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                     editable={editable} 
                     setFocusOnSerie={setFocusOnSerie}
                     setIndexSerieOnFocus={setIndexSerieOnFocus}
+                    setConfiguredStreamId={setConfiguredStreamId}
                     indexSerieOnFocus={indexSerieOnFocus}
                     clearFields={clearFields}
                     handleSetMainStream={handleSetMainStream}
@@ -344,7 +352,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
     );
 }
 
-const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable, setFocusOnSerie, setIndexSerieOnFocus, clearFields, indexSerieOnFocus, handleSetMainStream, loading}) => {
+const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable, setFocusOnSerie, setIndexSerieOnFocus, setConfiguredStreamId, clearFields, indexSerieOnFocus, handleSetMainStream, loading}) => {
     const [openedPopOverIndex, setOpenedPopOverIndex] = useState(null);
     const [anchorEl, setAnchorEl] = useState(null);
 
@@ -375,7 +383,7 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable, se
                     <Box key={serie.idSerie} className={'serie '+ (indexSerieOnFocus===serieIndex ? 'blue-border':'')}>
                         <Typography sx={{marginTop:1}} onMouseEnter={e => handlePopoverOpen(e, serieIndex)} onMouseLeave={() => handlePopoverClose()}><b>{serie.idSerie}</b></Typography>
                         <Box className='row'>
-                            <IconButton style={{display: editable ? 'block' : 'none'}} onClick={() => {setSeries(series.filter((_, index) => serieIndex !== index)); setIndexSerieOnFocus(null); clearFields()}}>
+                            <IconButton style={{display: editable ? 'block' : 'none'}} onClick={() => {setSeries(series.filter((_, index) => serieIndex !== index)); setIndexSerieOnFocus(null); setConfiguredStreamId(null); clearFields()}}>
                                 <DeleteOutlineIcon color='primary'/>
                             </IconButton>
                             <IconButton style={{display: editable ? 'block' : 'none'}} onClick={() => {setFocusOnSerie(serie); setIndexSerieOnFocus(serieIndex)}}>
@@ -413,6 +421,7 @@ const CreatedNodesAndSeries = ({nodes, series, setSeries, setNodes, editable, se
                     setSeries(series.filter(serie => serie._idNode !== node._id));
                     setNodes(nodes.filter(_node => _node._id !== node._id));
                     setIndexSerieOnFocus(null);
+                    setConfiguredStreamId(null);
                 }}>Eliminar nodo
             </Button>
             <Line />    
