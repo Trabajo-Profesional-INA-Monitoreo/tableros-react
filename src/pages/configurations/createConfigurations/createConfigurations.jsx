@@ -285,7 +285,7 @@ export const CreateConfigurations = ({setCurrentView, configurationID, editable}
                     <TextField label='ID Serie Observada asociada' placeholder='ID Serie Observada asociada' type='number' value={relatedObservedStreamID} onChange={e => setRelatedObservedStreamID(e.target.value)} disabled={serieType === SERIES_TYPES.OBSERVADA}/>
                 </Box>
                 <h4>¿Incluir validación de errores?</h4>
-                <RadioGroup className='row' value={checkErrors} onChange={e => setCheckErrors(e.target.value)}>
+                <RadioGroup className='row' value={checkErrors} onChange={e => setCheckErrors(e.target.value === "false" ? false : e.target.value)}>
                     <FormControlLabel label={'No'} value={false} control={<Radio/>} disabled={serieType === SERIES_TYPES.SIMULADA}/>
                     <FormControlLabel label={'Sí'} value={true} control={<Radio/>} disabled={serieType === SERIES_TYPES.SIMULADA}/>
                 </RadioGroup>
