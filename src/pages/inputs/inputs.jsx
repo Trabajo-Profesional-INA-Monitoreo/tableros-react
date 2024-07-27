@@ -142,7 +142,7 @@ export const Inputs = () => {
                         <Box sx={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
                             <h3>Datos Nulos</h3>
                             <Box borderRadius={5} padding={5} onClick={() => setOpenNullsModal(true)} className="clickable">
-                                <CircularProgressWithLabel text="series no tuvieron datos nulos" percentage={nulos?.percentage?.toFixed(1)} color={nulos.percentage<30? "success": (nulos.percentage<60?"warning":"error")}/>
+                                <CircularProgressWithLabel text="series tuvieron datos nulos" percentage={nulos?.percentage?.toFixed(1)} color={nulos.percentage<30? "success": (nulos.percentage<60?"warning":"error")}/>
                             </Box>
                         </Box>
                         <ListModal
